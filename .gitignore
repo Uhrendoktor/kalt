@@ -1,0 +1,10 @@
+**/target
+*.pdf
+*.perf
+*.data
+*.data.old
+*.svg
+.vscode
+.vscode/*
+*.wasm
+test.typ

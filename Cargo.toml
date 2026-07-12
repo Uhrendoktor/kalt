@@ -1,0 +1,13 @@
+[workspace]
+members = ["./rust", "./rust_bindings"]
+
+[workspace.package]
+edition = "2024"
+authors = ["Uhrendoktor"]
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+sertyp = { path = "../sertyp/rust", features = ["content"] }
+kalt = { path = "./rust" }
+chumsky = { version = "0.13.0", features = ["pratt"] }

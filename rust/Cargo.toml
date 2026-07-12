@@ -1,0 +1,20 @@
+[package]
+name = "kalt"
+edition.workspace = true
+authors.workspace = true
+version.workspace = true
+license.workspace = true
+description = "Typst Symbol Math Library"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+egg = { git = "https://github.com/egraphs-good/egg.git", version = "0.11.0", default-features = false, features = [
+] }
+chumsky = { workspace = true }
+num-traits = "0.2.19"
+derive_more = "2.1.1"
+sertyp = { workspace = true }
+num = "0.4.3"
+ndarray = "0.17.2"
