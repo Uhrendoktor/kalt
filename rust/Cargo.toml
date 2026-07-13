@@ -10,8 +10,8 @@ description = "Typst Symbol Math Library"
 crate-type = ["lib"]
 
 [dependencies]
-egg = { git = "https://github.com/egraphs-good/egg.git", version = "0.11.0", default-features = false, features = [
-] }
+# egg = { git = "https://github.com/egraphs-good/egg.git", version = "0.11.0", default-features = false, features = [
+# ] }
 chumsky = { workspace = true }
 num-traits = "0.2.19"
 derive_more = "2.1.1"
