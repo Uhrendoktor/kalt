@@ -14,7 +14,7 @@ use num::{Complex, complex::Complex64};
 use num_traits::Pow;
 use sertyp::{
     Content::{self},
-    FromString, LocatingSequence, SYMBOL_compose, SYMBOL_minus, Text,
+    FromString, LocatingSequence, SYMBOL_compose, SYMBOL_minus,
     chumsky::{
         LocatingSequenceLike, Token,
         parser::{

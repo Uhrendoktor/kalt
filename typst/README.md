@@ -1,9 +1,9 @@
 # Kalt
 
-Kalt evaluates arbitrary nested Typst equations and removes the need to
-transcribe your equations into Typst's `calc` system. You will no longer run
-into unsupported operations, and it all works for scalars and matrices. Since
-everything runs on normal Typst content, you can store and adjust the results as
+Kalt evaluates arbitrary nested equations and removes the need to transcribe
+your equations into the default `calc` system. You will no longer run into
+unsupported operations, and it all works for scalars and matrices. Since
+everything runs on normal content, you can store and adjust the results as
 needed.
 
 Complex equation?
@@ -41,7 +41,7 @@ No problem :D
 $comp(sqrt((3+i)!)) dot pi/(e + 2.3^(#N))$
 ```
 
-![evaluation](assets/evaluation.png)
+![evaluation of equation](assets/evaluation.png)
 
 ## Number Formats
 
@@ -112,7 +112,7 @@ $merge(#{ (a, b) => $log_#a (#b)$ }, mat(2, 2; 2, 2), mat(2, 2; 2, 8))$ // => ma
 It returns inlined error messages for mistakes.
 ![error reporting](assets/error_reporting.png)
 
-# Development
+## Development
 
 You do not need to move everything into Kalt. Kalt uses `sertyp` to run the
 heavy computation in Rust using Wasm. The backend libraries for both `sertyp`
@@ -120,7 +120,7 @@ and `kalt` are available as standalone libraries and are ready for your project
 :D Basic math should stay in `kalt`, though. For more on what still needs work,
 take a look at the contributions section.
 
-# Contributions
+## Contributions
 
 There is still a lot to do. Many basic functions like `abs`, `floor`, and `ceil`
 are not yet supported. Quality-of-life features like improved floating point
