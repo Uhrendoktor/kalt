@@ -1,5 +1,6 @@
 [workspace]
 members = ["./rust", "./rust_bindings"]
+resolver = "3"
 
 [workspace.package]
 edition = "2024"
@@ -8,6 +9,6 @@ version = "0.1.0"
 license = "MIT"
 
 [workspace.dependencies]
-sertyp = { path = "../sertyp/rust", features = ["content"] }
-kalt = { path = "./rust" }
+sertyp = { path = "../sertyp/rust", features = ["content"], version = "0.1.5" }
+kalt = { path = "./rust", version = "0.1.0" }
 chumsky = { version = "0.13.0", features = ["pratt"] }
