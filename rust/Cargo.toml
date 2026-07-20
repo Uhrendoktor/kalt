@@ -10,11 +10,11 @@ description = "Advanced equation parsing and evaluation for nested typst equatio
 crate-type = ["lib"]
 
 [dependencies]
-# egg = { git = "https://github.com/egraphs-good/egg.git", version = "0.11.0", default-features = false, features = [
-# ] }
+kalt_macros = { path = "./kalt_macros", version = "0.1.0" }
 chumsky = { workspace = true }
 num-traits = "0.2.19"
 derive_more = "2.1.1"
 sertyp = { workspace = true }
 num = "0.4.3"
 ndarray = "0.17.2"
+paste = "1.0.15"

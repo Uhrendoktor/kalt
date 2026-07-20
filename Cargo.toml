@@ -1,5 +1,5 @@
 [workspace]
-members = ["./rust", "./rust_bindings"]
+members = ["./rust", "rust/kalt_macros", "./rust_bindings"]
 resolver = "3"
 
 [workspace.package]

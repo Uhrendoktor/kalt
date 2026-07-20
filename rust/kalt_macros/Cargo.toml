@@ -1,0 +1,12 @@
+[package]
+name = "kalt_macros"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "2.0.118"
+quote = "1.0.46"
