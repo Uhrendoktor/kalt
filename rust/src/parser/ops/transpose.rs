@@ -37,5 +37,5 @@ pub fn transpose_exponent() -> char {
 /// Parses a typst `attach` and tries to apply matrix transpose
 #[kalt_macros::parser]
 pub fn transpose<'data>() -> Expects<'data, Tensor> {
-    pow_parser(pratt(), transpose_exponent()).map(|(t, _)| transpose_t(ops::transpose(t)?))
+    pow_parser(pratt, transpose_exponent).map(|(t, _)| transpose_t(ops::transpose(t)?))
 }

@@ -6,7 +6,7 @@ use crate::{
     Expects,
     parser::atoms::{
         complex::{Complex, complex},
-        matrix::{Matrix, matrix},
+        matrix::{Matrix, matrix_like},
     },
 };
 
@@ -25,7 +25,7 @@ pub enum Tensor {
 pub fn tensor<'data>() -> Expects<'data, Tensor> {
     choice((
         complex().map(|c| Ok(Tensor::Scalar(c))),
-        matrix().map(|m| m.map(Tensor::Matrix)),
+        matrix_like().map(|m| m.map(Tensor::Matrix)),
     ))
 }
 

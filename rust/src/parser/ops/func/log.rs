@@ -17,7 +17,7 @@ use crate::{
 
 /// Computes log_b(v) for complex numbers b and v
 pub fn log_c(c1: &num::Complex<f64>, c2: &num::Complex<f64>) -> num::Complex<f64> {
-    c1.ln() / c2.ln()
+    c2.ln() / c1.ln()
 }
 
 /// Computes log_b(v):
@@ -52,7 +52,7 @@ pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'d
 /// "log" _ <tensor>
 #[kalt_macros::parser]
 pub fn log_fn<'data>() -> Expects<'data, Spanned<Tensor>> {
-    subscript_parser(word_or_op("log"), pratt()).map(|(_, base)| ops::transpose(base))
+    subscript_parser(|| word_or_op("log"), pratt).map(|(_, base)| ops::transpose(base))
 }
 
 #[kalt_macros::parser]

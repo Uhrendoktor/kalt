@@ -2,7 +2,7 @@ use chumsky::{
     primitive::choice,
     span::{Span, Spanned, WrappingSpan},
 };
-use sertyp::{SYMBOL_ast_basic, SYMBOL_ast_op, chumsky::parser::character};
+use sertyp::{SYMBOL_ast_basic, SYMBOL_ast_op, SYMBOL_compose, chumsky::parser::character};
 
 use crate::{operation_element_wise_same_shape, pratt_infix};
 
@@ -10,7 +10,11 @@ use crate::{operation_element_wise_same_shape, pratt_infix};
 /// Condition for the pratt parser to apply.
 #[kalt_macros::parser]
 pub fn pratt_mul_operator() -> char {
-    choice((character(SYMBOL_ast_op), character(SYMBOL_ast_basic)))
+    choice((
+        character(SYMBOL_ast_op),
+        character(SYMBOL_ast_basic),
+        character(SYMBOL_compose),
+    ))
 }
 
 // element wise multiplication of two tensors

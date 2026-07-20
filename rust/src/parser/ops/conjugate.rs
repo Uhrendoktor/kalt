@@ -56,5 +56,5 @@ pub fn conjugate_exponent() -> char {
 /// Parses a typst `attach` and tries to apply matrix conjugate
 #[kalt_macros::parser]
 pub fn conjugate<'data>() -> Expects<'data, Tensor> {
-    pow_parser(pratt(), conjugate_exponent()).map(|(t, op)| conjugate_t(ops::transpose(t)?, *op))
+    pow_parser(pratt, conjugate_exponent).map(|(t, op)| conjugate_t(ops::transpose(t)?, *op))
 }

@@ -4,12 +4,15 @@ use chumsky::{
 };
 use sertyp::{
     Content, LocatingSequence, SYMBOL_CC, SYMBOL_NN, SYMBOL_RR, SYMBOL_ZZ, TypstError,
-    chumsky::Token, content, math::Attach,
+    chumsky::{LocatingSequenceLike, Token},
+    content,
+    math::Attach,
 };
 
 use crate::{
     Expects, match_tensors, matrix_shape,
     parser::{
+        ParserError,
         atoms::{complex::Complex, matrix::Matrix, tensor::Tensor},
         ops::{element_wise::validate_same_shape, transpose},
         pratt::pratt,
@@ -120,19 +123,21 @@ pub fn pow_t<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, 
 pub fn pow_parser<
     'this,
     'data: 'this,
-    I: sertyp::chumsky::LocatingSequenceLike<'this, 'data>,
-    B,
-    E,
+    I: LocatingSequenceLike<'this, 'data>,
+    OB,
+    OE,
+    B: Parser<'this, LocatingSequence<'this, 'data>, OB, ParserError<'data>>,
+    E: Parser<'this, LocatingSequence<'this, 'data>, OE, ParserError<'data>>,
 >(
-    base: impl Parser<'this, LocatingSequence<'this, 'data>, B, crate::parser::ParserError<'data>>,
-    exponent: impl Parser<'this, LocatingSequence<'this, 'data>, E, crate::parser::ParserError<'data>>,
-) -> impl chumsky::Parser<'this, I, (Spanned<B>, Spanned<E>), crate::parser::ParserError<'data>> {
+    base: impl Fn() -> B,
+    exponent: impl Fn() -> E,
+) -> impl chumsky::Parser<'this, I, (Spanned<OB>, Spanned<OE>), crate::parser::ParserError<'data>> {
     select!(Token::Raw(Content::MathAttach(attach @ Attach{ t: Some(_), ..})) => attach).try_map(
         move |attach, span: SimpleSpan| {
-            let base = base
+            let base = base()
                 .parse(LocatingSequence::from(&**attach.base))
                 .into_result()?;
-            let exponent = exponent
+            let exponent = exponent()
                 .parse(LocatingSequence::from(&***attach.t.as_ref().unwrap()))
                 .into_result()?;
             Ok((span.make_wrapped(base), span.make_wrapped(exponent)))
@@ -143,5 +148,5 @@ pub fn pow_parser<
 /// Parses a typst `attach` and tries to apply exponentiation to the base and exponent.
 #[kalt_macros::parser]
 pub fn pow<'data>() -> Expects<'data, Tensor> {
-    pow_parser(pratt(), pratt()).map(|(b, e)| pow_t(transpose(b)?, transpose(e)?))
+    pow_parser(pratt, pratt).map(|(b, e)| pow_t(transpose(b)?, transpose(e)?))
 }
