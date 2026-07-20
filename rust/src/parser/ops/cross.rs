@@ -13,11 +13,11 @@ use crate::{
 
 /// Calculates the cross product of two complex 3D vectors.
 pub fn cross_c(m1: &Matrix, m2: &Matrix) -> Matrix {
-    arr2(&[[
-        m1[(1, 0)] * m2[(2, 0)] - m1[(2, 0)] * m2[(1, 0)],
-        m1[(2, 0)] * m2[(0, 0)] - m1[(0, 0)] * m2[(2, 0)],
-        m1[(0, 0)] * m2[(1, 0)] - m1[(1, 0)] * m2[(0, 0)],
-    ]])
+    arr2(&[
+        [m1[(1, 0)] * m2[(2, 0)] - m1[(2, 0)] * m2[(1, 0)]],
+        [m1[(2, 0)] * m2[(0, 0)] - m1[(0, 0)] * m2[(2, 0)]],
+        [m1[(0, 0)] * m2[(1, 0)] - m1[(1, 0)] * m2[(0, 0)]],
+    ])
 }
 
 /// Vector cross product
