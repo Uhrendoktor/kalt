@@ -9,6 +9,7 @@ use sertyp::{
     math::Op,
 };
 
+pub mod abs;
 pub mod add;
 pub mod binom;
 pub mod conjugate;
@@ -107,11 +108,11 @@ macro_rules! match_tensor {
             SimpleSpanned {
                 inner: Tensor::Scalar(s),
                 span: sp,
-            } => ($s)(sp.make_wrapped(s)).map(Tensor::Scalar),
+            } => ($s)(sp.make_wrapped(s)).map(From::from),
             SimpleSpanned {
                 inner: Tensor::Matrix(m),
                 span: sp,
-            } => ($m)(sp.make_wrapped(m)).map(Tensor::Matrix),
+            } => ($m)(sp.make_wrapped(m)).map(From::from),
         }
     }};
 }
@@ -136,7 +137,7 @@ macro_rules! match_tensors {
                     inner: Tensor::Scalar(s2),
                     span: sp2,
                 },
-            ) => (($ss)(sp1.make_wrapped(s1), sp2.make_wrapped(s2))).map(Tensor::Scalar),
+            ) => (($ss)(sp1.make_wrapped(s1), sp2.make_wrapped(s2))).map(From::from),
             (
                 SimpleSpanned {
                     inner: Tensor::Scalar(s),
@@ -146,7 +147,7 @@ macro_rules! match_tensors {
                     inner: Tensor::Matrix(m),
                     span: spm,
                 },
-            ) => (($sm)(sps.make_wrapped(s), spm.make_wrapped(m))).map(Tensor::Matrix),
+            ) => (($sm)(sps.make_wrapped(s), spm.make_wrapped(m))).map(From::from),
             (
                 SimpleSpanned {
                     inner: Tensor::Matrix(m),
@@ -156,7 +157,7 @@ macro_rules! match_tensors {
                     inner: Tensor::Scalar(s),
                     span: sps,
                 },
-            ) => (($ms)(spm.make_wrapped(m), sps.make_wrapped(s))).map(Tensor::Matrix),
+            ) => (($ms)(spm.make_wrapped(m), sps.make_wrapped(s))).map(From::from),
             (
                 SimpleSpanned {
                     inner: Tensor::Matrix(m1),
@@ -166,7 +167,7 @@ macro_rules! match_tensors {
                     inner: Tensor::Matrix(m2),
                     span: sp2,
                 },
-            ) => ($mm)(sp1.make_wrapped(m1), sp2.make_wrapped(m2)).map(Tensor::Matrix),
+            ) => ($mm)(sp1.make_wrapped(m1), sp2.make_wrapped(m2)).map(From::from),
         }
     }};
 }
@@ -324,6 +325,29 @@ pub mod element_wise {
                         matrix_shape!({SYMBOL_CC} ^ ({m2.dim().0.to_string()} x {m2.dim().1.to_string()}))
                     ),
                 ),
+            ))
+        }
+    }
+
+    /// Validates that a matrix is square and returns a formattable matrix shape error if it is not.
+    ///
+    /// Args:
+    /// - f: A function that is sipposed to format the operation of the matrix.
+    ///   It receives a formatted matrix's dimensions as input.
+    pub fn validate_square<'data>(
+        f: impl Fn(Content<'data>) -> Content<'data>,
+    ) -> impl Fn(SimpleSpanned<&Matrix>) -> Expects<'data, ()> {
+        move |m| {
+            if m.is_square() {
+                return Ok(());
+            }
+            Err(TypstError::full(
+                m.span,
+                "Matrix must be square",
+                f(content!(matrix_shape!({SYMBOL_CC} ^ ({'N'} x {'N'})))),
+                f(content!(
+                    matrix_shape!({SYMBOL_CC} ^ ({m.dim().0.to_string()} x {m.dim().1.to_string()}))
+                )),
             ))
         }
     }

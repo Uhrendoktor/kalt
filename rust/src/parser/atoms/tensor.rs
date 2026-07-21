@@ -1,5 +1,5 @@
 use chumsky::primitive::choice;
-use derive_more::TryUnwrap;
+use derive_more::{From, TryUnwrap};
 use sertyp::{Content, Item, content};
 
 use crate::{
@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// A parsed tensor
-#[derive(Clone, Debug, TryUnwrap)]
+#[derive(Clone, Debug, TryUnwrap, From)]
 pub enum Tensor {
     Scalar(num::Complex<f64>),
     Matrix(Matrix),

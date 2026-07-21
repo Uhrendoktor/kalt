@@ -15,6 +15,7 @@ use crate::parser::ParserError;
 
 pub mod ln;
 pub mod log;
+pub mod re_im;
 
 /// Parses a typst `attach` with specific parsers for base and subscript (b)
 pub fn subscript_parser<
@@ -48,6 +49,8 @@ pub fn func_parser<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, T
     parser: impl 'this + Parser<'this, I, T, ParserError<'data>>,
 ) -> impl Parser<'this, I, (F, T), ParserError<'data>> {
     func.then_ignore(whitespaces()).then(delimited_by_groups(
-        parser.delimited_by(character('('), character(')')),
+        parser
+            .delimited_by(whitespaces(), whitespaces())
+            .delimited_by(character('('), character(')')),
     ))
 }

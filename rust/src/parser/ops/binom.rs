@@ -2,7 +2,7 @@ use chumsky::{
     extra::Full,
     input::MapExtra,
     select,
-    span::{SimpleSpanned, WrappingSpan},
+    span::{Spanned, WrappingSpan},
 };
 use sertyp::{Content, LocatingSequence, TypstError, chumsky::Token, math::Binom};
 
@@ -28,10 +28,7 @@ pub fn binom_c(n: &num::Complex<f64>, k: &num::Complex<f64>) -> num::Complex<f64
 /// (scalar, matrix) -> matrix (element-wise)
 /// (matrix, scalar) -> matrix (element-wise)
 /// (matrix, matrix) -> matrix (element-wise) only if same shape
-pub fn binom_t<'data>(
-    t1: SimpleSpanned<Tensor>,
-    t2: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
+pub fn binom_t<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, Tensor> {
     element_wise2(
         |s1, s2| Ok(binom_c(&s1, &s2)),
         validate_same_shape(|m1, m2| {

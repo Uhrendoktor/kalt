@@ -32,7 +32,7 @@ pratt_infix!(cross => |_op, lhs: Spanned<_>, rhs: Spanned<_>| Ok(lhs.span.union(
 pub fn cross<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, Tensor> {
     let span = t1.span.union(t2.span);
     let sm = |_s: Spanned<num::Complex<f64>>, m: Spanned<Matrix>| {
-        Err(TypstError::full(
+        Err::<num::Complex<f64>, _>(TypstError::full(
             span,
             "cross product is only defined for vectors",
             sequence![
@@ -48,7 +48,7 @@ pub fn cross<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, 
         ))
     };
     match_tensors!((t1, t2) => {
-        (s1, s2) => |_s1: Spanned<num::Complex<f64>>, _s2: Spanned<num::Complex<f64>>| Err(TypstError::full(
+        (s1, s2) => |_s1: Spanned<num::Complex<f64>>, _s2: Spanned<num::Complex<f64>>| Err::<num::Complex<f64>, _>(TypstError::full(
             span,
             "cross product is only defined for vectors",
             sequence![pow!({SYMBOL_CC} ^ {3.to_string()}), SYMBOL_times, pow!({SYMBOL_CC} ^ {3.to_string()})],

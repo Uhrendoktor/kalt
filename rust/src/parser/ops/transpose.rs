@@ -15,7 +15,7 @@ use crate::{
 /// matrix -> matrix (transpose)
 pub fn transpose_t<'data>(t: Spanned<Tensor>) -> Expects<'data, Tensor> {
     match_tensor!((t) => {
-        s => |_s| Err(TypstError::full(
+        s => |_s| Err::<num::Complex<f64>, _>(TypstError::full(
             t.span,
             "Cannot transpose a scalar",
             "scalar",
