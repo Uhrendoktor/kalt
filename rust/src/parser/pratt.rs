@@ -1,5 +1,3 @@
-use std::f32::consts::E;
-
 use chumsky::IterParser;
 use chumsky::pratt::{infix, left, postfix};
 use chumsky::primitive::just;
@@ -15,10 +13,12 @@ use sertyp::{TypstError, chumsky::parser::whitespaces};
 use crate::parser::ops::abs::abs;
 use crate::parser::ops::add::{pratt_add, pratt_add_operator};
 use crate::parser::ops::binom::binom;
+use crate::parser::ops::ceil::ceil;
 use crate::parser::ops::conjugate::conjugate;
 use crate::parser::ops::cross::{pratt_cross, pratt_cross_operator};
 use crate::parser::ops::dot::{dot, pratt_dot, pratt_dot_operator};
 use crate::parser::ops::factorial::{pratt_factorial, pratt_factorial_operator};
+use crate::parser::ops::floor::floor;
 use crate::parser::ops::func::ln::ln;
 use crate::parser::ops::func::log::log;
 use crate::parser::ops::func::re_im::{im, re};
@@ -98,7 +98,6 @@ pub fn atom_like(
 ) -> Expects<'data, Tensor> {
     choice((
         group(expr.clone()),
-        abs(expr.clone()),
         tensor(),
         fraction(),
         pow(),
@@ -108,6 +107,9 @@ pub fn atom_like(
         root(),
         ln(expr.clone()),
         log(expr.clone()),
+        abs(expr.clone()),
+        floor(expr.clone()),
+        ceil(expr.clone()),
         re(expr.clone()),
         im(expr.clone()),
     ))
