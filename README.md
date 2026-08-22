@@ -8,21 +8,64 @@ Since the result is still Typst content, you can keep formatting, reusing, and
 combining it in your document instead of ending up with a dead numeric result.
 
 The repository is split into a Rust backend, Wasm bindings, and the Typst-side
-package docs. If you want the user-facing examples, start with
+package. If you want the user-facing examples, start with
 [typst/README.md](typst/README.md).
 
 ## What It Covers
 
-- scalars and complex numbers
-- matrices and vectors
-- indexing and slicing
-- built-in operators and functions
+Kalt currently supports the following operations. Operations work on scalars
+and, where applicable, on matrices element-wise.
+
+### Arithmetic
+
+- `+` / `add` — addition of scalars, scalar-matrix pairs, and equally shaped matrices.
+- `-` / `sub` — subtraction with the same scalar and element-wise matrix rules.
+- `*` / `mul` — element-wise multiplication. Scalar-matrix multiplication is
+  also applied element-wise.
+- `/` / `div` — element-wise division. Scalar-matrix division follows the
+  element-wise rules of the backend.
+- `^` / `pow` — exponentiation. Scalar powers and supported matrix powers are
+  evaluated by the backend.
+- `!` / `factorial` — factorial for supported numeric values.
+- `binom` — binomial coefficients, including element-wise operation on equally
+  shaped matrices.
+- `root` / `sqrt` — roots and square roots.
+- `abs` — absolute value / complex magnitude, applied element-wise to matrices.
+- `ceil` — ceiling, applied element-wise to matrices.
+- `floor` — floor, applied element-wise to matrices.
+- `sign` — sign operation, applied element-wise to matrices.
+
+### Complex Numbers
+
+- `conjugate` — complex conjugation.
+- `Re` — real part.
+- `Im` — imaginary part.
+
+Complex numbers can occur anywhere in an expression and can be combined with
+scalars and matrices.
+
+### Matrix and Vector Operations
+
+- `dot` — matrix/vector dot product and matrix multiplication according to the
+  supported tensor shapes.
+- `cross` — cross product for three-dimensional vectors.
+- `transpose` / `T` — matrix transpose.
+- `index` — matrix indexing, including slices and reverse/step ranges.
+
+### Functions
+
+- `ln` — natural logarithm.
+- `log_a` — logarithm with an explicit base `a`.
+
+The operation parser combines these operations into nested expressions, so an
+operation can generally be used as part of another operation without first
+materialising an intermediate Typst value.
 
 ## Layout
 
 - [rust](rust) contains the `kalt` crate, which does the actual evaluation.
 - [rust_bindings](rust_bindings) builds the Wasm wrapper used by Typst.
-- [typst](typst) has the package README, examples, and assets.
+- [typst](typst) has the package README, examples, tests, and assets.
 
 ## Build
 
