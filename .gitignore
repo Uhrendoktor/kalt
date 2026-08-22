@@ -7,4 +7,3 @@
 .vscode
 .vscode/*
 *.wasm
-test.typ
