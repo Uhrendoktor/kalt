@@ -18,7 +18,8 @@ and, where applicable, on matrices element-wise.
 
 ### Arithmetic
 
-- `+` / `add` — addition of scalars, scalar-matrix pairs, and equally shaped matrices.
+- `+` / `add` — addition of scalars, scalar-matrix pairs, and equally shaped
+  matrices.
 - `-` / `sub` — subtraction with the same scalar and element-wise matrix rules.
 - `*` / `mul` — element-wise multiplication. Scalar-matrix multiplication is
   also applied element-wise.
@@ -30,7 +31,7 @@ and, where applicable, on matrices element-wise.
 - `binom` — binomial coefficients, including element-wise operation on equally
   shaped matrices.
 - `root` / `sqrt` — roots and square roots.
-- `abs` — absolute value / complex magnitude, applied element-wise to matrices.
+- `abs` — absolute value / complex magnitude, magnitude or determinant.
 - `ceil` — ceiling, applied element-wise to matrices.
 - `floor` — floor, applied element-wise to matrices.
 - `sign` — sign operation, applied element-wise to matrices.

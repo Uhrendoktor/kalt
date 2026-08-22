@@ -65,6 +65,15 @@ pub fn abs_t<'data>(t: Spanned<Tensor>) -> Expects<'data, num::Complex<f64>> {
     match_tensor!((t) => {
         s => |s: Spanned<num::Complex<f64>>| Ok(num::Complex::<f64>::new(s.norm(), 0.0)),
         m => |m: Spanned<Matrix>| {
+            // vector norm
+            if m.dim().1 == 1 {
+                let mut norm = 0.0;
+                for i in 0..m.dim().0 {
+                    norm += m[[i, 0]].norm_sqr();
+                }
+                return Ok(num::Complex::<f64>::new(norm.sqrt(), 0.0));
+            }
+            // determinant
             validate_square(|c| content!(equation!['|', c, '|']))(m.span.make_wrapped(&m.inner))?;
             Ok(determinant(m.inner))
         }

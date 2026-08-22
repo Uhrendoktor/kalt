@@ -27,7 +27,7 @@ The parser currently exposes the following operations:
 - `binom` — binomial coefficient; matrices must have matching shapes when used
   element-wise.
 - `root` / `sqrt` — root operations.
-- `abs` — absolute value, applied element-wise to matrices.
+- `abs` — absolute value, complex magnitude, maginute or determinant
 - `ceil` — ceiling, applied element-wise to matrices.
 - `floor` — floor, applied element-wise to matrices.
 - `sign` — sign operation, applied element-wise to matrices.
@@ -52,17 +52,16 @@ The parser currently exposes the following operations:
 
 Operations are implemented over the backend's scalar and matrix tensor types.
 Many element-wise operations share the same shape validation and dispatching
-machinery, while matrix-specific operations perform their own shape checks.
-This is why some combinations that look similar at the Typst level have
-different dimensionality requirements.
+machinery, while matrix-specific operations perform their own shape checks. This
+is why some combinations that look similar at the Typst level have different
+dimensionality requirements.
 
 ## Architecture
 
 The main parser lives in `src/parser`. Operations are grouped in
-`src/parser/ops`, with individual modules for arithmetic, matrix operations,
-and functions. The parser produces tensor values containing either a scalar or
-a matrix and applies operations while retaining source spans for error
-reporting.
+`src/parser/ops`, with individual modules for arithmetic, matrix operations, and
+functions. The parser produces tensor values containing either a scalar or a
+matrix and applies operations while retaining source spans for error reporting.
 
 The Wasm bindings are separate from this crate. They provide the interface used
 by the Typst package while keeping the evaluator itself usable as a standalone

@@ -25,9 +25,9 @@ $comp(frac(binom(2, 5) (1 + 3 i)^4.3 (2 - 3 i)^(2-5) 5!, sqrt((3+4i)(3-4i))) dot
 #import "@preview/kalt:0.1.0": comp;
 ```
 
-`comp` evaluates the supplied math content and returns Typst content. This
-means the result can still be assigned, formatted, indexed, or combined with
-other Typst expressions.
+`comp` evaluates the supplied math content and returns Typst content. This means
+the result can still be assigned, formatted, indexed, or combined with other
+Typst expressions.
 
 ## Supported Operations
 
@@ -36,8 +36,8 @@ available through `comp`.
 
 ### Arithmetic
 
-- `+` — addition. Scalars can be combined with matrices, and matrices are
-  added element-wise when they have the same shape.
+- `+` — addition. Scalars can be combined with matrices, and matrices are added
+  element-wise when they have the same shape.
 - `-` — subtraction with the same element-wise matrix rules.
 - `*` — element-wise multiplication. Scalar-matrix multiplication is also
   applied element-wise.
@@ -48,8 +48,7 @@ available through `comp`.
   the same shape and the operation is applied element-wise.
 - `root(x, n)` — nth root.
 - `sqrt(x)` — square root.
-- `abs(x)` — absolute value / complex magnitude, applied element-wise to
-  matrices.
+- `abs(x)` — absolute value / complex magnitude, magnitude or determinant
 - `ceil(x)` — ceiling, applied element-wise to matrices.
 - `floor(x)` — floor, applied element-wise to matrices.
 - `sign(x)` — sign operation, applied element-wise to matrices.
@@ -143,8 +142,8 @@ $merge(#{ (a, b) => $log_#a (#b)$ }, mat(2, 2; 2, 2), mat(2, 2; 2, 8))$ // => ma
 
 ## Error Handling
 
-Invalid operations and incompatible matrix shapes are returned as inlined
-Typst error messages rather than causing the whole document to fail silently.
+Invalid operations and incompatible matrix shapes are returned as inlined Typst
+error messages rather than causing the whole document to fail silently.
 
 ![error reporting](assets/error_reporting.png)
 
