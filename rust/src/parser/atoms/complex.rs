@@ -2,7 +2,6 @@ use core::f64;
 
 use chumsky::primitive::choice;
 use derive_more::{Deref, DerefMut, From, Into};
-use num::Zero;
 use sertyp::{
     Content, Item, SYMBOL_infinity,
     chumsky::parser::{auto_radix, character, unsigned_float_no_radix},
