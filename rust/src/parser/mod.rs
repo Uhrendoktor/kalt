@@ -1,5 +1,5 @@
 use chumsky::{Parser, span::SimpleSpan};
-use sertyp::{TypstError, chumsky::LocatingSequenceLike};
+use sertyp::{FromString, TypstError, chumsky::LocatingSequenceLike};
 
 use crate::Expects;
 
@@ -50,10 +50,12 @@ pub fn validate<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, T, O
     parser: impl Parser<'this, I, Expects<'data, T>, ParserError<'data>>,
     validator: impl Fn(T, SimpleSpan) -> Expects<'data, O>,
 ) -> impl Parser<'this, I, Expects<'data, O>, ParserError<'data>> {
-    parser.map_with(move |v, extra| match v {
-        Ok(v) => validator(v, extra.span()),
-        Err(e) => Err(e),
-    })
+    parser
+        .map_with(move |v, extra| match v {
+            Ok(v) => validator(v, extra.span()),
+            Err(e) => Err(e),
+        })
+        .labelled(sertyp::Content::from_string("validate"))
 }
 
 pub mod validator {

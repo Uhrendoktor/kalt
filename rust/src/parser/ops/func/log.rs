@@ -1,5 +1,5 @@
 use chumsky::{Parser, span::Spanned};
-use sertyp::TypstError;
+use sertyp::{TypstError, content, math::Attach, sequence};
 
 use crate::{
     Expects, match_tensors,
@@ -8,6 +8,7 @@ use crate::{
         atoms::{matrix::Matrix, tensor::Tensor},
         ops::{
             self,
+            element_wise::validate_same_shape,
             func::{func_parser, subscript_parser},
             word_or_op,
         },
@@ -37,6 +38,14 @@ pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'d
             Ok(m.inner)
         },
         (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
+            validate_same_shape(|c1, c2| content!(sequence![Attach{
+                base: content!("log").into(),
+                b: Some(c1.into()),
+                ..Default::default()
+            }, '(', c2, ')']))(
+                m1.span.make_wrapped(&m1.inner),
+                m2.span.make_wrapped(&m2.inner),
+            )?;
             m1.iter_mut().zip(m2.iter()).try_for_each(|(x, y)| {
                 *x = log_c(x, y);
                 Ok::<_, TypstError>(())

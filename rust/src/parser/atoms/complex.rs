@@ -1,7 +1,10 @@
+use core::f64;
+
 use chumsky::primitive::choice;
 use derive_more::{Deref, DerefMut, From, Into};
+use num::Zero;
 use sertyp::{
-    Content, Item,
+    Content, Item, SYMBOL_infinity,
     chumsky::parser::{auto_radix, character, unsigned_float_no_radix},
     content, equation,
 };
@@ -20,10 +23,17 @@ impl<'data> From<Complex<f64>> for Content<'data> {
     fn from(val: Complex<f64>) -> Self {
         fn format_float(f: f64) -> String {
             if f.is_infinite() {
-                "∞".into()
-            } else if f.fract() == 0.0 {
-                format!("{:.1}", f)
+                SYMBOL_infinity.into()
+            } else if f.is_nan() {
+                "NaN".into()
             } else {
+                if f.fract() == 0.0 {
+                    return format!("{:.0?}", f);
+                }
+                // round to first 10 decimal places, if the number is an integer, format as integer
+                if ((f * 1e10).round() - f * 1e10).abs() <= f64::EPSILON * 1e12 {
+                    return format!("{:}", (f * 1e10).round() / 1e10);
+                }
                 format!("{:?}", f)
             }
         }
@@ -32,7 +42,7 @@ impl<'data> From<Complex<f64>> for Content<'data> {
         if val.re != 0.0 || val.im == 0.0 {
             seq.push(format_float(val.re).into())
         }
-        if val.re != 0.0 && val.im > 0.0 {
+        if val.re != 0.0 && (val.im > 0.0 || val.im.is_nan() || val.im.is_infinite()) {
             seq.push('+'.into())
         }
         if val.im != 0.0 {

@@ -251,7 +251,7 @@ pub mod element_wise {
                 let span = m.span;
                 matrix_condition(span.make_wrapped(&m.inner))?;
                 m.iter_mut().try_for_each(|x| {
-                    f(span.make_wrapped(*x))?;
+                    *x = f(span.make_wrapped(*x))?;
                     Ok::<_, TypstError>(())
                 })?;
                 Ok(m.inner)
@@ -272,18 +272,28 @@ pub mod element_wise {
         t1: SimpleSpanned<Tensor>,
         t2: SimpleSpanned<Tensor>,
     ) -> Expects<'data, Tensor> {
-        let sm = |s, mut m: Spanned<Matrix>| {
+        fn sm<
+            'data,
+            F: Fn(
+                SimpleSpanned<num::Complex<f64>>,
+                SimpleSpanned<num::Complex<f64>>,
+            ) -> Expects<'data, num::Complex<f64>>,
+        >(
+            s: Spanned<num::Complex<f64>>,
+            mut m: Spanned<Matrix>,
+            f: F,
+        ) -> Expects<'data, Matrix> {
             let span = m.span;
             m.iter_mut().try_for_each(|x| {
-                f(s, span.make_wrapped(*x))?;
+                *x = f(s, span.make_wrapped(*x))?;
                 Ok::<_, TypstError>(())
             })?;
             Ok(m.inner)
-        };
+        }
         match_tensors!((t1, t2) => {
             (s1, s2) => &f,
-            (s, m) => sm,
-            (m, s) => |m, s| sm(s, m),
+            (s, m) => |s, m| sm(s, m ,f),
+            (m, s) => |m, s| sm(s, m, |s1, s2| f(s2, s1)),
             (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>|{
                 matrix_condition(m1.span.make_wrapped(&m1), m2.span.make_wrapped(&m2))?;
                 let sp1 = m1.span;

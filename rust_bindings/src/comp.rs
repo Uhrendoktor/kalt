@@ -1,6 +1,12 @@
-use kalt::parser::{atoms::complex::Complex, pratt::pratt, validate, validator::matrix};
+use kalt::parser::{
+    atoms::{complex::Complex, tensor::Tensor},
+    pratt::pratt,
+    validate,
+    validator::matrix,
+};
 use sertyp::{
-    Content, LocatingSequence, Sequence, TypedArray, TypedContent, TypstError, parse, typst_func,
+    Content, LocatingSequence, Sequence, TypedArray, TypedContent, TypedSequence, TypstError,
+    parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
@@ -38,5 +44,15 @@ pub fn to_elements<'data>(
     match arr {
         Ok(arr) => Ok(arr),
         Err(e) => Err(Box::new(e.render(&seq).into())),
+    }
+}
+
+#[typst_func()]
+fn tensor_variant<'data>(
+    TypedContent(TypedSequence(content)): TypedContent<TypedSequence<Tensor>>,
+) -> sertyp::String<'data> {
+    match content {
+        Tensor::Scalar(_) => "scalar".into(),
+        Tensor::Matrix(_) => "matrix".into(),
     }
 }

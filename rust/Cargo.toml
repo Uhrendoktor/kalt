@@ -18,3 +18,4 @@ sertyp = { workspace = true }
 num = "0.4.3"
 ndarray = "0.17.2"
 paste = "1.0.15"
+lazy_static = "1.5.0"

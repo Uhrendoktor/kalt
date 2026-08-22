@@ -27,7 +27,7 @@ pub fn dot<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, Te
         (s, m) => |s: Spanned<num::Complex<f64>>, m: Spanned<Matrix>| Ok(*s * &*m),
         (m, s) => |m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| Ok(&*m * *s),
         (m1, m2) => |m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
-            if m1.nrows() != m2.ncols() {
+            if m1.ncols() != m2.nrows() {
                 return Err(TypstError::full(
                     m1.span.union(m2.span),
                     "dot product can only be applied to matrices with compatible shapes",

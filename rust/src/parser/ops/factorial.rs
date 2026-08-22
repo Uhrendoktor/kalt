@@ -8,7 +8,7 @@ use crate::pratt_postfix;
 
 /// Computes the factorial of a complex number using the gamma function.
 pub fn factorial_c(c: &num::Complex<f64>) -> num::Complex<f64> {
-    gamma::gamma(*c - 1.0)
+    gamma::gamma(*c + 1.0)
 }
 
 /// Applies the factorial to a tensor:

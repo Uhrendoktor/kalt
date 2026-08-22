@@ -78,7 +78,6 @@ pub fn group<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, O: 'thi
                 .delimited_by(character(open), character(close))
         })),
     ))
-    .delimited_by(whitespaces(), whitespaces())
     .labelled(sertyp::Content::from_string("group"))
 }
 
@@ -96,15 +95,16 @@ pub fn group<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, O: 'thi
 pub fn atom_like(
     expr: impl 'this + Clone + Parser<'this, I, Expects<'data, Tensor>, ParserError<'data>>,
 ) -> Expects<'data, Tensor> {
+    // ordered by likelihood to improve performance
     choice((
         group(expr.clone()),
         tensor(),
         fraction(),
         pow(),
+        root(),
         conjugate(),
         transpose(),
         binom(),
-        root(),
         ln(expr.clone()),
         log(expr.clone()),
         abs(expr.clone()),
@@ -113,7 +113,6 @@ pub fn atom_like(
         re(expr.clone()),
         im(expr.clone()),
     ))
-    .delimited_by(whitespaces(), whitespaces())
     .labelled(sertyp::Content::from_string("atom"))
 }
 
@@ -144,24 +143,33 @@ pub fn atomic_operations(
 #[kalt_macros::parser]
 pub fn pratt<'data>() -> Expects<'data, Tensor> {
     recursive(move |expr| {
-        unspan(span(atomic_operations(expr.clone())).pratt((
-            // Multiplication: dot product
-            infix(left(3), pratt_dot_operator(), pratt_dot),
-            // Multiplication: element wise
-            infix(left(3), pratt_mul_operator(), pratt_mul),
-            // Multiplication: cross product
-            infix(left(3), pratt_cross_operator(), pratt_cross),
-            // Addition
-            infix(left(2), pratt_add_operator(), pratt_add),
-            // Subtraction
-            infix(left(2), pratt_sub_operator(), pratt_sub),
-            // Sign
-            prefix(5, pratt_sign_operator(), pratt_sign),
-            // Factorial,
-            postfix(6, pratt_factorial_operator(), pratt_factorial),
-            // Indexing
-            postfix(5, pratt_axes_index_operator(expr), pratt_axes_index),
-        )))
+        let expr = expr
+            .delimited_by(whitespaces(), whitespaces())
+            .boxed()
+            .labelled(sertyp::Content::from_string("pratt"));
+        unspan(
+            span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
+                (
+                    // Multiplication: dot product
+                    infix(left(3), pratt_dot_operator(), pratt_dot),
+                    // Multiplication: element wise
+                    infix(left(3), pratt_mul_operator(), pratt_mul),
+                    // Multiplication: cross product
+                    infix(left(3), pratt_cross_operator(), pratt_cross),
+                    // Addition
+                    infix(left(2), pratt_add_operator(), pratt_add),
+                    // Subtraction
+                    infix(left(2), pratt_sub_operator(), pratt_sub),
+                    // Sign
+                    prefix(5, pratt_sign_operator(), pratt_sign),
+                    // Factorial,
+                    postfix(6, pratt_factorial_operator(), pratt_factorial),
+                    // Indexing
+                    postfix(4, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
+                ),
+            ),
+        )
         .boxed()
     })
+    .delimited_by(whitespaces(), whitespaces())
 }

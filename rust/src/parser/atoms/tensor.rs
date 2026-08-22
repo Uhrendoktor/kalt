@@ -1,17 +1,20 @@
 use chumsky::primitive::choice;
-use derive_more::{From, TryUnwrap};
-use sertyp::{Content, Item, content};
+use derive_more::{From, IsVariant, TryUnwrap};
+use sertyp::{Content, Item, LocatingSequence, Sequence, content};
 
 use crate::{
     Expects,
-    parser::atoms::{
-        complex::{Complex, complex},
-        matrix::{Matrix, matrix_like},
+    parser::{
+        atoms::{
+            complex::{Complex, complex},
+            matrix::{Matrix, matrix_like},
+        },
+        pratt::pratt,
     },
 };
 
 /// A parsed tensor
-#[derive(Clone, Debug, TryUnwrap, From)]
+#[derive(Clone, Debug, TryUnwrap, IsVariant, From)]
 pub enum Tensor {
     Scalar(num::Complex<f64>),
     Matrix(Matrix),
@@ -61,6 +64,25 @@ impl<'data> From<Tensor> for Content<'data> {
 impl<'data> From<Tensor> for Item<'data> {
     fn from(tensor: Tensor) -> Self {
         content!(tensor).into()
+    }
+}
+
+impl<'data> TryFrom<Sequence<'data>> for Tensor {
+    type Error = std::string::String;
+
+    fn try_from(seq: Sequence<'data>) -> Result<Self, Self::Error> {
+        let seq = LocatingSequence::from(&seq);
+        use chumsky::Parser;
+        let tensor = match (pratt()).parse(&seq).into_result() {
+            Ok(arr) => arr,
+            Err(_) => {
+                return Err("unable to parse content".to_string());
+            }
+        };
+        match tensor {
+            Ok(tensor) => Ok(tensor),
+            Err(_) => Err("error while parsing".to_string()),
+        }
     }
 }
 

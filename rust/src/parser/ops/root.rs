@@ -2,6 +2,7 @@ use chumsky::{
     select,
     span::{SimpleSpan, Spanned, WrappingSpan},
 };
+use num::{Zero, complex::ComplexFloat};
 use sertyp::{Content, LocatingSequence, TypstError, chumsky::Token, content, math::Root};
 
 use crate::{
@@ -15,6 +16,15 @@ use crate::{
 
 /// Computes c1^c2 for complex numbers
 pub fn root_c(radicand: &num::Complex<f64>, index: &num::Complex<f64>) -> num::Complex<f64> {
+    let mut radicand = *radicand;
+    // required to return more expected result for e.g. sqrt(-1) = +- i
+    if radicand.im().is_zero() {
+        radicand.im = 0.0;
+    }
+    if *index == num::Complex::new(2.0, 0.0) {
+        // extra case since for more optimized performance
+        return radicand.sqrt();
+    }
     radicand.powc(1.0 / *index)
 }
 

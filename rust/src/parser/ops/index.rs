@@ -6,7 +6,7 @@ use chumsky::{Parser, primitive::choice, span::SimpleSpanned};
 use ndarray::Axis;
 use num::ToPrimitive;
 use sertyp::chumsky::parser::whitespaces;
-use sertyp::{SYMBOL_eq_not, SYMBOL_in, equation, sequence};
+use sertyp::{FromString, SYMBOL_eq_not, SYMBOL_in, equation, sequence};
 use sertyp::{
     TypstError,
     chumsky::{
@@ -173,6 +173,7 @@ pub fn collect_expects<
         .collect::<Vec<Expects<'data, T>>>()
         .into_iter()
         .collect::<Expects<'data, C>>()
+        .labelled(sertyp::Content::from_string("collect_expects"))
 }
 
 /// A range of indices for slices of list like objects.
@@ -229,6 +230,7 @@ pub fn range<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>>(
             step: step_t.map(transpose).transpose()?,
         })
     })
+    .labelled(sertyp::Content::from_string("range"))
 }
 
 /// Parses a single or a list of indices for slices of list like objects.
@@ -255,6 +257,7 @@ pub fn indices<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>>(
             .spanned()
             .map(|f| transpose(f).map(|f| vec![f])),
     ))
+    .labelled(sertyp::Content::from_string("indices"))
 }
 
 /// Parses an [AxisIndex]. A single axis index to create a slice of a list like object.
@@ -284,6 +287,7 @@ pub fn axes_index<'this, 'data: 'this, const AXES: usize, I: LocatingSequenceLik
         })
         .delimited_by(character('['), character(']')),
     )
+    .labelled(sertyp::Content::from_string("axes_index"))
 }
 
 /// Condition for the pratt parser to apply.
