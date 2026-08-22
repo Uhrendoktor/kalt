@@ -48,7 +48,8 @@ available through `comp`.
   the same shape and the operation is applied element-wise.
 - `root(x, n)` — nth root.
 - `sqrt(x)` — square root.
-- `abs(x)` — absolute value or complex magnitude.
+- `abs(x)` — absolute value for scalars, Euclidean norm for column vectors, and
+  determinant for square matrices.
 - `ceil(x)` — ceiling, applied element-wise to matrices.
 - `floor(x)` — floor, applied element-wise to matrices.
 - `sign(x)` — sign operation, applied element-wise to matrices.
