@@ -48,7 +48,7 @@ available through `comp`.
   the same shape and the operation is applied element-wise.
 - `root(x, n)` — nth root.
 - `sqrt(x)` — square root.
-- `abs(x)` — absolute value / complex magnitude, magnitude or determinant
+- `abs(x)` — absolute value or complex magnitude.
 - `ceil(x)` — ceiling, applied element-wise to matrices.
 - `floor(x)` — floor, applied element-wise to matrices.
 - `sign(x)` — sign operation, applied element-wise to matrices.
@@ -56,6 +56,8 @@ available through `comp`.
 ```typst
 $comp(sqrt((3+i)!)) dot pi/(e + 2.3^2)$
 ```
+
+![evaluation of equation](assets/evaluation.png)
 
 ### Complex Numbers
 
