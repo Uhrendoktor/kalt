@@ -8,3 +8,13 @@
   comp($mat(1, 2) dot mat(1, 2)$),
   contains: "compatible shapes",
 )
+
+#assert-error(
+  "invalid logarithm base",
+  comp($ log_1(8) $),
+)
+
+#assert-error(
+  "zero root index",
+  comp($ root(0, 8) $),
+)
