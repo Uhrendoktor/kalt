@@ -32,7 +32,7 @@ jobs:
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
 
       - name: Setup Typst
-        uses: Lipen/setup-typst@0fbabf761df9e5f18e0b07588796b6b5e8e8758a
+        uses: typst-community/setup-typst@v3
         with:
           typst-version: 0.15.1
 
