@@ -44,7 +44,7 @@ jobs:
 
       - name: Read test report
         run: |
-          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' -- typst/tests/ci.typ > /tmp/kalt-test-report.json
+          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/ci.typ > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
 
       - name: Upload test report
