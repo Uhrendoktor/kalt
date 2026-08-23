@@ -75,7 +75,7 @@
     results: results,
     failures: results.filter(result => not result.passed),
   )
-  metadata(report) <kalt-test-report>
+  [#metadata(report) <kalt-test-report>]
 }
 
 #let validate-scalar(output, expected) = {
