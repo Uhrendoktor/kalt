@@ -30,21 +30,17 @@ jobs:
           cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
 
-      - name: Install Typst
-        run: |
-          curl --fail --location --silent --show-error \
-            https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz \
-            -o /tmp/typst.tar.xz
-          tar -xJf /tmp/typst.tar.xz -C /tmp
-          install /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
-          typst --version
+      - name: Setup Typst
+        uses: Lipen/setup-typst@0fbabf761df9e5f18e0b07588796b6b5e8e8758a
+        with:
+          typst-version: 0.15.1
 
       - name: Compile machine-readable test suite
         run: typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
 
       - name: Read test report
         run: |
-          typst query --root . --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
+          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' -- typst/tests/ci.typ > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
 
       - name: Upload test report
@@ -65,6 +61,10 @@ jobs:
           print(f"KALT TESTS: {report['passed']}/{report['total']} passed, {report['failed']} failed")
           for result in report['results']:
               print(f"{'PASS' if result['passed'] else 'FAIL'}: {result['name']}")
+              if not result['passed']:
+                  for key in ('debug-output-type', 'debug-expected-type', 'debug-output', 'debug-expected'):
+                      if result.get(key) is not None:
+                          print(f"  {key}: {result[key]}")
 
           if report['total'] == 0:
               raise SystemExit('no tests were executed')
