@@ -58,6 +58,8 @@ jobs:
           for result in report['results']:
               print(f"{'PASS' if result['passed'] else 'FAIL'}: {result['name']}")
 
+          if report['total'] == 0:
+              raise SystemExit('no tests were executed')
           if report['failed']:
               raise SystemExit(1)
           PY
