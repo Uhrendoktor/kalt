@@ -40,11 +40,11 @@ jobs:
           typst --version
 
       - name: Compile machine-readable test suite
-        run: typst compile --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
+        run: typst compile --root typst --input ci=true tests/ci.typ /tmp/kalt-tests.pdf
 
       - name: Read test report
         run: |
-          typst query --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
+          typst query --root typst --input ci=true tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
 
       - name: Upload test report
