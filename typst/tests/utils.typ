@@ -1,64 +1,40 @@
-#import "lib.typ": comp, reduce, tensor-variant
+#import "../lib.typ": comp, reduce, tensor-variant
 
 #let test-state = state("kalt-test-results", ())
 #let ci-mode = sys.inputs.at("ci", default: "false") == "true"
 
-/// Returns true when a value returned by `comp` is an inline sertyp panic.
 #let is-error(output) = "sertyp:panic" in repr(output)
-
-/// Extracts a stable textual representation of an inline error sequence.
 #let error-text(output) = repr(output)
 
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
-    if val in ("NaN", "nan", "Inf", "inf") {
-      return true
-    }
+    if val in ("NaN", "nan", "Inf", "inf") { return true }
     return false
   }
   let part(op, output) = {
     let c = comp($#op (#output)$)
-    if ("body" not in c.fields()) {
-      return none
-    }
+    if ("body" not in c.fields()) { return none }
     let val = c.body.children.at(0).text
-    if is-nan-or-inf(val) {
-      return val
-    }
+    if is-nan-or-inf(val) { return val }
     eval(val)
   }
   let (real, imag) = (part($Re$, output), part($Im$, output))
   let (expected-real, expected-imag) = (part($Re$, expected), part($Im$, expected))
-
-  if real == none or imag == none or expected-real == none or expected-imag == none {
-    return false
-  }
+  if real == none or imag == none or expected-real == none or expected-imag == none { return false }
 
   let dist(a, b) = {
-    if is-nan-or-inf(a) and is-nan-or-inf(b) {
-      return 0
-    } else if is-nan-or-inf(a) or is-nan-or-inf(b) {
-      return 1e100000
-    }
+    if is-nan-or-inf(a) and is-nan-or-inf(b) { return 0 }
+    else if is-nan-or-inf(a) or is-nan-or-inf(b) { return 1e100000 }
     calc.abs(a - b)
   }
-  if dist(real, expected-real) > 1e-6 or dist(imag, expected-imag) > 1e-6 {
-    return false
-  }
+  if dist(real, expected-real) > 1e-6 or dist(imag, expected-imag) > 1e-6 { return false }
   true
 }
 
 #let validate(output, expected) = {
-  if type(output) != type(expected) {
-    return false
-  }
+  if type(output) != type(expected) { return false }
   if tensor-variant(output) == "matrix" {
-    reduce(
-      (acc, output, expected) => acc and validate-scalar(output, expected),
-      true,
-      output,
-      expected,
-    )
+    reduce((acc, output, expected) => acc and validate-scalar(output, expected), true, output, expected)
   } else {
     validate-scalar(output, expected)
   }
@@ -72,7 +48,6 @@
   } else {
     not actual-error and validate(output, expected)
   }
-
   let update = test-state.update(results => {
     results.push((
       name: name,
@@ -83,12 +58,9 @@
       actual-error-text: actual-error-text,
       debug-output: if not passed and not expect-error { repr(output) } else { none },
       debug-expected: if not passed and not expect-error { repr(expected) } else { none },
-      debug-output-type: if not passed and not expect-error { repr(type(output)) } else { none },
-      debug-expected-type: if not passed and not expect-error { repr(type(expected)) } else { none },
     ))
     results
   })
-
   (passed, update)
 }
 
@@ -116,13 +88,9 @@
 }
 
 #let validate-format(output, expected) = {
-  if is-error(output) {
-    "FAIL"
-  } else if validate(output, expected) {
-    "PASS"
-  } else {
-    "FAIL"
-  }
+  if is-error(output) { "FAIL" }
+  else if validate(output, expected) { "PASS" }
+  else { "FAIL" }
 }
 
 #let binary-operation(title, description, op, ..cases) = {
@@ -132,35 +100,22 @@
     let expect-error = "error" in case
     let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
-      title + " case " + str(index + 1),
-      output,
+      title + " case " + str(index + 1), output,
       expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error,
-      error: expected-error,
+      expect-error: expect-error, error: expected-error,
     )
-
-    if ci-mode {
-      return update
-    }
-
+    if ci-mode { return update }
     (
-      [#update #expression],
-      block($#output$),
+      [#update #expression], block($#output$),
       if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
       if passed { "PASS" } else { "FAIL" },
     )
   })
-
-  if ci-mode {
-    return rows.join()
-  }
-
+  if ci-mode { return rows.join() }
   [
     == #title
     #description
-    #table(
-      columns: 4,
-      align: left,
+    #table(columns: 4, align: left,
       [*Input*], [*Output*], [*Expected*], [*Result*],
       ..rows.flatten(),
     )
@@ -174,35 +129,22 @@
     let expect-error = "error" in case
     let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
-      title + " case " + str(index + 1),
-      output,
+      title + " case " + str(index + 1), output,
       expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error,
-      error: expected-error,
+      expect-error: expect-error, error: expected-error,
     )
-
-    if ci-mode {
-      return update
-    }
-
+    if ci-mode { return update }
     (
-      [#update #expression],
-      block($#output$),
+      [#update #expression], block($#output$),
       if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
       if passed { "PASS" } else { "FAIL" },
     )
   })
-
-  if ci-mode {
-    return rows.join()
-  }
-
+  if ci-mode { return rows.join() }
   [
     == #title
     #description
-    #table(
-      columns: 4,
-      align: left,
+    #table(columns: 4, align: left,
       [*Input*], [*Output*], [*Expected*], [*Result*],
       ..rows.flatten(),
     )
