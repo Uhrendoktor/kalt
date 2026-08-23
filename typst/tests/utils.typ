@@ -230,3 +230,7 @@
     )
   ]
 }
+
+// Backwards-compatible names used by the existing operation test files.
+#let binary_operation = binary-operation
+#let unary_operation = unary-operation
