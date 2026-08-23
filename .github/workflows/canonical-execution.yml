@@ -35,7 +35,8 @@ jobs:
 
       - name: Run tests
         run: |
-          typst query --root . --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
+          typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
+          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/ci.typ > /tmp/kalt-test-report.json
           python3 - <<'PY'
           import json
           from pathlib import Path
