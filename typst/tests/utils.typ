@@ -49,6 +49,7 @@
     total: results.len(),
     passed: passed,
     failed: results.len() - passed,
+    results: results,
     failures: results.filter(result => not result.passed),
   )
   metadata(report) <kalt-test-report>
