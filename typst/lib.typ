@@ -1,4 +1,4 @@
-#import "@preview/sertyp:0.1.5" as sertyp;
+#import "@preview/sertyp:0.1.6" as sertyp;
 #let kalt = plugin("./bindings.wasm");
 
 /// Recusrively evaluates the math content and returns the result.
@@ -23,7 +23,6 @@
 
 /// Maps a single or multiple matrices/vectors element-wise using the given function.
 ///
-/// = Arguments
 /// - `fn(..elements) -> element`: A Typst function that combines one value from each matrix.
 /// - `..mats`: The matrices to map.
 ///
