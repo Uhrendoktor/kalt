@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Uhrendoktor/sertyp
+          ref: dev0.1.6
           path: sertyp
 
       - name: Expose sertyp at Cargo's expected sibling path
@@ -30,14 +31,10 @@ jobs:
           cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
 
-      - name: Install Typst
-        run: |
-          curl --fail --location --silent --show-error \
-            https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz \
-            -o /tmp/typst.tar.xz
-          tar -xJf /tmp/typst.tar.xz -C /tmp
-          install /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
-          typst --version
+      - name: Setup Typst
+        uses: Lipen/setup-typst@0fbabf761df9e5f18e0b07588796b6b5e8e8758a
+        with:
+          typst-version: 0.15.1
 
       - name: Compile machine-readable test suite
         run: typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
