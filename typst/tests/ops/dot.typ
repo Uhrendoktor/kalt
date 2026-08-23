@@ -25,4 +25,10 @@
     v2: $mat(1i, 2 + 1i; -3, 4)$,
     e: $comp(mat(1i - 6, 10 + i; 12 + 3i, -10 + 3i))$,
   ),
+  // expected failure: incompatible matrix dimensions
+  (
+    v1: $mat(1, 2)$,
+    v2: $mat(1, 2)$,
+    error: "compatible shapes",
+  ),
 )
