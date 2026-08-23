@@ -1,5 +1,6 @@
 use chumsky::{Parser, span::Spanned};
-use sertyp::{TypstError, content, math::Attach, sequence};
+use num::Zero;
+use sertyp::{SYMBOL_CC, SYMBOL_eq_not, SYMBOL_in, TypstError, content, sequence};
 
 use crate::{
     Expects, match_tensors,
@@ -14,11 +15,29 @@ use crate::{
         },
         pratt::{pratt, span},
     },
+    subscript,
 };
 
 /// Computes log_b(v) for complex numbers b and v
 pub fn log_c(c1: &num::Complex<f64>, c2: &num::Complex<f64>) -> num::Complex<f64> {
     c2.ln() / c1.ln()
+}
+
+fn validate_base<'data>(base: &Spanned<num::Complex<f64>>) -> Expects<'data, ()> {
+    if base.is_zero() {
+        return Err(TypstError::full(
+            base.span,
+            "logarithm base cannot be zero",
+            content!(sequence!(
+                subscript!({"log"}_{"b"}),
+                "(c) | b",
+                SYMBOL_in,
+                subscript!({SYMBOL_CC}_{sequence!(SYMBOL_eq_not, "1")})
+            )),
+            content!(sequence!(subscript!({"log"}_{"0"}), "(x)")),
+        ));
+    }
+    Ok(())
 }
 
 /// Computes log_b(v):
@@ -30,23 +49,22 @@ pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'d
     match_tensors!((base, value) => {
         (s1, s2) => |s1: Spanned<num::Complex<f64>>, s2: Spanned<num::Complex<f64>>| Ok(log_c(&s1, &s2)),
         (s, m) => |s: Spanned<num::Complex<f64>>, mut m: Spanned<Matrix>| {
+            validate_base(&s)?;
             m.inner.mapv_inplace(|el| log_c(&s, &el));
             Ok(m.inner)
         },
         (m, s) => |mut m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| {
+            m.iter().try_for_each(|v| validate_base(&m.span.make_wrapped(*v)))?;
             m.inner.mapv_inplace(|el| log_c(&el, &s));
             Ok(m.inner)
         },
         (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
-            validate_same_shape(|c1, c2| content!(sequence![Attach{
-                base: content!("log").into(),
-                b: Some(c1.into()),
-                ..Default::default()
-            }, '(', c2, ')']))(
+            validate_same_shape(|c1, c2| content!(sequence![subscript!({"log"}_{c1}), '(', c2, ')']))(
                 m1.span.make_wrapped(&m1.inner),
                 m2.span.make_wrapped(&m2.inner),
             )?;
             m1.iter_mut().zip(m2.iter()).try_for_each(|(x, y)| {
+                validate_base(&m2.span.make_wrapped(*x))?;
                 *x = log_c(x, y);
                 Ok::<_, TypstError>(())
             })?;
