@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: kalt-typst-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   typst-tests:
     runs-on: ubuntu-latest
