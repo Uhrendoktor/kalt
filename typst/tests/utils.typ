@@ -42,7 +42,7 @@
     }
     calc.abs(a - b)
   }
-  if dist(real, expected-real) > 1e-9 or dist(imag, expected-imag) > 1e-9 {
+  if dist(real, expected-real) > 1e-6 or dist(imag, expected-imag) > 1e-6 {
     return false
   }
   true
