@@ -1,4 +1,4 @@
-#import "../lib.typ": comp, reduce, tensor-variant
+#import "lib.typ": comp, reduce, tensor-variant
 
 #let test-state = state("kalt-test-results", ())
 #let ci-mode = sys.inputs.at("ci", default: "false") == "true"
