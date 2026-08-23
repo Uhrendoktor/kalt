@@ -156,7 +156,7 @@
   })
 
   if ci-mode {
-    return rows
+    return rows.join()
   }
 
   [
@@ -200,7 +200,7 @@
   })
 
   if ci-mode {
-    return rows
+    return rows.join()
   }
 
   [
