@@ -44,8 +44,8 @@ jobs:
 
           report = json.loads(Path('/tmp/kalt-test-report.json').read_text())
           print(f"KALT TESTS: {report['passed']}/{report['total']} passed, {report['failed']} failed")
-          for failure in report['failures']:
-              print(f"FAIL: {failure['name']}")
+          for result in report['results']:
+              print(f"{'PASS' if result['passed'] else 'FAIL'}: {result['name']}")
 
           if report['failed']:
               raise SystemExit(1)
