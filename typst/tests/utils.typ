@@ -6,11 +6,29 @@
 /// Returns true when a value returned by `comp` is an inline error sequence.
 #let is-error(output) = "body" not in output.fields()
 
+/// Extracts the diagnostic text embedded in sertyp's inline error sequence.
+#let error-text(output) = {
+  let walk(node) = {
+    if "msg" in node.fields() {
+      return repr(node.msg)
+    }
+    if "children" in node.fields() {
+      return node.children.map(walk).join(" ")
+    }
+    if "body" in node.fields() {
+      return walk(node.body)
+    }
+    ""
+  }
+  walk(output)
+}
+
 /// Evaluates one assertion and returns `(passed, state-update-content)`.
 #let record-test(name, output, expected: none, expect-error: false, error: none) = {
   let actual-error = is-error(output)
+  let actual-error-text = if actual-error { error-text(output) } else { none }
   let passed = if expect-error {
-    actual-error and (error == none or error in repr(output))
+    actual-error and (error == none or error in actual-error-text)
   } else {
     not actual-error and validate(output, expected)
   }
@@ -22,6 +40,7 @@
       expected-error: expect-error,
       error-contains: error,
       actual-error: actual-error,
+      actual-error-text: actual-error-text,
     ))
     results
   })
@@ -33,7 +52,7 @@
 #let assert-eq(name, output, expected) = record-test(name, output, expected: expected)
 
 /// Assertion for a calculation expected to return an inline error.
-/// If `contains` is provided, the rendered error must contain that text.
+/// If `contains` is provided, the diagnostic text must contain that text.
 #let assert-error(name, output, contains: none) = record-test(
   name,
   output,
