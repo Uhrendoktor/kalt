@@ -19,7 +19,7 @@
   let part(op, output) = {
     let c = comp($#op (#output)$)
     if ("body" not in c.fields()) {
-      return none
+      panic(c)
     }
     let val = c.body.children.at(0).text
     if is-nan-or-inf(val) {
@@ -29,10 +29,6 @@
   }
   let (real, imag) = (part($Re$, output), part($Im$, output))
   let (expected-real, expected-imag) = (part($Re$, expected), part($Im$, expected))
-
-  if real == none or imag == none or expected-real == none or expected-imag == none {
-    return false
-  }
 
   let dist(a, b) = {
     if is-nan-or-inf(a) and is-nan-or-inf(b) {
