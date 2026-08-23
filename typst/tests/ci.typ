@@ -22,5 +22,6 @@
 #include "ops/ln.typ";
 #include "ops/log.typ";
 #include "ops/re_im.typ";
+#include "errors.typ";
 
 #emit-test-report()
