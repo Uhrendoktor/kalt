@@ -1,4 +1,4 @@
-#import "@local/sertyp:0.1.6" as sertyp;
+#import "@preview/sertyp:0.1.5" as sertyp;
 #let kalt = plugin("../bindings.wasm");
 
 #let comp(body) = {
