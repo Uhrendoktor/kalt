@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Uhrendoktor/sertyp
-          path: ../sertyp
+          path: sertyp
 
       - name: Install Rust WASM target
         run: rustup target add wasm32-unknown-unknown
@@ -34,7 +34,6 @@ jobs:
         run: typst compile --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
 
       - name: Read test report
-        id: report
         run: |
           typst query --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
