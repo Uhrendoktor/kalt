@@ -62,7 +62,7 @@
 
 #let reduce(fn, value, ..mat) = {
   let elements = mat.pos().map(mat => sertyp.call(kalt.to_elements, mat))
-  let max_rows = calc.max(..elements.len())
+  let max_rows = calc.max(..elements.map(element => element.len()))
   let max_cols = calc.max(..elements.map(element => calc.max(..element.map(row => row.len()))))
 
   let i = 0
