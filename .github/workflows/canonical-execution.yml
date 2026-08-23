@@ -15,46 +15,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/checkout@v4
         with:
           repository: Uhrendoktor/sertyp
           ref: dev0.1.6
           path: sertyp
-
       - name: Prepare and build bindings
         run: |
           ln -s "$GITHUB_WORKSPACE/sertyp" "$GITHUB_WORKSPACE/../sertyp"
           rustup target add wasm32-unknown-unknown
           cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
-
       - uses: typst-community/setup-typst@v3
         with:
           typst-version: 0.15.1
-
       - name: Run tests
         run: |
-          typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
-          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/ci.typ > /tmp/kalt-test-report.json
+          typst compile --root . --input ci=true typst/tests/test.typ /tmp/kalt-tests.pdf
+          typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/test.typ > /tmp/kalt-test-report.json
           python3 - <<'PY'
           import json
           from pathlib import Path
-
           report = json.loads(Path('/tmp/kalt-test-report.json').read_text())
           print(f"KALT TESTS: {report['passed']}/{report['total']} passed, {report['failed']} failed")
           for result in report['results']:
               print(f"{'PASS' if result['passed'] else 'FAIL'}: {result['name']}")
-              if not result['passed']:
-                  for key in ('debug-output-type', 'debug-expected-type', 'debug-output', 'debug-expected'):
-                      if result.get(key) is not None:
-                          print(f"  {key}: {result[key]}")
           if report['total'] == 0:
               raise SystemExit('no tests were executed')
           if report['failed']:
               raise SystemExit(1)
           PY
-
       - if: always()
         uses: actions/upload-artifact@v4
         with:
