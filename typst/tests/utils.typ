@@ -6,7 +6,7 @@
 /// Returns true when a value returned by `comp` is an inline error sequence.
 #let is-error(output) = "body" not in output.fields()
 
-/// Records one test result without throwing on a failed assertion.
+/// Evaluates one assertion and returns `(passed, state-update-content)`.
 #let record-test(name, output, expected: none, error: none) = {
   let actual-error = is-error(output)
   let passed = if error != none {
@@ -15,7 +15,7 @@
     not actual-error and validate(output, expected)
   }
 
-  test-state.update(results => {
+  let update = test-state.update(results => {
     results.push((
       name: name,
       passed: passed,
@@ -25,11 +25,10 @@
     results
   })
 
-  passed
+  (passed, update)
 }
 
-/// Assertion for a successful calculation. Returns the pass/fail state and
-/// records it for the test runner without panicking on inline errors.
+/// Assertion for a successful calculation. Returns `(passed, update)`.
 #let assert-eq(name, output, expected) = record-test(name, output, expected: expected)
 
 /// Assertion for a calculation expected to return an inline error.
@@ -121,7 +120,7 @@
     let expression = op(case.v1, case.v2)
     let output = comp(expression)
     let expected-error = if "error" in case { case.error } else { none }
-    let passed = record-test(
+    let (passed, update) = record-test(
       title + " case " + str(index + 1),
       output,
       expected: if "e" in case { case.e } else { none },
@@ -129,11 +128,11 @@
     )
 
     if ci-mode {
-      return ()
+      return update
     }
 
     (
-      block(expression),
+      [#update #expression],
       block($#output$),
       if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
       if passed { "PASS" } else { "FAIL" },
@@ -141,7 +140,7 @@
   })
 
   if ci-mode {
-    return ()
+    return rows
   }
 
   [
@@ -163,7 +162,7 @@
     let expression = op(case.v)
     let output = comp(expression)
     let expected-error = if "error" in case { case.error } else { none }
-    let passed = record-test(
+    let (passed, update) = record-test(
       title + " case " + str(index + 1),
       output,
       expected: if "e" in case { case.e } else { none },
@@ -171,11 +170,11 @@
     )
 
     if ci-mode {
-      return ()
+      return update
     }
 
     (
-      block(expression),
+      [#update #expression],
       block($#output$),
       if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
       if passed { "PASS" } else { "FAIL" },
@@ -183,7 +182,7 @@
   })
 
   if ci-mode {
-    return ()
+    return rows
   }
 
   [
