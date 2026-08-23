@@ -36,6 +36,11 @@ jobs:
         with:
           typst-version: 0.15.1
 
+      - name: Install local sertyp Typst package
+        run: |
+          mkdir -p "$HOME/.local/share/typst/packages/local/sertyp/0.1.6"
+          cp -R sertyp/typst/. "$HOME/.local/share/typst/packages/local/sertyp/0.1.6/"
+
       - name: Compile machine-readable test suite
         run: typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
 
