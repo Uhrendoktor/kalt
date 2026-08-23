@@ -35,6 +35,7 @@ jobs:
 
       - name: Run tests
         run: |
+          typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
           typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/ci.typ > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
           python3 - <<'PY'
