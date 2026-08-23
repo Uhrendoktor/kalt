@@ -36,15 +36,19 @@ jobs:
         with:
           typst-version: 0.15.1
 
-      - name: Install local sertyp Typst package
+      - name: Prepare local sertyp Typst package
         run: |
-          mkdir -p "$HOME/.local/share/typst/packages/local/sertyp/0.1.6"
-          cp -R sertyp/typst/. "$HOME/.local/share/typst/packages/local/sertyp/0.1.6/"
+          mkdir -p "$GITHUB_WORKSPACE/.typst-packages/preview/sertyp/0.1.5"
+          cp -R sertyp/typst/. "$GITHUB_WORKSPACE/.typst-packages/preview/sertyp/0.1.5/"
 
       - name: Compile machine-readable test suite
+        env:
+          TYPST_PACKAGE_PATH: ${{ github.workspace }}/.typst-packages
         run: typst compile --root . --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
 
       - name: Read test report
+        env:
+          TYPST_PACKAGE_PATH: ${{ github.workspace }}/.typst-packages
         run: |
           typst eval --root . --input ci=true 'query(<kalt-test-report>).first().value' --in typst/tests/ci.typ > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
