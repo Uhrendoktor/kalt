@@ -6,24 +6,8 @@
 /// Returns true when a value returned by `comp` is an inline error sequence.
 #let is-error(output) = "body" not in output.fields()
 
-/// Extracts the diagnostic text embedded in sertyp's inline error sequence.
-#let error-text(output) = {
-  let walk(node) = {
-    let text = ""
-    if "ty" in node.fields() {
-      text += repr(node.ty)
-    }
-    if "msg" in node.fields() {
-      text += " " + repr(node.msg)
-    } else if "children" in node.fields() {
-      text += " " + node.children.map(walk).join(" ")
-    } else if "body" in node.fields() {
-      text += " " + walk(node.body)
-    }
-    text
-  }
-  walk(output)
-}
+/// Extracts a stable textual representation of an inline error sequence.
+#let error-text(output) = repr(output)
 
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
@@ -113,7 +97,7 @@
 }
 
 /// Assertion for a calculation expected to return an inline error. If `contains`
-/// is provided, the diagnostic text must contain that text.
+/// is provided, the representation must contain that text.
 #let assert-error(name, output, contains: none) = {
   let (_, update) = record-test(name, output, expect-error: true, error: contains)
   update
