@@ -19,6 +19,9 @@ jobs:
           repository: Uhrendoktor/sertyp
           path: sertyp
 
+      - name: Expose sertyp at Cargo's expected sibling path
+        run: ln -s "$GITHUB_WORKSPACE/sertyp" "$GITHUB_WORKSPACE/../sertyp"
+
       - name: Install Rust WASM target
         run: rustup target add wasm32-unknown-unknown
 
