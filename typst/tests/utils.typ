@@ -19,7 +19,7 @@
   let part(op, output) = {
     let c = comp($#op (#output)$)
     if ("body" not in c.fields()) {
-      panic(c)
+      return none
     }
     let val = c.body.children.at(0).text
     if is-nan-or-inf(val) {
@@ -29,6 +29,10 @@
   }
   let (real, imag) = (part($Re$, output), part($Im$, output))
   let (expected-real, expected-imag) = (part($Re$, expected), part($Im$, expected))
+
+  if real == none or imag == none or expected-real == none or expected-imag == none {
+    return false
+  }
 
   let dist(a, b) = {
     if is-nan-or-inf(a) and is-nan-or-inf(b) {
@@ -60,7 +64,6 @@
   }
 }
 
-/// Evaluates one assertion and returns `(passed, state-update-content)`.
 #let record-test(name, output, expected: none, expect-error: false, error: none) = {
   let actual-error = is-error(output)
   let actual-error-text = if actual-error { error-text(output) } else { none }
@@ -78,6 +81,10 @@
       error-contains: error,
       actual-error: actual-error,
       actual-error-text: actual-error-text,
+      debug-output: if not passed and not expect-error { repr(output) } else { none },
+      debug-expected: if not passed and not expect-error { repr(expected) } else { none },
+      debug-output-type: if not passed and not expect-error { repr(type(output)) } else { none },
+      debug-expected-type: if not passed and not expect-error { repr(type(expected)) } else { none },
     ))
     results
   })
@@ -85,21 +92,16 @@
   (passed, update)
 }
 
-/// Assertion for a successful calculation. The returned content is invisible
-/// and only records the assertion in the test state.
 #let assert-eq(name, output, expected) = {
   let (_, update) = record-test(name, output, expected: expected)
   update
 }
 
-/// Assertion for a calculation expected to return an inline error. If `contains`
-/// is provided, the representation must contain that text.
 #let assert-error(name, output, contains: none) = {
   let (_, update) = record-test(name, output, expect-error: true, error: contains)
   update
 }
 
-/// Emits the final report as queryable metadata.
 #let emit-test-report() = context {
   let results = test-state.get()
   let passed = results.filter(result => result.passed).len()
@@ -123,8 +125,6 @@
   }
 }
 
-/// Runs and records binary operation cases. In CI mode it produces no visual
-/// output while executing exactly the same cases as the visual suite.
 #let binary-operation(title, description, op, ..cases) = {
   let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v1, case.v2)
@@ -167,8 +167,6 @@
   ]
 }
 
-/// Runs and records unary operation cases. In CI mode it produces no visual
-/// output while executing exactly the same cases as the visual suite.
 #let unary-operation(title, description, op, ..cases) = {
   let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v)
@@ -211,6 +209,5 @@
   ]
 }
 
-// Backwards-compatible names used by the existing operation test files.
 #let binary_operation = binary-operation
 #let unary_operation = unary-operation
