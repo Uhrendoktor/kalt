@@ -1,0 +1,46 @@
+name: canonical-execution
+
+on:
+  push:
+    branches: [dev0.1.1-test-infra]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  typst-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust WASM target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Build Typst bindings
+        run: |
+          cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
+          cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
+
+      - name: Install Typst
+        run: cargo install --locked typst-cli
+
+      - name: Compile machine-readable test suite
+        run: typst compile --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
+
+      - name: Read test report
+        id: report
+        run: |
+          typst query --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
+          cat /tmp/kalt-test-report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/kalt-test-report.json').read_text())
+          print(f"KALT TESTS: {report['passed']}/{report['total']} passed, {report['failed']} failed")
+          for failure in report['failures']:
+              print(f"FAIL: {failure['name']}")
+
+          if report['failed']:
+              raise SystemExit(1)
+          PY
