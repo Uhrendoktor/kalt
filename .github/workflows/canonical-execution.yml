@@ -38,6 +38,17 @@ jobs:
         run: |
           typst query --input ci=true typst/tests/ci.typ '<kalt-test-report>' --one --field value > /tmp/kalt-test-report.json
           cat /tmp/kalt-test-report.json
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kalt-test-report
+          path: /tmp/kalt-test-report.json
+          if-no-files-found: ignore
+
+      - name: Evaluate test report
+        run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
