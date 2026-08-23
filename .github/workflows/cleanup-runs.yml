@@ -3,6 +3,8 @@ name: cleanup-runs
 on:
   push:
     branches: [dev0.1.1-test-infra]
+  pull_request:
+    types: [synchronize]
 
 permissions:
   actions: write
