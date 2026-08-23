@@ -3,8 +3,8 @@
 #let test-state = state("kalt-test-results", ())
 #let ci-mode = sys.inputs.at("ci", default: "false") == "true"
 
-/// Returns true when a value returned by `comp` is an inline error sequence.
-#let is-error(output) = "body" not in output.fields()
+/// Returns true when a value returned by `comp` is an inline sertyp panic.
+#let is-error(output) = "sertyp:panic" in repr(output)
 
 /// Extracts a stable textual representation of an inline error sequence.
 #let error-text(output) = repr(output)
