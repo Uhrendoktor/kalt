@@ -1,6 +1,5 @@
 // Addition tests for kalt bindings
 
-#import "../../lib.typ": comp
 #import "../utils.typ": binary_operation
 
 #binary_operation(
