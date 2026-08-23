@@ -1,4 +1,4 @@
-#import "@preview/sertyp:0.1.6" as sertyp;
+#import "@preview/sertyp:0.1.5" as sertyp;
 #let kalt = plugin("./bindings.wasm");
 
 /// Recusrively evaluates the math content and returns the result.
@@ -62,7 +62,7 @@
 
 #let reduce(fn, value, ..mat) = {
   let elements = mat.pos().map(mat => sertyp.call(kalt.to_elements, mat))
-  let max_rows = calc.max(..elements.map(element => element.len()))
+  let max_rows = calc.max(..elements.len())
   let max_cols = calc.max(..elements.map(element => calc.max(..element.map(row => row.len()))))
 
   let i = 0
