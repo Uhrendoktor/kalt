@@ -10,8 +10,14 @@ jobs:
   typst-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Kalt
         uses: actions/checkout@v4
+
+      - name: Checkout sertyp dependency
+        uses: actions/checkout@v4
+        with:
+          repository: Uhrendoktor/sertyp
+          path: ../sertyp
 
       - name: Install Rust WASM target
         run: rustup target add wasm32-unknown-unknown
