@@ -36,16 +36,17 @@
 /// If `contains` is provided, the rendered error must contain that text.
 #let assert-error(name, output, contains: none) = record-test(name, output, error: contains)
 
-/// Returns the current test report from the state system.
-#let test-report() = context {
+/// Emits the final report as queryable metadata.
+#let emit-test-report() = context {
   let results = test-state.get()
   let passed = results.filter(result => result.passed).len()
-  (
+  let report = (
     total: results.len(),
     passed: passed,
     failed: results.len() - passed,
     failures: results.filter(result => not result.passed),
   )
+  metadata(report) <kalt-test-report>
 }
 
 #let validate-scalar(output, expected) = {
