@@ -25,59 +25,6 @@
   walk(output)
 }
 
-/// Evaluates one assertion and returns `(passed, state-update-content)`.
-#let record-test(name, output, expected: none, expect-error: false, error: none) = {
-  let actual-error = is-error(output)
-  let actual-error-text = if actual-error { error-text(output) } else { none }
-  let passed = if expect-error {
-    actual-error and (error == none or error in actual-error-text)
-  } else {
-    not actual-error and validate(output, expected)
-  }
-
-  let update = test-state.update(results => {
-    results.push((
-      name: name,
-      passed: passed,
-      expected-error: expect-error,
-      error-contains: error,
-      actual-error: actual-error,
-      actual-error-text: actual-error-text,
-    ))
-    results
-  })
-
-  (passed, update)
-}
-
-/// Assertion for a successful calculation. The returned content is invisible
-/// and only records the assertion in the test state.
-#let assert-eq(name, output, expected) = {
-  let (_, update) = record-test(name, output, expected: expected)
-  update
-}
-
-/// Assertion for a calculation expected to return an inline error. If `contains`
-/// is provided, the diagnostic text must contain that text.
-#let assert-error(name, output, contains: none) = {
-  let (_, update) = record-test(name, output, expect-error: true, error: contains)
-  update
-}
-
-/// Emits the final report as queryable metadata.
-#let emit-test-report() = context {
-  let results = test-state.get()
-  let passed = results.filter(result => result.passed).len()
-  let report = (
-    total: results.len(),
-    passed: passed,
-    failed: results.len() - passed,
-    results: results,
-    failures: results.filter(result => not result.passed),
-  )
-  [#metadata(report) <kalt-test-report>]
-}
-
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
     if val in ("NaN", "nan", "Inf", "inf") {
@@ -131,6 +78,59 @@
   } else {
     validate-scalar(output, expected)
   }
+}
+
+/// Evaluates one assertion and returns `(passed, state-update-content)`.
+#let record-test(name, output, expected: none, expect-error: false, error: none) = {
+  let actual-error = is-error(output)
+  let actual-error-text = if actual-error { error-text(output) } else { none }
+  let passed = if expect-error {
+    actual-error and (error == none or error in actual-error-text)
+  } else {
+    not actual-error and validate(output, expected)
+  }
+
+  let update = test-state.update(results => {
+    results.push((
+      name: name,
+      passed: passed,
+      expected-error: expect-error,
+      error-contains: error,
+      actual-error: actual-error,
+      actual-error-text: actual-error-text,
+    ))
+    results
+  })
+
+  (passed, update)
+}
+
+/// Assertion for a successful calculation. The returned content is invisible
+/// and only records the assertion in the test state.
+#let assert-eq(name, output, expected) = {
+  let (_, update) = record-test(name, output, expected: expected)
+  update
+}
+
+/// Assertion for a calculation expected to return an inline error. If `contains`
+/// is provided, the diagnostic text must contain that text.
+#let assert-error(name, output, contains: none) = {
+  let (_, update) = record-test(name, output, expect-error: true, error: contains)
+  update
+}
+
+/// Emits the final report as queryable metadata.
+#let emit-test-report() = context {
+  let results = test-state.get()
+  let passed = results.filter(result => result.passed).len()
+  let report = (
+    total: results.len(),
+    passed: passed,
+    failed: results.len() - passed,
+    results: results,
+    failures: results.filter(result => not result.passed),
+  )
+  [#metadata(report) <kalt-test-report>]
 }
 
 #let validate-format(output, expected) = {
