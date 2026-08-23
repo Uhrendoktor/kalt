@@ -3,9 +3,13 @@
 #let test-state = state("kalt-test-results", ())
 #let ci-mode = sys.inputs.at("ci", default: "false") == "true"
 
+// Returns whether `output` is the inline sertyp error representation.
 #let is-error(output) = "sertyp:panic" in repr(output)
+
+// Returns the diagnostic representation used for expected-error matching.
 #let error-text(output) = repr(output)
 
+// Compares scalar or complex scalar output with a tolerance of 1e-6.
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
     if val in ("NaN", "nan", "Inf", "inf") { return true }
@@ -31,6 +35,7 @@
   true
 }
 
+// Compares scalar or matrix output with the same scalar tolerance.
 #let validate(output, expected) = {
   if type(output) != type(expected) { return false }
   if tensor-variant(output) == "matrix" {
@@ -40,6 +45,7 @@
   }
 }
 
+// Records one test result. Set `expect-error` for a test whose evaluation should fail.
 #let record-test(name, output, expected: none, expect-error: false, error: none) = {
   let actual-error = is-error(output)
   let actual-error-text = if actual-error { error-text(output) } else { none }
@@ -64,16 +70,20 @@
   (passed, update)
 }
 
+// Asserts that an expression evaluates successfully to `expected`.
 #let assert-eq(name, output, expected) = {
   let (_, update) = record-test(name, output, expected: expected)
   update
 }
 
+// Asserts that an expression evaluates to a sertyp error. If `contains` is set,
+// the diagnostic representation must contain that text.
 #let assert-error(name, output, contains: none) = {
   let (_, update) = record-test(name, output, expect-error: true, error: contains)
   update
 }
 
+// Emits the aggregate and per-test results as metadata for the CI runner.
 #let emit-test-report() = context {
   let results = test-state.get()
   let passed = results.filter(result => result.passed).len()
@@ -87,22 +97,17 @@
   [#metadata(report) <kalt-test-report>]
 }
 
-#let validate-format(output, expected) = {
-  if is-error(output) { "FAIL" }
-  else if validate(output, expected) { "PASS" }
-  else { "FAIL" }
-}
-
+// Runs a table-driven binary operation test and renders it in visual mode.
 #let binary-operation(title, description, op, ..cases) = {
   let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v1, case.v2)
     let output = comp(expression)
     let expect-error = "error" in case
-    let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
       title + " case " + str(index + 1), output,
       expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error, error: expected-error,
+      expect-error: expect-error,
+      error: if expect-error { case.error } else { none },
     )
     if ci-mode { return update }
     (
@@ -122,16 +127,17 @@
   ]
 }
 
+// Runs a table-driven unary operation test and renders it in visual mode.
 #let unary-operation(title, description, op, ..cases) = {
   let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v)
     let output = comp(expression)
     let expect-error = "error" in case
-    let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
       title + " case " + str(index + 1), output,
       expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error, error: expected-error,
+      expect-error: expect-error,
+      error: if expect-error { case.error } else { none },
     )
     if ci-mode { return update }
     (
