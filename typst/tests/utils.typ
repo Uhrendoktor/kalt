@@ -146,7 +146,7 @@
 /// Runs and records binary operation cases. In CI mode it produces no visual
 /// output while executing exactly the same cases as the visual suite.
 #let binary-operation(title, description, op, ..cases) = {
-  let rows = cases.pos().map((case, index) => {
+  let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v1, case.v2)
     let output = comp(expression)
     let expect-error = "error" in case
@@ -190,7 +190,7 @@
 /// Runs and records unary operation cases. In CI mode it produces no visual
 /// output while executing exactly the same cases as the visual suite.
 #let unary-operation(title, description, op, ..cases) = {
-  let rows = cases.pos().map((case, index) => {
+  let rows = cases.pos().enumerate().map(((index, case)) => {
     let expression = op(case.v)
     let output = comp(expression)
     let expect-error = "error" in case
