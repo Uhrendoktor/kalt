@@ -31,7 +31,13 @@ jobs:
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
 
       - name: Install Typst
-        run: cargo install --locked typst-cli
+        run: |
+          curl --fail --location --silent --show-error \
+            https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz \
+            -o /tmp/typst.tar.xz
+          tar -xJf /tmp/typst.tar.xz -C /tmp
+          install /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+          typst --version
 
       - name: Compile machine-readable test suite
         run: typst compile --input ci=true typst/tests/ci.typ /tmp/kalt-tests.pdf
