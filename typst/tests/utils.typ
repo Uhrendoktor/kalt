@@ -9,16 +9,18 @@
 /// Extracts the diagnostic text embedded in sertyp's inline error sequence.
 #let error-text(output) = {
   let walk(node) = {
+    let text = ""
+    if "ty" in node.fields() {
+      text += repr(node.ty)
+    }
     if "msg" in node.fields() {
-      return repr(node.msg)
+      text += " " + repr(node.msg)
+    } else if "children" in node.fields() {
+      text += " " + node.children.map(walk).join(" ")
+    } else if "body" in node.fields() {
+      text += " " + walk(node.body)
     }
-    if "children" in node.fields() {
-      return node.children.map(walk).join(" ")
-    }
-    if "body" in node.fields() {
-      return walk(node.body)
-    }
-    ""
+    text
   }
   walk(output)
 }
