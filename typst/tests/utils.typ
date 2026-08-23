@@ -50,17 +50,19 @@
   (passed, update)
 }
 
-/// Assertion for a successful calculation. Returns `(passed, update)`.
-#let assert-eq(name, output, expected) = record-test(name, output, expected: expected)
+/// Assertion for a successful calculation. The returned content is invisible
+/// and only records the assertion in the test state.
+#let assert-eq(name, output, expected) = {
+  let (_, update) = record-test(name, output, expected: expected)
+  update
+}
 
-/// Assertion for a calculation expected to return an inline error.
-/// If `contains` is provided, the diagnostic text must contain that text.
-#let assert-error(name, output, contains: none) = record-test(
-  name,
-  output,
-  expect-error: true,
-  error: contains,
-)
+/// Assertion for a calculation expected to return an inline error. If `contains`
+/// is provided, the diagnostic text must contain that text.
+#let assert-error(name, output, contains: none) = {
+  let (_, update) = record-test(name, output, expect-error: true, error: contains)
+  update
+}
 
 /// Emits the final report as queryable metadata.
 #let emit-test-report() = context {
