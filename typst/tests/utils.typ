@@ -7,10 +7,10 @@
 #let is-error(output) = "body" not in output.fields()
 
 /// Evaluates one assertion and returns `(passed, state-update-content)`.
-#let record-test(name, output, expected: none, error: none) = {
+#let record-test(name, output, expected: none, expect-error: false, error: none) = {
   let actual-error = is-error(output)
-  let passed = if error != none {
-    actual-error and error in repr(output)
+  let passed = if expect-error {
+    actual-error and (error == none or error in repr(output))
   } else {
     not actual-error and validate(output, expected)
   }
@@ -19,7 +19,8 @@
     results.push((
       name: name,
       passed: passed,
-      expected-error: error,
+      expected-error: expect-error,
+      error-contains: error,
       actual-error: actual-error,
     ))
     results
@@ -33,7 +34,12 @@
 
 /// Assertion for a calculation expected to return an inline error.
 /// If `contains` is provided, the rendered error must contain that text.
-#let assert-error(name, output, contains: none) = record-test(name, output, error: contains)
+#let assert-error(name, output, contains: none) = record-test(
+  name,
+  output,
+  expect-error: true,
+  error: contains,
+)
 
 /// Emits the final report as queryable metadata.
 #let emit-test-report() = context {
@@ -119,11 +125,13 @@
   let rows = cases.pos().map((case, index) => {
     let expression = op(case.v1, case.v2)
     let output = comp(expression)
-    let expected-error = if "error" in case { case.error } else { none }
+    let expect-error = "error" in case
+    let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
       title + " case " + str(index + 1),
       output,
       expected: if "e" in case { case.e } else { none },
+      expect-error: expect-error,
       error: expected-error,
     )
 
@@ -161,11 +169,13 @@
   let rows = cases.pos().map((case, index) => {
     let expression = op(case.v)
     let output = comp(expression)
-    let expected-error = if "error" in case { case.error } else { none }
+    let expect-error = "error" in case
+    let expected-error = if expect-error { case.error } else { none }
     let (passed, update) = record-test(
       title + " case " + str(index + 1),
       output,
       expected: if "e" in case { case.e } else { none },
+      expect-error: expect-error,
       error: expected-error,
     )
 
