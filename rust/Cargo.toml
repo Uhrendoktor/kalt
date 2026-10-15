@@ -10,7 +10,7 @@ description = "Advanced equation parsing and evaluation for nested typst equatio
 crate-type = ["lib"]
 
 [dependencies]
-kalt_macros = { path = "./kalt_macros", version = "0.1.0" }
+kalt_macros = { path = "./kalt_macros", version = "0.1.1" }
 chumsky = { workspace = true }
 num-traits = "0.2.19"
 derive_more = "2.1.1"
