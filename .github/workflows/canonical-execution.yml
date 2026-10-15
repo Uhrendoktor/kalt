@@ -2,7 +2,6 @@ name: canonical-execution
 
 on:
   push:
-    branches: [dev0.1.1-test-infra]
   pull_request:
   workflow_dispatch:
 
@@ -14,7 +13,6 @@ jobs:
   typst-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
           repository: Uhrendoktor/sertyp
