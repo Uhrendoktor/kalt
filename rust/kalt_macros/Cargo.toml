@@ -3,6 +3,8 @@ name = "kalt_macros"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+license.workspace = true
+description = "Procedural macros for the Kalt crate"
 
 [lib]
 proc-macro = true
