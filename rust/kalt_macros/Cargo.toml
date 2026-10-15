@@ -8,5 +8,5 @@ edition.workspace = true
 proc-macro = true
 
 [dependencies]
-syn = "2.0.118"
+syn = { version = "3.0.9", features = ["full"] }
 quote = "1.0.46"
