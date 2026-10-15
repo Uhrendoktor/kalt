@@ -27,8 +27,9 @@
   if real == none or imag == none or expected-real == none or expected-imag == none { return false }
 
   let dist(a, b) = {
-    if is-nan-or-inf(a) and is-nan-or-inf(b) { return 0 }
-    else if is-nan-or-inf(a) or is-nan-or-inf(b) { return 1e100000 }
+    if is-nan-or-inf(a) and is-nan-or-inf(b) { return 0 } else if is-nan-or-inf(a) or is-nan-or-inf(b) {
+      return 1e100000
+    }
     calc.abs(a - b)
   }
   if dist(real, expected-real) > 1e-6 or dist(imag, expected-imag) > 1e-6 { return false }
@@ -99,28 +100,35 @@
 
 // Runs a table-driven binary operation test and renders it in visual mode.
 #let binary-operation(title, description, op, ..cases) = {
-  let rows = cases.pos().enumerate().map(((index, case)) => {
-    let expression = op(case.v1, case.v2)
-    let output = comp(expression)
-    let expect-error = "error" in case
-    let (passed, update) = record-test(
-      title + " case " + str(index + 1), output,
-      expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error,
-      error: if expect-error { case.error } else { none },
-    )
-    if ci-mode { return update }
-    (
-      [#update #expression], block($#output$),
-      if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
-      if passed { "PASS" } else { "FAIL" },
-    )
-  })
+  let rows = cases
+    .pos()
+    .enumerate()
+    .map(((index, case)) => {
+      let expression = op(case.v1, case.v2)
+      let output = comp(expression)
+      let expect-error = "error" in case
+      let (passed, update) = record-test(
+        title + " case " + str(index + 1),
+        output,
+        expected: if "e" in case { case.e } else { none },
+        expect-error: expect-error,
+        error: if expect-error { case.error } else { none },
+      )
+      if ci-mode { return update }
+      (
+        [#update #expression],
+        block($#output$),
+        if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
+        if passed { "PASS" } else { "FAIL" },
+      )
+    })
   if ci-mode { return rows.join() }
   [
     == #title
     #description
-    #table(columns: 4, align: left,
+    #table(
+      columns: 4,
+      align: left,
       [*Input*], [*Output*], [*Expected*], [*Result*],
       ..rows.flatten(),
     )
@@ -129,28 +137,35 @@
 
 // Runs a table-driven unary operation test and renders it in visual mode.
 #let unary-operation(title, description, op, ..cases) = {
-  let rows = cases.pos().enumerate().map(((index, case)) => {
-    let expression = op(case.v)
-    let output = comp(expression)
-    let expect-error = "error" in case
-    let (passed, update) = record-test(
-      title + " case " + str(index + 1), output,
-      expected: if "e" in case { case.e } else { none },
-      expect-error: expect-error,
-      error: if expect-error { case.error } else { none },
-    )
-    if ci-mode { return update }
-    (
-      [#update #expression], block($#output$),
-      if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
-      if passed { "PASS" } else { "FAIL" },
-    )
-  })
+  let rows = cases
+    .pos()
+    .enumerate()
+    .map(((index, case)) => {
+      let expression = op(case.v)
+      let output = comp(expression)
+      let expect-error = "error" in case
+      let (passed, update) = record-test(
+        title + " case " + str(index + 1),
+        output,
+        expected: if "e" in case { case.e } else { none },
+        expect-error: expect-error,
+        error: if expect-error { case.error } else { none },
+      )
+      if ci-mode { return update }
+      (
+        [#update #expression],
+        block($#output$),
+        if "e" in case { block($#case.e$) } else { [expected error: #case.error] },
+        if passed { "PASS" } else { "FAIL" },
+      )
+    })
   if ci-mode { return rows.join() }
   [
     == #title
     #description
-    #table(columns: 4, align: left,
+    #table(
+      columns: 4,
+      align: left,
       [*Input*], [*Output*], [*Expected*], [*Result*],
       ..rows.flatten(),
     )
