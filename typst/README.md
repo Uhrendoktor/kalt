@@ -22,7 +22,7 @@ $comp(frac(binom(2, 5) (1 + 3 i)^4.3 (2 - 3 i)^(2-5) 5!, sqrt((3+4i)(3-4i))) dot
 ## Import and start evaluating
 
 ```typst
-#import "@preview/kalt:0.1.0": comp;
+#import "@preview/kalt:0.1.1": comp;
 ```
 
 `comp` evaluates the supplied math content and returns Typst content. This means
@@ -130,7 +130,7 @@ $comp(#m compose #m)$ // => mat(1, 4, 9; 16, 25, 36)
 You can also apply custom mapping functions to each element in Typst:
 
 ```typst
-#import "@preview/kalt:0.1.0": comp, map;
+#import "@preview/kalt:0.1.1": comp, map;
 
 $map(mat(2, 2; 2, 6), #{ a => $#a + 3$ })$ // => mat(5, 5; 5, 9)
 ```
@@ -138,7 +138,7 @@ $map(mat(2, 2; 2, 6), #{ a => $#a + 3$ })$ // => mat(5, 5; 5, 9)
 Or merge multiple matrices together:
 
 ```typst
-#import "@preview/kalt:0.1.0": comp, merge;
+#import "@preview/kalt:0.1.1": comp, merge;
 
 $merge(#{ (a, b) => $log_#a (#b)$ }, mat(2, 2; 2, 2), mat(2, 2; 2, 8))$ // => mat(1, 1; 1, 3)
 ```
