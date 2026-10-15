@@ -23,7 +23,6 @@
 
 /// Maps a single or multiple matrices/vectors element-wise using the given function.
 ///
-/// = Arguments
 /// - `fn(..elements) -> element`: A Typst function that combines one value from each matrix.
 /// - `..mats`: The matrices to map.
 ///

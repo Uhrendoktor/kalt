@@ -1,7 +1,6 @@
-// visual test suite for kalt
+// Visual and CI test suite for kalt
 
-#import "../lib.typ": comp, map
-#import "utils.typ" as helpers
+#import "utils.typ": emit-test-report
 
 #set page(margin: 14pt)
 
@@ -24,3 +23,6 @@
 #include "ops/ln.typ"
 #include "ops/log.typ"
 #include "ops/re_im.typ"
+#include "errors.typ"
+
+#emit-test-report()
