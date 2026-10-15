@@ -13,7 +13,7 @@ jobs:
   typst-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: Uhrendoktor/sertyp
           ref: dev0.1.6
@@ -21,10 +21,12 @@ jobs:
       - name: Prepare and build bindings
         run: |
           ln -s "$GITHUB_WORKSPACE/sertyp" "$GITHUB_WORKSPACE/../sertyp"
+          ls -a
+          pwd
           rustup target add wasm32-unknown-unknown
           cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
           cp target/wasm32-unknown-unknown/release/bindings.wasm typst/bindings.wasm
-      - uses: typst-community/setup-typst@v3
+      - uses: typst-community/setup-typst@v5
         with:
           typst-version: 0.15.1
       - name: Run tests
@@ -44,7 +46,7 @@ jobs:
               raise SystemExit(1)
           PY
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kalt-test-report
           path: /tmp/kalt-test-report.json
