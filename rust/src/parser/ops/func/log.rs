@@ -1,0 +1,90 @@
+use chumsky::{Parser, span::Spanned};
+use num::Zero;
+use sertyp::{SYMBOL_CC, SYMBOL_eq_not, SYMBOL_in, TypstError, content, sequence};
+
+use crate::{
+    Expects, match_tensors,
+    parser::{
+        ParserError,
+        atoms::{matrix::Matrix, tensor::Tensor},
+        ops::{
+            self,
+            element_wise::validate_same_shape,
+            func::{func_parser, subscript_parser},
+            word_or_op,
+        },
+        pratt::{pratt, span},
+    },
+    subscript,
+};
+
+/// Computes log_b(v) for complex numbers b and v
+pub fn log_c(c1: &num::Complex<f64>, c2: &num::Complex<f64>) -> num::Complex<f64> {
+    c2.ln() / c1.ln()
+}
+
+fn validate_base<'data>(base: &Spanned<num::Complex<f64>>) -> Expects<'data, ()> {
+    if base.is_zero() {
+        return Err(TypstError::full(
+            base.span,
+            "logarithm base cannot be zero",
+            content!(sequence!(
+                subscript!({"log"}_{"b"}),
+                "(c) | b",
+                SYMBOL_in,
+                subscript!({SYMBOL_CC}_{sequence!(SYMBOL_eq_not, "1")})
+            )),
+            content!(sequence!(subscript!({"log"}_{"0"}), "(x)")),
+        ));
+    }
+    Ok(())
+}
+
+/// Computes log_b(v):
+/// (scalar, scalar) -> scalar
+/// (scalar, matrix) -> matrix (element-wise)
+/// (matrix, scalar) -> matrix (element-wise)
+/// (matrix, matrix) -> matrix (element-wise) only if same shape
+pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'data, Tensor> {
+    match_tensors!((base, value) => {
+        (s1, s2) => |s1: Spanned<num::Complex<f64>>, s2: Spanned<num::Complex<f64>>| Ok(log_c(&s1, &s2)),
+        (s, m) => |s: Spanned<num::Complex<f64>>, mut m: Spanned<Matrix>| {
+            validate_base(&s)?;
+            m.inner.mapv_inplace(|el| log_c(&s, &el));
+            Ok(m.inner)
+        },
+        (m, s) => |mut m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| {
+            m.iter().try_for_each(|v| validate_base(&m.span.make_wrapped(*v)))?;
+            m.inner.mapv_inplace(|el| log_c(&el, &s));
+            Ok(m.inner)
+        },
+        (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
+            validate_same_shape(|c1, c2| content!(sequence![subscript!({"log"}_{c1}), '(', c2, ')']))(
+                m1.span.make_wrapped(&m1.inner),
+                m2.span.make_wrapped(&m2.inner),
+            )?;
+            m1.iter_mut().zip(m2.iter()).try_for_each(|(x, y)| {
+                validate_base(&m2.span.make_wrapped(*x))?;
+                *x = log_c(x, y);
+                Ok::<_, TypstError>(())
+            })?;
+            Ok(m1.inner)
+        }
+    })
+}
+
+/// Parses the log keyword and returns the base
+///
+/// EBNF:
+/// "log" _ <tensor>
+#[kalt_macros::parser]
+pub fn log_fn<'data>() -> Expects<'data, Spanned<Tensor>> {
+    subscript_parser(|| word_or_op("log"), pratt).map(|(_, base)| ops::transpose(base))
+}
+
+#[kalt_macros::parser]
+pub fn log(
+    parser: impl 'this + Parser<'this, I, Expects<'data, Tensor>, ParserError<'data>>,
+) -> Expects<'data, Tensor> {
+    func_parser(log_fn(), span(parser)).map(|(base, value)| log_t(base?, value?))
+}
