@@ -12,8 +12,8 @@ name = "bindings"
 
 [profile.release]
 panic = "unwind"
-opt-level = 1
-lto = false
+lto = true
+opt-level = 's'
 
 [dependencies]
 wasm-minimal-protocol = "0.2.0"
