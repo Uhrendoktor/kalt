@@ -11,14 +11,11 @@
 
 // Compares scalar or complex scalar output with a tolerance of 1e-6.
 #let validate-scalar(output, expected) = {
-  let is-nan-or-inf(val) = {
-    if val in ("NaN", "nan", "Inf", "inf") { return true }
-    return false
-  }
+  let is-nan-or-inf(val) = str(val) in ("NaN", "nan", "Inf", "inf")
   let part(op, output) = {
     let c = comp($#op (#output)$)
     if type(c) == float {
-      if is-nan-or-inf(repr(c)) { return repr(c) }
+      if is-nan-or-inf(c) { return repr(c) }
       return c
     }
     if ("body" not in c.fields()) { return none }
