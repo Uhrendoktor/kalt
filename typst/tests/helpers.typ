@@ -3,7 +3,7 @@
 #import "../lib.typ": all, any, comp, map
 #import "utils.typ": assert-typst-eq, assert-eq
 
-#assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), "float")
+#assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), float)
 
 #assert-eq(
   "map callback receives x and y coordinates",
