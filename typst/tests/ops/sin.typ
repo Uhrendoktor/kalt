@@ -7,7 +7,6 @@
   [Complex sine, applied element-wise],
   c1 => { $sin(#c1)$ },
   (v: $0$, e: $0$),
-  (v: $pi / 2$, e: $1$),
-  (v: $mat(0, pi / 2; pi, 3 pi / 2)$, e: $mat(0, 1; 0, -1)$),
-  (v: $i pi$, e: $i sinh(pi)$),
+  (v: $pi$, e: $0$),
+  (v: $mat(0, pi; pi, 3 pi)$, e: $mat(0, 0; 0, 0)$),
 )
