@@ -22,6 +22,7 @@ pub mod floor;
 pub mod func;
 pub mod index;
 pub mod mul;
+pub mod modulo;
 pub mod pow;
 pub mod root;
 pub mod round;

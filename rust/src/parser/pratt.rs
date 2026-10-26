@@ -20,9 +20,11 @@ use crate::parser::ops::dot::{dot, pratt_dot, pratt_dot_operator};
 use crate::parser::ops::factorial::{pratt_factorial, pratt_factorial_operator};
 use crate::parser::ops::floor::floor;
 use crate::parser::ops::func::ln::ln;
+use crate::parser::ops::func::trig::trig;
 use crate::parser::ops::func::log::log;
 use crate::parser::ops::func::re_im::{im, re};
 use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
+use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::pow::pow;
 use crate::parser::ops::root::root;
@@ -107,6 +109,7 @@ pub fn atom_like(
         binom(),
         ln(expr.clone()),
         log(expr.clone()),
+        trig(expr.clone()),
         abs(expr.clone()),
         floor(expr.clone()),
         ceil(expr.clone()),
@@ -154,6 +157,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     infix(left(3), pratt_dot_operator(), pratt_dot),
                     // Multiplication: element wise
                     infix(left(3), pratt_mul_operator(), pratt_mul),
+                    infix(left(3), pratt_modulo_operator(), pratt_modulo),
                     // Multiplication: cross product
                     infix(left(3), pratt_cross_operator(), pratt_cross),
                     // Addition

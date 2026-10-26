@@ -10,7 +10,7 @@
 /// - `body`: The Typst math content to evaluate.
 ///
 /// = Returns
-/// The evaluated Typst content.
+/// A Typst float for real scalar results; otherwise the evaluated Typst content.
 ///
 /// = Example
 /// ```typst
@@ -21,9 +21,9 @@
   return sertyp.call(kalt.comp, body)
 }
 
-/// Maps a single or multiple matrices/vectors element-wise using the given function.
+/// Maps one or more matrices/vectors element-wise using the given function.
 ///
-/// - `fn(..elements) -> element`: A Typst function that combines one value from each matrix.
+/// - `fn(..elements, index) -> element`: A Typst function receiving one value from each matrix and the zero-based row-major cell index last.
 /// - `..mats`: The matrices to map.
 ///
 /// = Returns
@@ -32,6 +32,8 @@
 /// = Note
 /// Missing cells are passed as `none`.
 /// Cells can be missing if the matrices have different sizes.
+/// Numeric math results are converted to floats when possible; other content is preserved.
+/// Maps matrices element-wise and passes each cell's zero-based row-major index last.
 #let map(fn, ..mats) = {
   let elements = mats.pos().map(mat => sertyp.call(kalt.to_elements, mat))
   let max_rows = calc.max(..elements.map(element => element.len()))
@@ -43,13 +45,26 @@
     let j = 0
     mapped.push(array(()))
     while (j < max_cols) {
-      mapped.at(i).push(fn(..elements.map(row => row.at(i, default: array(())).at(j, default: none))))
+      let value = fn(
+        ..elements.map(row => row.at(i, default: array(())).at(j, default: none)),
+        i * max_cols + j,
+      )
+      if type(value) == content and repr(value).starts-with("content((func: \"math.equation\"") {
+        let computed = comp(value)
+        if type(computed) == float {
+          value = computed
+        }
+      }
+      mapped.at(i).push(value)
       j += 1
     }
     i += 1
   }
 
-  return comp(math.mat(..mapped))
+  if max_cols == 1 {
+    return math.vec(..mapped.map(row => row.at(0)))
+  }
+  return math.mat(..mapped)
 }
 
 /// Returns the variant of a tensor (scalar or matrix).
@@ -77,3 +92,17 @@
 
   return value
 }
+
+/// Returns whether the predicate succeeds for at least one aligned matrix cell.
+#let any(fn, ..mats) = reduce(
+  (acc, ..elements) => acc or fn(..elements),
+  false,
+  ..mats,
+)
+
+/// Returns whether the predicate succeeds for every aligned matrix cell.
+#let all(fn, ..mats) = reduce(
+  (acc, ..elements) => acc and fn(..elements),
+  true,
+  ..mats,
+)

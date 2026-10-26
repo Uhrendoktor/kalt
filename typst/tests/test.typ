@@ -13,6 +13,9 @@
 #include "ops/dot.typ";
 #include "ops/sub.typ";
 #include "ops/mul.typ";
+#include "ops/modulo.typ";
+#include "ops/trig.typ";
+#include "helpers.typ";
 #include "ops/div.typ";
 #include "ops/floor.typ";
 #include "ops/factorial.typ";

@@ -17,6 +17,7 @@
   }
   let part(op, output) = {
     let c = comp($#op (#output)$)
+    if type(c) == float { return c }
     if ("body" not in c.fields()) { return none }
     let val = c.body.children.at(0).text
     if is-nan-or-inf(val) { return val }
@@ -38,6 +39,11 @@
 
 // Compares scalar or matrix output with the same scalar tolerance.
 #let validate(output, expected) = {
+  if type(output) == float {
+    let expected = comp(expected)
+    if type(expected) != float { return false }
+    return calc.abs(output - expected) <= 1e-6
+  }
   if type(output) != type(expected) { return false }
   if tensor-variant(output) == "matrix" {
     reduce((acc, output, expected) => acc and validate-scalar(output, expected), true, output, expected)

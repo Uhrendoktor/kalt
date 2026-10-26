@@ -2,8 +2,9 @@
 
 Kalt evaluates arbitrary nested equations and removes the need to transcribe
 your equations into the default `calc` system. It supports scalars, complex
-numbers, matrices, vectors, and matrix indexing while keeping the result as
-normal Typst content.
+numbers, matrices, vectors, and matrix indexing. Real scalar results from
+`comp` are returned as Typst floats; complex scalars and matrices remain
+math content.
 
 Complex equation?
 
@@ -42,6 +43,7 @@ available through `comp`.
 - `*` — element-wise multiplication. Scalar-matrix multiplication is also
   applied element-wise.
 - `/` — element-wise division.
+- `%` — Euclidean modulo for real operands, applied element-wise to matrices.
 - `^` — exponentiation.
 - `!` — factorial.
 - `binom(a, b)` — binomial coefficient. For matrices, both arguments must have
@@ -96,12 +98,26 @@ $comp(mat(1,2;4,5)[::, 1])$ // => mat(2; 5)
 $comp(mat(1,2,3;4,5,6)[1:2:, [2,1]])$ // => mat(6, 5)
 ```
 
-### Built-in Functions
+### Trigonometric and Hyperbolic Functions
+
+- `sin(x)`, `cos(x)`, and `tan(x)` — complex sine, cosine, and tangent.
+- `sin^(-1)(x)`, `cos^(-1)(x)`, and `tan^(-1)(x)` — principal inverse
+  trigonometric functions. The aliases `arcsin(x)`, `arccos(x)`, and
+  `arctan(x)` are also supported.
+- `sinh(x)`, `cosh(x)`, and `tanh(x)` — hyperbolic functions.
+
+All these operations are applied element-wise to matrices and vectors.
+
+### Other Built-in Functions
 
 - `ln(x)` — natural logarithm.
 - `log_a(x)` — logarithm of `x` with base `a`.
 
+Real-valued scalar results are returned as Typst floats, so they can be used
+directly in calculations outside math mode.
+
 ```typst
+#let sine = comp($sin(pi / 2)$) // 1.0
 $comp(ln(2^4))$ // => 4.0
 $comp(log_2(16))$ // => 4.0
 ```
@@ -127,12 +143,27 @@ backend defines an element-wise matrix implementation:
 $comp(#m compose #m)$ // => mat(1, 4, 9; 16, 25, 36)
 ```
 
-You can also apply custom mapping functions to each element in Typst:
+You can also apply custom mapping functions to each element in Typst.
+The callback is the first argument, followed by one or more matrices. It
+receives one element from each matrix, followed by the zero-based, row-major
+cell index. When a callback returns numeric math content, `map` converts it
+to a Typst float where possible; other content (including highlights) is
+preserved.
 
 ```typst
 #import "@preview/kalt:0.1.1": comp, map;
 
-$map(mat(2, 2; 2, 6), #{ a => $#a + 3$ })$ // => mat(5, 5; 5, 9)
+$map(#{ (a, index) => $#a + #index + 3$ }, mat(2, 2; 2, 6))$
+```
+
+The helpers `any` and `all` apply a predicate to aligned cells from one or
+more matrices and report whether the predicate succeeds for any or every cell:
+
+```typst
+#import "@preview/kalt:0.1.1": any, all, comp;
+
+#any(a => comp(a) > 3, $mat(1, 2; 3, 4)$) // => true
+#all(a => comp(a) > 0, $mat(1, 2; 3, 4)$) // => true
 ```
 
 Or merge multiple matrices together:

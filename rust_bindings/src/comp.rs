@@ -5,17 +5,24 @@ use kalt::parser::{
     validator::matrix,
 };
 use sertyp::{
-    Content, LocatingSequence, Sequence, TypedArray, TypedContent, TypedSequence, TypstError,
-    parse, typst_func,
+    Content, Float, Item, LocatingSequence, Sequence, TypedArray, TypedContent, TypedSequence,
+    TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
 #[typst_func()]
-pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Content<'data> {
+pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Item<'data> {
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
-    TypstError::contentize(c, &seq)
+
+    if let Ok(Tensor::Scalar(value)) = &c {
+        if value.im == 0.0 {
+            return Float::from(value.re).into();
+        }
+    }
+
+    TypstError::contentize(c, &seq).into()
 }
 
 #[typst_func()]
