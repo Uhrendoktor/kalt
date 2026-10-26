@@ -45,7 +45,7 @@ fn modulo_c<'data>(
 pub fn modulo<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
-    operator: &str,
+    operator: &'data str,
 ) -> Expects<'data, Tensor> {
     element_wise2(
         modulo_c,
@@ -55,6 +55,6 @@ pub fn modulo<'data>(
     )
 }
 
-pratt_infix!(modulo, String => |op, lhs: Spanned<_>, rhs: Spanned<_>| {
+pratt_infix!(modulo, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(modulo(lhs, rhs, op.as_str())?))
 });
