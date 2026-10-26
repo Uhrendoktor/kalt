@@ -3,13 +3,13 @@ use num::Zero;
 use sertyp::{SYMBOL_CC, SYMBOL_eq_not, SYMBOL_in, TypstError, content, sequence};
 
 use crate::{
-    Expects, match_tensors,
+    Expects,
     parser::{
         ParserError,
-        atoms::{matrix::Matrix, tensor::Tensor},
+        atoms::tensor::Tensor,
         ops::{
             self,
-            element_wise::validate_same_shape,
+            element_wise::{element_wise2, validate_same_shape},
             func::{func_parser, subscript_parser},
             word_or_op,
         },
@@ -18,9 +18,11 @@ use crate::{
     subscript,
 };
 
+use super::ln::ln_c;
+
 /// Computes log_b(v) for complex numbers b and v
 pub fn log_c(c1: &num::Complex<f64>, c2: &num::Complex<f64>) -> num::Complex<f64> {
-    c2.ln() / c1.ln()
+    ln_c(c2) / ln_c(c1)
 }
 
 fn validate_base<'data>(base: &Spanned<num::Complex<f64>>) -> Expects<'data, ()> {
@@ -46,31 +48,17 @@ fn validate_base<'data>(base: &Spanned<num::Complex<f64>>) -> Expects<'data, ()>
 /// (matrix, scalar) -> matrix (element-wise)
 /// (matrix, matrix) -> matrix (element-wise) only if same shape
 pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'data, Tensor> {
-    match_tensors!((base, value) => {
-        (s1, s2) => |s1: Spanned<num::Complex<f64>>, s2: Spanned<num::Complex<f64>>| Ok(log_c(&s1, &s2)),
-        (s, m) => |s: Spanned<num::Complex<f64>>, mut m: Spanned<Matrix>| {
-            validate_base(&s)?;
-            m.inner.mapv_inplace(|el| log_c(&s, &el));
-            Ok(m.inner)
+    element_wise2(
+        |base, value| {
+            validate_base(&base)?;
+            Ok(log_c(&base, &value))
         },
-        (m, s) => |mut m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| {
-            m.iter().try_for_each(|v| validate_base(&m.span.make_wrapped(*v)))?;
-            m.inner.mapv_inplace(|el| log_c(&el, &s));
-            Ok(m.inner)
-        },
-        (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
-            validate_same_shape(|c1, c2| content!(sequence![subscript!({"log"}_{c1}), '(', c2, ')']))(
-                m1.span.make_wrapped(&m1.inner),
-                m2.span.make_wrapped(&m2.inner),
-            )?;
-            m1.iter_mut().zip(m2.iter()).try_for_each(|(x, y)| {
-                validate_base(&m2.span.make_wrapped(*x))?;
-                *x = log_c(x, y);
-                Ok::<_, TypstError>(())
-            })?;
-            Ok(m1.inner)
-        }
-    })
+        validate_same_shape(|base, value| {
+            content!(sequence![subscript!({"log"}_{base}), '(', value, ')'])
+        }),
+        base,
+        value,
+    )
 }
 
 /// Parses the log keyword and returns the base
