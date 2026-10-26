@@ -38,6 +38,20 @@ pub mod transpose;
 /// ```
 #[macro_export]
 macro_rules! pratt_infix {
+    ($name:ident, $operator_type:ty => $map:expr) => {
+        paste::paste! {
+            #[doc = concat!("Application of pratt parser for operation:", stringify!($name),)]
+            pub fn [<pratt_ $name>]<'this, 'data: 'this, I: sertyp::chumsky::LocatingSequenceLike<'this, 'data>>(
+                lhs: $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>>,
+                op: $operator_type,
+                rhs: $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>>,
+                _extra: &mut chumsky::input::MapExtra<'this, '_, I, $crate::parser::ParserError<'data>>,
+            ) -> $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>> {
+                #[allow(clippy::needless_question_mark)]
+                ($map)(op, lhs?, rhs?)
+            }
+        }
+    };
     ($name:ident => $map:expr) => {
         paste::paste! {
             #[doc = concat!("Application of pratt parser for operation:", stringify!($name),)]
