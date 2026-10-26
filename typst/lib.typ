@@ -39,7 +39,7 @@
 ///
 /// = Note
 /// Missing cells are passed as `none` when input shapes differ.
-/// Content cells are evaluated before the callback and replaced by their float result when `comp` returns one. Other content is passed through.
+/// Content cells are evaluated with `comp` before the callback; when it returns a float, that float is passed in. Already-float values and non-numeric content pass through unchanged.
 #let map(fn, ..mats) = {
   let elements = mats.pos().map(mat => {
     sertyp.call(kalt.to_elements, mat).map(row => row.map(to-float-if-possible))
