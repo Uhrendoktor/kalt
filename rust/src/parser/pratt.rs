@@ -21,12 +21,9 @@ use crate::parser::ops::factorial::{pratt_factorial, pratt_factorial_operator};
 use crate::parser::ops::floor::floor;
 use crate::parser::ops::func::ln::ln;
 use crate::parser::ops::func::{
-    sin::{asin, sin},
-    cos::{acos, cos},
-    tan::{atan, tan},
-    sinh::sinh,
-    cosh::cosh,
-    tanh::tanh,
+    sin::{asin, sin, sinh},
+    cos::{acos, cos, cosh},
+    tan::{atan, tan, tanh},
 };
 use crate::parser::ops::func::log::log;
 use crate::parser::ops::func::re_im::{im, re};
