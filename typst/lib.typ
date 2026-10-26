@@ -32,8 +32,29 @@
 /// = Note
 /// Missing cells are passed as `none` when input shapes differ.
 /// Numeric math results are converted to floats when possible; other content is preserved.
+#let to-float-if-possible(value) = {
+  if type(value) == content {
+    let computed = comp(value)
+    if type(computed) == float { return computed }
+  }
+  value
+}
+
+/// Maps one or more matrices/vectors element-wise using the given function.
+///
+/// - `fn(..elements, x, y) -> element`: A callback receiving one value from each matrix, then the zero-based column (`x`) and row (`y`) coordinates.
+/// - `..mats`: One or more matrices or vectors whose cells are combined at matching coordinates.
+///
+/// = Returns
+/// A matrix containing the mapped elements.
+///
+/// = Note
+/// Missing cells are passed as `none` when input shapes differ.
+/// Numeric cells are passed to the callback as Typst floats when possible; non-numeric content is preserved.
 #let map(fn, ..mats) = {
-  let elements = mats.pos().map(mat => sertyp.call(kalt.to_elements, mat))
+  let elements = mats.pos().map(mat => {
+    sertyp.call(kalt.to_elements, mat).map(row => row.map(to-float-if-possible))
+  })
   let max_rows = calc.max(..elements.map(element => element.len()))
   let max_cols = calc.max(..elements.map(element => calc.max(..element.map(row => row.len()))))
 
@@ -44,16 +65,10 @@
     mapped.push(array(()))
     while (j < max_cols) {
       let value = fn(
-        ..elements.map(row => row.at(i, default: array(())).at(j, default: none)),
+        ..elements.map(matrix => matrix.at(i, default: array(())).at(j, default: none)),
         j,
         i,
       )
-      if type(value) == content {
-        let computed = comp(value)
-        if type(computed) == float {
-          value = computed
-        }
-      }
       mapped.at(i).push(value)
       j += 1
     }
