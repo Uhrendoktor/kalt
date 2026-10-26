@@ -1,4 +1,4 @@
-use chumsky::{Parser, primitive::choice, span::{SimpleSpanned, Span, Spanned, WrappingSpan}};
+use chumsky::{primitive::choice, span::{SimpleSpanned, Span, Spanned, WrappingSpan}};
 use num::Complex;
 use sertyp::{SYMBOL_eq_not, TypstError, chumsky::parser::character, content, equation};
 
