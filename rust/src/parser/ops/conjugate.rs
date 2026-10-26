@@ -9,10 +9,9 @@ use sertyp::{
 };
 
 use crate::{
-    Expects,
+    Expects, match_tensor,
     parser::{
-        atoms::tensor::Tensor,
-        ops::element_wise::element_wise,
+        atoms::{matrix::Matrix, tensor::Tensor},
         pratt::pratt,
     },
 };
@@ -21,21 +20,26 @@ use crate::{
 /// scalar -> scalar
 /// matrix -> matrix (element-wise)
 pub fn conjugate_t<'data>(t: Spanned<Tensor>, op: char) -> Expects<'data, Tensor> {
-    let span = t.span;
-    element_wise(
-        |value: Spanned<num::Complex<f64>>| match op {
-            #[allow(non_upper_case_globals)]
-            SYMBOL_ast_op | SYMBOL_ast_basic => Ok(value.inner.conj()),
-            op => Err(TypstError::full(
-                span,
-                sequence!["Cannot conjugate a scalar using this operator. Try using", SYMBOL_ast_op, SYMBOL_ast_basic, "for scalars."],
-                "matrix",
-                content!(pow!({"scalar"} ^ {op})),
-            )),
+    match_tensor!((t) => {
+        s => |s: Spanned<num::Complex<f64>>| {
+            match op {
+                #[allow(non_upper_case_globals)]
+                SYMBOL_ast_op | SYMBOL_ast_basic => {
+                    Ok(s.inner.conj())
+                }
+                op => Err(TypstError::full(
+                    t.span,
+                    sequence!["Cannot conjugate a scalar using this operator. Try using", SYMBOL_ast_op, SYMBOL_ast_basic, "for scalars."],
+                    "matrix",
+                    content!(pow!({"scalar"} ^ {op})),
+                )),
+            }
         },
-        |_| Ok(()),
-        t,
-    )
+        m => |mut m: Spanned<Matrix>| {
+            m.inner.mapv_inplace(|el| el.conj());
+            Ok(m.inner)
+        }
+    })
 }
 
 /// Parses a tensor exponent
