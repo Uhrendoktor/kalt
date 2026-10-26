@@ -16,3 +16,10 @@
   c1 => { $arctan(#c1)$ },
   (v: $0$, e: $0$),
 )
+
+#unary_operation(
+  "Inverse Tangent Short Alias",
+  [The atan function name is an alias for inverse tangent],
+  c1 => { $atan(#c1)$ },
+  (v: $0$, e: $0$),
+)
