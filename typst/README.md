@@ -145,9 +145,10 @@ $comp(#m compose #m)$ // => mat(1, 4, 9; 16, 25, 36)
 You can also apply custom mapping functions to each element in Typst.
 The callback is the first argument, followed by one or more matrices. It
 receives one element from each matrix, followed by its zero-based column
-coordinate `x` and row coordinate `y`. When a callback returns numeric math
-content, `map` converts it to a Typst float where possible; other content
-(including highlights) is preserved.
+coordinate `x` and row coordinate `y`. Numeric matrix cells are passed to the
+callback as Typst floats when possible; non-numeric content is preserved. The
+callback's return value is kept as returned, including arbitrary content such
+as highlights.
 
 ```typst
 #import "@preview/kalt:0.1.1": comp, map;
