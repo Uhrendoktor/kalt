@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    arccos_fn,
     arccos,
     inverse "cos",
     "arccos",
