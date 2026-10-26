@@ -19,3 +19,10 @@ where
         }
     })
 }
+/// Returns whether a parsed exponent is exactly -1, used by inverse trig parsers.
+pub fn is_negative_one(exponent: &crate::Expects<'_, Tensor>) -> bool {
+    matches!(
+        exponent,
+        Ok(Tensor::Scalar(value)) if *value == Complex::new(-1.0, 0.0)
+    )
+}
