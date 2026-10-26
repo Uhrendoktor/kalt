@@ -12,19 +12,30 @@
 // Compares scalar or complex scalar output with a tolerance of 1e-6.
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
-    if val in ("NaN", "nan", "Inf", "inf", "float.nan", "float.inf", "-float.inf") { return true }
-    return false
+    val in ("NaN", "nan", "Inf", "inf", "-Inf", "-inf")
+  }
+  let special-float(value) = {
+    if type(value) != float { return none }
+    if value.is-nan() { return "NaN" }
+    if value.is-infinite() {
+      return if value < 0 { "-Inf" } else { "Inf" }
+    }
+    none
   }
   let part(op, output) = {
     let c = comp($#op (#output)$)
     if type(c) == float {
-      if is-nan-or-inf(repr(c)) { return repr(c) }
+      let special = special-float(c)
+      if special != none { return special }
       return c
     }
     if ("body" not in c.fields()) { return none }
     let val = c.body.children.at(0).text
     if is-nan-or-inf(val) { return val }
-    eval(val)
+    let evaluated = eval(val)
+    let special = special-float(evaluated)
+    if special != none { return special }
+    evaluated
   }
   let (real, imag) = (part($Re$, output), part($Im$, output))
   let (expected-real, expected-imag) = (part($Re$, expected), part($Im$, expected))
