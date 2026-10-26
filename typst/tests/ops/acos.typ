@@ -17,3 +17,9 @@
   (v: $1$, e: $0$),
 )
 
+#unary_operation(
+  "Inverse Cosine Short Alias",
+  [The acos operator spelling is accepted too],
+  c1 => { $op("acos")(#c1)$ },
+  (v: $1$, e: $0$),
+)
