@@ -8,7 +8,7 @@
 #assert-eq(
   "map passes numeric cells to callback as floats",
   map(
-    value => if type(value) == float { $1$ } else { $2$ },
+    (value, x, y) => if type(value) == float { $1$ } else { $2$ },
     $mat(1, 2)$,
   ),
   $mat(1, 1)$,
