@@ -13,6 +13,17 @@
 #include "ops/dot.typ";
 #include "ops/sub.typ";
 #include "ops/mul.typ";
+#include "ops/modulo.typ";
+#include "ops/sin.typ";
+#include "ops/asin.typ";
+#include "ops/cos.typ";
+#include "ops/acos.typ";
+#include "ops/tan.typ";
+#include "ops/atan.typ";
+#include "ops/sinh.typ";
+#include "ops/cosh.typ";
+#include "ops/tanh.typ";
+#include "api.typ";
 #include "ops/div.typ";
 #include "ops/floor.typ";
 #include "ops/factorial.typ";

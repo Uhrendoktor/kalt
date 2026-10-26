@@ -22,6 +22,7 @@ pub mod floor;
 pub mod func;
 pub mod index;
 pub mod mul;
+pub mod modulo;
 pub mod pow;
 pub mod root;
 pub mod round;
@@ -37,6 +38,20 @@ pub mod transpose;
 /// ```
 #[macro_export]
 macro_rules! pratt_infix {
+    ($name:ident, $operator_type:ty => $map:expr) => {
+        paste::paste! {
+            #[doc = concat!("Application of pratt parser for operation:", stringify!($name),)]
+            pub fn [<pratt_ $name>]<'this, 'data: 'this, I: sertyp::chumsky::LocatingSequenceLike<'this, 'data>>(
+                lhs: $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>>,
+                op: $operator_type,
+                rhs: $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>>,
+                _extra: &mut chumsky::input::MapExtra<'this, '_, I, $crate::parser::ParserError<'data>>,
+            ) -> $crate::Expects<'data, chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>> {
+                #[allow(clippy::needless_question_mark)]
+                ($map)(op, lhs?, rhs?)
+            }
+        }
+    };
     ($name:ident => $map:expr) => {
         paste::paste! {
             #[doc = concat!("Application of pratt parser for operation:", stringify!($name),)]
@@ -235,6 +250,31 @@ pub mod element_wise {
         Expects, matrix_shape,
         parser::atoms::{matrix::Matrix, tensor::Tensor},
     };
+
+    /// Applies a pure complex-valued function to a tensor's scalar or matrix cells.
+    pub fn unary_tensor<F>(t: Tensor, function: F) -> Tensor
+    where
+        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
+    {
+        match t {
+            Tensor::Scalar(value) => Tensor::Scalar(function(value)),
+            Tensor::Matrix(mut matrix) => {
+                matrix.mapv_inplace(function);
+                Tensor::Matrix(matrix)
+            },
+        }
+    }
+
+    /// Applies a pure complex-valued function to a scalar or element-wise to a matrix.
+    pub fn unary<'data, F>(
+        t: SimpleSpanned<Tensor>,
+        function: F,
+    ) -> Expects<'data, Tensor>
+    where
+        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
+    {
+        Ok(unary_tensor(t.inner, function))
+    }
 
     pub fn element_wise<
         'data,

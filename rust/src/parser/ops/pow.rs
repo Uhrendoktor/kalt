@@ -33,6 +33,14 @@ pub fn matrix_shape_exponent<'data>(
     ))
 }
 
+/// Returns whether a parsed exponent is exactly -1, as used by inverse-function parsers.
+pub fn is_negative_one(exponent: &crate::Expects<'_, Tensor>) -> bool {
+    matches!(
+        exponent,
+        Ok(Tensor::Scalar(value)) if *value == num::Complex::new(-1.0, 0.0)
+    )
+}
+
 /// Computes c1^c2 for complex numbers
 pub fn pow_c(c1: &num::Complex<f64>, c2: &num::Complex<f64>) -> num::Complex<f64> {
     c1.powc(*c2)

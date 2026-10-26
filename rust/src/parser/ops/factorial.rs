@@ -3,7 +3,7 @@ use sertyp::SYMBOL_excl;
 use sertyp::chumsky::parser::character;
 
 use crate::parser::atoms::tensor::Tensor;
-use crate::parser::ops::element_wise::element_wise;
+use crate::parser::ops::element_wise::unary_tensor;
 use crate::pratt_postfix;
 
 /// Computes the factorial of a complex number using the gamma function.
@@ -15,7 +15,7 @@ pub fn factorial_c(c: &num::Complex<f64>) -> num::Complex<f64> {
 /// (scalar) -> scalar
 /// (matrix) -> matrix (element-wise)
 pub fn factorial_t(t: SimpleSpanned<Tensor>) -> Tensor {
-    element_wise(|c| Ok(factorial_c(&c)), |_| Ok(()), t).unwrap()
+    unary_tensor(t.inner, |value| factorial_c(&value))
 }
 
 /// Condition for the pratt parser to apply.

@@ -13,10 +13,91 @@ use sertyp::{
 
 use crate::parser::ParserError;
 
+/// Generates a trigonometric function and its inverse.
+macro_rules! trig_function {
+    (
+        $function_name:ident,
+        $description:literal,
+        $inverse_description:literal $(,)?
+    ) => {
+        paste::paste! {
+            #[kalt_macros::parser]
+            fn [<$function_name _fn>]() -> () {
+                $crate::parser::ops::word_or_op(stringify!($function_name)).ignored()
+            }
+
+            #[doc = $description]
+            #[kalt_macros::parser]
+            pub fn $function_name(
+                parser: impl 'this + chumsky::Parser<
+                    'this,
+                    I,
+                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
+                    $crate::parser::ParserError<'data>,
+                >,
+            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+                $crate::parser::ops::func::func_parser(
+                    [<$function_name _fn>](),
+                    $crate::parser::pratt::span(parser),
+                )
+                .map(|(_, value)| {
+                    $crate::parser::ops::element_wise::unary(value?, |value: num::Complex<f64>| {
+                        value.$function_name()
+                    })
+                })
+            }
+
+            #[kalt_macros::parser]
+            fn [<a $function_name _fn>]() -> () {
+                chumsky::primitive::choice((
+                    $crate::parser::ops::pow::pow_parser(
+                        || $crate::parser::ops::word_or_op(stringify!($function_name)),
+                        $crate::parser::pratt::pratt,
+                    )
+                    .filter(|(_, exponent)| {
+                        $crate::parser::ops::pow::is_negative_one(&exponent.inner)
+                    })
+                    .ignored(),
+                    chumsky::primitive::choice((
+                        $crate::parser::ops::word_or_op(concat!("a", stringify!($function_name))),
+                        $crate::parser::ops::word_or_op(concat!("arc", stringify!($function_name))),
+                    ))
+                    .ignored(),
+                ))
+            }
+
+            #[doc = $inverse_description]
+            #[kalt_macros::parser]
+            pub fn [<a $function_name>](
+                parser: impl 'this + chumsky::Parser<
+                    'this,
+                    I,
+                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
+                    $crate::parser::ParserError<'data>,
+                >,
+            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+                $crate::parser::ops::func::func_parser(
+                    [<a $function_name _fn>](),
+                    $crate::parser::pratt::span(parser),
+                )
+                .map(|(_, value)| {
+                    $crate::parser::ops::element_wise::unary(value?, |value: num::Complex<f64>| {
+                        value.[<a $function_name>]()
+                    })
+                })
+            }
+        }
+    };
+}
+pub(crate) use trig_function;
+
+pub mod cos;
 pub mod gamma;
 pub mod ln;
 pub mod log;
 pub mod re_im;
+pub mod sin;
+pub mod tan;
 
 /// Parses a typst `attach` with specific parsers for base and subscript (b)
 pub fn subscript_parser<

@@ -10,7 +10,7 @@
 /// - `body`: The Typst math content to evaluate.
 ///
 /// = Returns
-/// The evaluated Typst content.
+/// A Typst float for real scalar results; otherwise the evaluated Typst content.
 ///
 /// = Example
 /// ```typst
@@ -21,19 +21,29 @@
   return sertyp.call(kalt.comp, body)
 }
 
-/// Maps a single or multiple matrices/vectors element-wise using the given function.
+#let to-float-if-possible(value) = {
+  if type(value) == content {
+    let computed = comp(value)
+    if type(computed) == float { return computed }
+  }
+  value
+}
+
+/// Maps one or more matrices/vectors element-wise using the given function.
 ///
-/// - `fn(..elements) -> element`: A Typst function that combines one value from each matrix.
-/// - `..mats`: The matrices to map.
+/// - `fn(..elements, x, y) -> element`: A callback receiving one value from each matrix, then the zero-based column (`x`) and row (`y`) coordinates.
+/// - `..mats`: One or more matrices or vectors whose cells are combined at matching coordinates.
 ///
 /// = Returns
-/// A new matrix/vector containing the mapped elements.
+/// A matrix containing the mapped elements.
 ///
 /// = Note
-/// Missing cells are passed as `none`.
-/// Cells can be missing if the matrices have different sizes.
+/// Missing cells are passed as `none` when input shapes differ.
+/// Content cells are evaluated with `comp` before the callback; when it returns a float, that float is passed in. Already-float values and non-numeric content pass through unchanged.
 #let map(fn, ..mats) = {
-  let elements = mats.pos().map(mat => sertyp.call(kalt.to_elements, mat))
+  let elements = mats.pos().map(mat => {
+    sertyp.call(kalt.to_elements, mat).map(row => row.map(to-float-if-possible))
+  })
   let max_rows = calc.max(..elements.map(element => element.len()))
   let max_cols = calc.max(..elements.map(element => calc.max(..element.map(row => row.len()))))
 
@@ -43,13 +53,18 @@
     let j = 0
     mapped.push(array(()))
     while (j < max_cols) {
-      mapped.at(i).push(fn(..elements.map(row => row.at(i, default: array(())).at(j, default: none))))
+      let value = fn(
+        ..elements.map(matrix => matrix.at(i, default: array(())).at(j, default: none)),
+        j,
+        i,
+      )
+      mapped.at(i).push(value)
       j += 1
     }
     i += 1
   }
 
-  return comp(math.mat(..mapped))
+  return math.mat(..mapped)
 }
 
 /// Returns the variant of a tensor (scalar or matrix).
@@ -77,3 +92,43 @@
 
   return value
 }
+
+/// Returns whether a predicate succeeds for at least one aligned matrix cell.
+///
+/// - `fn(..elements) -> bool`: A predicate receiving one cell from each input matrix at the current coordinate.
+/// - `..mats`: One or more matrices or vectors to compare cell-by-cell. Missing cells are passed as `none`.
+///
+/// = Returns
+/// `true` when at least one predicate result is true; otherwise `false`.
+///
+/// = Example
+/// ```typst
+/// #import "@preview/kalt:0.1.1": any, comp
+/// #let m = $mat(1, 2; 3, 4)$
+/// #any(value => comp(value) > 3, m) // true
+/// ```
+#let any(fn, ..mats) = reduce(
+  (acc, ..elements) => acc or fn(..elements),
+  false,
+  ..mats,
+)
+
+/// Returns whether a predicate succeeds for every aligned matrix cell.
+///
+/// - `fn(..elements) -> bool`: A predicate receiving one cell from each input matrix at the current coordinate.
+/// - `..mats`: One or more matrices or vectors to compare cell-by-cell. Missing cells are passed as `none`.
+///
+/// = Returns
+/// `true` only when every predicate result is true; otherwise `false`.
+///
+/// = Example
+/// ```typst
+/// #import "@preview/kalt:0.1.1": all, comp
+/// #let m = $mat(1, 2; 3, 4)$
+/// #all(value => comp(value) > 0, m) // true
+/// ```
+#let all(fn, ..mats) = reduce(
+  (acc, ..elements) => acc and fn(..elements),
+  true,
+  ..mats,
+)

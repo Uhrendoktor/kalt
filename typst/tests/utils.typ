@@ -12,15 +12,30 @@
 // Compares scalar or complex scalar output with a tolerance of 1e-6.
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
-    if val in ("NaN", "nan", "Inf", "inf") { return true }
-    return false
+    val in ("NaN", "nan", "Inf", "inf", "-Inf", "-inf")
+  }
+  let special-float(value) = {
+    if type(value) != float { return none }
+    if value.is-nan() { return "NaN" }
+    if value.is-infinite() {
+      return if value < 0 { "-Inf" } else { "Inf" }
+    }
+    none
   }
   let part(op, output) = {
     let c = comp($#op (#output)$)
+    if type(c) == float {
+      let special = special-float(c)
+      if special != none { return special }
+      return c
+    }
     if ("body" not in c.fields()) { return none }
     let val = c.body.children.at(0).text
     if is-nan-or-inf(val) { return val }
-    eval(val)
+    let evaluated = eval(val)
+    let special = special-float(evaluated)
+    if special != none { return special }
+    evaluated
   }
   let (real, imag) = (part($Re$, output), part($Im$, output))
   let (expected-real, expected-imag) = (part($Re$, expected), part($Im$, expected))
@@ -38,6 +53,11 @@
 
 // Compares scalar or matrix output with the same scalar tolerance.
 #let validate(output, expected) = {
+  if type(output) == float {
+    let expected = comp(expected)
+    if type(expected) != float { return false }
+    return calc.abs(output - expected) <= 1e-6
+  }
   if type(output) != type(expected) { return false }
   if tensor-variant(output) == "matrix" {
     reduce((acc, output, expected) => acc and validate-scalar(output, expected), true, output, expected)
@@ -81,6 +101,25 @@
 // the diagnostic representation must contain that text.
 #let assert-error(name, output, contains: none) = {
   let (_, update) = record-test(name, output, expect-error: true, error: contains)
+  update
+}
+
+/// Records a test for values compared directly rather than parsed as math.
+#let assert-typst-eq(name, output, expected) = {
+  let passed = output == expected
+  let update = test-state.update(results => {
+    results.push((
+      name: name,
+      passed: passed,
+      expected-error: false,
+      error-contains: none,
+      actual-error: false,
+      actual-error-text: none,
+      debug-output: if not passed { repr(output) } else { none },
+      debug-expected: if not passed { repr(expected) } else { none },
+    ))
+    results
+  })
   update
 }
 

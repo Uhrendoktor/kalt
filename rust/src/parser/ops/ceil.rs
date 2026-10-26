@@ -5,10 +5,11 @@ use sertyp::{
 };
 
 use crate::{
-    Expects, match_tensor,
+    Expects,
     parser::{
         ParserError,
-        atoms::{matrix::Matrix, tensor::Tensor},
+        atoms::tensor::Tensor,
+        ops::element_wise::unary,
         pratt::span,
     },
 };
@@ -17,13 +18,7 @@ use crate::{
 /// scalar -> scalar (norm)
 /// matrix -> scalar (element-wise)
 pub fn ceil_t<'data>(t: Spanned<Tensor>) -> Expects<'data, Tensor> {
-    match_tensor!((t) => {
-        s => |s: Spanned<num::Complex<f64>>| Ok(num::Complex::<f64>::new(s.re.ceil(), s.im.ceil())),
-        m => |mut m: Spanned<Matrix>| {
-            m.inner.mapv_inplace(|el| num::Complex::<f64>::new(el.re.ceil(), el.im.ceil()));
-            Ok(m.inner)
-        }
-    })
+    unary(t, |value| num::Complex::<f64>::new(value.re.ceil(), value.im.ceil()))
 }
 
 /// Parses the ceiling operator

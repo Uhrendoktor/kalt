@@ -2,8 +2,9 @@
 
 Kalt evaluates arbitrary nested equations and removes the need to transcribe
 your equations into the default `calc` system. It supports scalars, complex
-numbers, matrices, vectors, and matrix indexing while keeping the result as
-normal Typst content.
+numbers, matrices, vectors, and matrix indexing. Real scalar results from
+`comp` are returned as Typst floats; complex scalars and matrices remain
+math content.
 
 Complex equation?
 
@@ -42,6 +43,7 @@ available through `comp`.
 - `*` — element-wise multiplication. Scalar-matrix multiplication is also
   applied element-wise.
 - `/` — element-wise division.
+- `%` or `mod` — modulo for real or complex operands, applied element-wise to matrices. For real operands, the remainder has the sign of the divisor. For complex operands, Kalt follows Wolfram Language: `a % b = a - b Floor[a / b]`, where `Floor` is applied separately to the real and imaginary parts.
 - `^` — exponentiation.
 - `!` — factorial.
 - `binom(a, b)` — binomial coefficient. For matrices, both arguments must have
@@ -96,12 +98,25 @@ $comp(mat(1,2;4,5)[::, 1])$ // => mat(2; 5)
 $comp(mat(1,2,3;4,5,6)[1:2:, [2,1]])$ // => mat(6, 5)
 ```
 
-### Built-in Functions
+### Trigonometric and Hyperbolic Functions
+
+- `sin(x)` — complex sine; `sin^(-1)(x)`, `arcsin(x)`, and the short operator alias `op("asin")(x)` — principal inverse sine.
+- `cos(x)` — complex cosine; `cos^(-1)(x)`, `arccos(x)`, and the short operator alias `op("acos")(x)` — principal inverse cosine.
+- `tan(x)` — complex tangent; `tan^(-1)(x)`, `arctan(x)`, and the short operator alias `op("atan")(x)` — principal inverse tangent.
+- `sinh(x)`, `cosh(x)`, and `tanh(x)` — hyperbolic sine, cosine, and tangent.
+
+All these operations are applied element-wise to matrices and vectors.
+
+### Other Built-in Functions
 
 - `ln(x)` — natural logarithm.
 - `log_a(x)` — logarithm of `x` with base `a`.
 
+Real-valued scalar results are returned as Typst floats, so they can be used
+directly in calculations outside math mode.
+
 ```typst
+#let sine = comp($sin(pi / 2)$) // 1.0
 $comp(ln(2^4))$ // => 4.0
 $comp(log_2(16))$ // => 4.0
 ```
@@ -127,12 +142,34 @@ backend defines an element-wise matrix implementation:
 $comp(#m compose #m)$ // => mat(1, 4, 9; 16, 25, 36)
 ```
 
-You can also apply custom mapping functions to each element in Typst:
+You can also apply custom mapping functions to each element in Typst.
+The callback is the first argument, followed by one or more matrices. It
+receives one element from each matrix, followed by its zero-based column
+coordinate `x` and row coordinate `y`. Numeric matrix cells are passed to the
+callback as Typst floats when possible; non-numeric content is preserved. The
+callback's return value is kept as returned, including arbitrary content such
+as highlights.
 
 ```typst
 #import "@preview/kalt:0.1.1": comp, map;
 
-$map(mat(2, 2; 2, 6), #{ a => $#a + 3$ })$ // => mat(5, 5; 5, 9)
+$map(#{ (a, x, y) => $#a + #x + #y + 3$ }, mat(2, 2; 2, 6))$
+```
+
+The helpers `any` and `all` take a predicate followed by one or more
+matrices or vectors. The predicate receives one element from each input at
+the current coordinate; if shapes differ, missing cells are passed as `none`.
+It must return a boolean. `any` returns true when at least one coordinate
+satisfies the predicate, while `all` returns true only when every coordinate
+satisfies it.
+
+```typst
+#import "@preview/kalt:0.1.1": any, all, comp;
+#let m = $mat(1, 2; 3, 4)$
+#any(value => comp(value) > 3, m) // => true
+#any(value => comp(value) < 0, m) // => false
+#all(value => comp(value) > 0, m) // => true
+#all(value => comp(value) > 1, m) // => false
 ```
 
 Or merge multiple matrices together:

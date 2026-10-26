@@ -4,16 +4,14 @@ use sertyp::{
     chumsky::{LocatingSequenceLike, parser::sign},
 };
 
-use crate::{Expects, parser::atoms::tensor::Tensor};
+use crate::{
+    Expects,
+    parser::{atoms::tensor::Tensor, ops::element_wise::unary_tensor},
+};
 
-/// Applies negation to a tensor:
-/// (scalar) -> scalar
-/// (matrix) -> matrix (element-wise)
+/// Applies negation to a tensor.
 pub fn neg_t(t: &Tensor) -> Tensor {
-    match t {
-        Tensor::Scalar(s) => Tensor::Scalar(-s),
-        Tensor::Matrix(m) => Tensor::Matrix(-m),
-    }
+    unary_tensor(t.clone(), |value| -value)
 }
 
 /// Condition for the pratt parser to apply.

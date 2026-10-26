@@ -3,11 +3,11 @@ use lazy_static::lazy_static;
 use sertyp::SYMBOL_Gamma;
 
 use crate::{
-    Expects, match_tensor,
+    Expects,
     parser::{
         ParserError,
-        atoms::{matrix::Matrix, tensor::Tensor},
-        ops::{factorial::gamma, func::func_parser, word_or_op},
+        atoms::tensor::Tensor,
+        ops::{element_wise::unary, factorial::gamma, func::func_parser, word_or_op},
         pratt::span,
     },
 };
@@ -16,13 +16,7 @@ use crate::{
 /// scalar -> scalar
 /// matrix -> matrix (element-wise)
 pub fn gamma_t<'data>(value: Spanned<Tensor>) -> Expects<'data, Tensor> {
-    match_tensor!((value) => {
-        s => |s: Spanned<num::Complex<f64>>| Ok(gamma::gamma(s.inner)),
-        m => |mut m: Spanned<Matrix>| {
-            m.inner.mapv_inplace(gamma::gamma);
-            Ok(m.inner)
-        }
-    })
+    unary(value, gamma::gamma)
 }
 
 lazy_static! {
