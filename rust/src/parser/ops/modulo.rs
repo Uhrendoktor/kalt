@@ -1,6 +1,6 @@
-use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
+use chumsky::{Parser, primitive::choice, span::{SimpleSpanned, Span, Spanned, WrappingSpan}};
 use num::Complex;
-use sertyp::{TypstError, chumsky::parser::character, content};
+use sertyp::{SYMBOL_eq_not, TypstError, chumsky::parser::character, content, equation};
 
 use crate::{
     Expects, pratt_infix,
@@ -13,7 +13,10 @@ use crate::{
 /// Parses the infix modulo operator.
 #[kalt_macros::parser]
 pub fn pratt_modulo_operator() -> char {
-    character('%')
+    choice((
+        character('%'),
+        super::word_or_op("mod").map(|_| '%'),
+    ))
 }
 
 fn modulo_c<'data>(
@@ -26,8 +29,8 @@ fn modulo_c<'data>(
         return Err(TypstError::full(
             span,
             "Modulo Error",
-            content!("a non-zero divisor"),
-            content!("a zero divisor"),
+            equation!["b", SYMBOL_eq_not, '0'],
+            equation![rhs.inner.to_string(), '=', '0'],
         ));
     }
 
