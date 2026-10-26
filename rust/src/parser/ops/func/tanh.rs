@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    tanh_fn,
     tanh,
     "tanh",
     tanh,
