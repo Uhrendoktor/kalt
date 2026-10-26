@@ -251,6 +251,17 @@ pub mod element_wise {
         parser::atoms::{matrix::Matrix, tensor::Tensor},
     };
 
+    /// Applies a pure complex-valued function to a scalar or element-wise to a matrix.
+    pub fn unary<'data, F>(
+        t: SimpleSpanned<Tensor>,
+        function: F,
+    ) -> Expects<'data, Tensor>
+    where
+        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
+    {
+        element_wise(|value| Ok(function(*value)), |_| Ok(()), t)
+    }
+
     pub fn element_wise<
         'data,
         F: Fn(SimpleSpanned<num::Complex<f64>>) -> Expects<'data, num::Complex<f64>>,
