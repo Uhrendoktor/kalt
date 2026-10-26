@@ -94,9 +94,9 @@ macro_rules! trig_function {
 }
 pub(crate) use trig_function;
 
-pub mod acos;
-pub mod asin;
-pub mod atan;
+pub mod arccos;
+pub mod arcsin;
+pub mod arctan;
 pub mod cos;
 pub mod cosh;
 pub mod gamma;
