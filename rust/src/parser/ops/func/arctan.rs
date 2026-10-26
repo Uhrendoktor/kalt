@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    arctan_fn,
     arctan,
     inverse "tan",
     "arctan",
