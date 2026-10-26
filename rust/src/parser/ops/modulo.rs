@@ -22,16 +22,7 @@ fn modulo_c<'data>(
 ) -> Expects<'data, Complex<f64>> {
     let span = lhs.span.union(rhs.span);
 
-    if lhs.inner.im != 0.0 || rhs.inner.im != 0.0 {
-        return Err(TypstError::full(
-            span,
-            "Modulo Error",
-            content!("real operands"),
-            content!("complex operands"),
-        ));
-    }
-
-    if rhs.inner.re == 0.0 {
+    if rhs.inner.norm_sqr() == 0.0 {
         return Err(TypstError::full(
             span,
             "Modulo Error",
@@ -40,10 +31,26 @@ fn modulo_c<'data>(
         ));
     }
 
-    Ok(Complex::new(lhs.inner.re.rem_euclid(rhs.inner.re), 0.0))
+    // Wolfram Language defines Mod[a, b] as a - b Floor[a / b].
+    // Its Floor applies independently to real and imaginary components.
+    if lhs.inner.im == 0.0 && rhs.inner.im == 0.0 {
+        // Use Euclidean remainder for numerical stability, then match Wolfram's
+        // convention that a real remainder has the sign of the divisor.
+        let remainder = lhs.inner.re.rem_euclid(rhs.inner.re.abs());
+        let remainder = if rhs.inner.re < 0.0 && remainder != 0.0 {
+            remainder - rhs.inner.re.abs()
+        } else {
+            remainder
+        };
+        return Ok(Complex::new(remainder, 0.0));
+    }
+
+    let ratio = lhs.inner / rhs.inner;
+    let quotient = Complex::new(ratio.re.floor(), ratio.im.floor());
+    Ok(lhs.inner - quotient * rhs.inner)
 }
 
-/// Applies Euclidean modulo to real scalar or tensor operands element-wise.
+/// Applies modulo element-wise to real or complex scalar/tensor operands.
 pub fn modulo<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,

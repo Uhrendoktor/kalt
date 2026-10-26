@@ -20,7 +20,10 @@ use crate::parser::ops::dot::{dot, pratt_dot, pratt_dot_operator};
 use crate::parser::ops::factorial::{pratt_factorial, pratt_factorial_operator};
 use crate::parser::ops::floor::floor;
 use crate::parser::ops::func::ln::ln;
-use crate::parser::ops::func::trig::trig;
+use crate::parser::ops::func::{
+    sin::sin, asin::asin, cos::cos, acos::acos, tan::tan, atan::atan,
+    sinh::sinh, cosh::cosh, tanh::tanh,
+};
 use crate::parser::ops::func::log::log;
 use crate::parser::ops::func::re_im::{im, re};
 use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
@@ -109,7 +112,15 @@ pub fn atom_like(
         binom(),
         ln(expr.clone()),
         log(expr.clone()),
-        trig(expr.clone()),
+        asin(expr.clone()),
+        acos(expr.clone()),
+        atan(expr.clone()),
+        sin(expr.clone()),
+        cos(expr.clone()),
+        tan(expr.clone()),
+        sinh(expr.clone()),
+        cosh(expr.clone()),
+        tanh(expr.clone()),
         abs(expr.clone()),
         floor(expr.clone()),
         ceil(expr.clone()),

@@ -13,11 +13,20 @@ use sertyp::{
 
 use crate::parser::ParserError;
 
+pub mod acos;
+pub mod asin;
+pub mod atan;
+pub mod cos;
+pub mod cosh;
 pub mod gamma;
 pub mod ln;
 pub mod log;
 pub mod re_im;
-pub mod trig;
+pub mod sin;
+pub mod sinh;
+pub mod tan;
+pub mod tanh;
+pub mod trig_common;
 
 /// Parses a typst `attach` with specific parsers for base and subscript (b)
 pub fn subscript_parser<
@@ -43,31 +52,6 @@ pub fn subscript_parser<
             Ok((span.make_wrapped(base), span.make_wrapped(subscript)))
         },
     )
-}
-
-/// Parses a Typst attach with a specific parser for the base and superscript.
-pub fn superscript_parser<
-    'this,
-    'data: 'this,
-    I: LocatingSequenceLike<'this, 'data>,
-    OB,
-    OS,
-    B: Parser<'this, LocatingSequence<'this, 'data>, OB, ParserError<'data>>,
-    S: Parser<'this, LocatingSequence<'this, 'data>, OS, ParserError<'data>>,
->(
-    base: impl Fn() -> B,
-    exponent: impl Fn() -> S,
-) -> impl Parser<'this, I, (Spanned<OB>, Spanned<OS>), ParserError<'data>> {
-    select!(Token::Raw(Content::MathAttach(attach @ Attach { t: Some(_), .. })) => attach)
-        .try_map(move |attach, span: SimpleSpan| {
-            let base = base()
-                .parse(LocatingSequence::from(&**attach.base))
-                .into_result()?;
-            let exponent = exponent()
-                .parse(LocatingSequence::from(&***attach.t.as_ref().unwrap()))
-                .into_result()?;
-            Ok((span.make_wrapped(base), span.make_wrapped(exponent)))
-        })
 }
 
 /// Parses a function call with a single argument, e.g. f(x)

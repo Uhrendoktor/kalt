@@ -90,6 +90,25 @@
   update
 }
 
+/// Records a test for values compared directly rather than parsed as math.
+#let assert-typst-eq(name, output, expected) = {
+  let passed = output == expected
+  let update = test-state.update(results => {
+    results.push((
+      name: name,
+      passed: passed,
+      expected-error: false,
+      error-contains: none,
+      actual-error: false,
+      actual-error-text: none,
+      debug-output: if not passed { repr(output) } else { none },
+      debug-expected: if not passed { repr(expected) } else { none },
+    ))
+    results
+  })
+  update
+}
+
 // Emits the aggregate and per-test results as metadata for the CI runner.
 #let emit-test-report() = context {
   let results = test-state.get()

@@ -1,23 +1,23 @@
-// Typst-side helper tests for map, any and all.
+// Typst-side API tests registered in the shared CI test report.
 
 #import "../lib.typ": all, any, comp, map
-#import "utils.typ": assert-eq
+#import "utils.typ": assert-typst-eq, assert-eq
 
-#assert(type(comp($2 + 3$)) == float)
+#assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), "float")
 
 #assert-eq(
-  "map callback receives zero-based row-major index",
-  map((value, index) => $#value + #index$, $mat(1, 2; 3, 4)$),
-  $mat(1, 3; 5, 7)$,
+  "map callback receives x and y coordinates",
+  map((value, x, y) => $ #value + #x + #y $, $mat(1, 2; 3, 4)$),
+  $mat(1, 3; 4, 6)$,
 )
 
 #let highlighted = map(
-  (value, index) => highlight(value, fill: yellow),
+  (value, x, y) => highlight(value, fill: yellow),
   $mat(1, 2)$,
 )
-#assert("highlight" in repr(highlighted))
+#assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
 
-#assert(any(value => comp(value) > 3, $mat(1, 2; 3, 4)$))
-#assert(not any(value => comp(value) > 9, $mat(1, 2; 3, 4)$))
-#assert(all(value => comp(value) > 0, $mat(1, 2; 3, 4)$))
-#assert(not all(value => comp(value) > 1, $mat(1, 2; 3, 4)$))
+#assert-typst-eq("any finds matching cell", any(value => comp(value) > 3, $mat(1, 2; 3, 4)$), true)
+#assert-typst-eq("any rejects no matches", any(value => comp(value) > 9, $mat(1, 2; 3, 4)$), false)
+#assert-typst-eq("all accepts every matching cell", all(value => comp(value) > 0, $mat(1, 2; 3, 4)$), true)
+#assert-typst-eq("all rejects a failing cell", all(value => comp(value) > 1, $mat(1, 2; 3, 4)$), false)

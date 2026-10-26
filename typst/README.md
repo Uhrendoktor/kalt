@@ -43,7 +43,7 @@ available through `comp`.
 - `*` — element-wise multiplication. Scalar-matrix multiplication is also
   applied element-wise.
 - `/` — element-wise division.
-- `%` — Euclidean modulo for real operands, applied element-wise to matrices.
+- `%` — modulo for real or complex operands, applied element-wise to matrices. For real operands, the remainder has the sign of the divisor. For complex operands, Kalt follows Wolfram Language: `a % b = a - b Floor[a / b]`, where `Floor` is applied separately to the real and imaginary parts.
 - `^` — exponentiation.
 - `!` — factorial.
 - `binom(a, b)` — binomial coefficient. For matrices, both arguments must have
@@ -100,11 +100,10 @@ $comp(mat(1,2,3;4,5,6)[1:2:, [2,1]])$ // => mat(6, 5)
 
 ### Trigonometric and Hyperbolic Functions
 
-- `sin(x)`, `cos(x)`, and `tan(x)` — complex sine, cosine, and tangent.
-- `sin^(-1)(x)`, `cos^(-1)(x)`, and `tan^(-1)(x)` — principal inverse
-  trigonometric functions. The aliases `arcsin(x)`, `arccos(x)`, and
-  `arctan(x)` are also supported.
-- `sinh(x)`, `cosh(x)`, and `tanh(x)` — hyperbolic functions.
+- `sin(x)` — complex sine; `sin^(-1)(x)` / `arcsin(x)` — principal inverse sine.
+- `cos(x)` — complex cosine; `cos^(-1)(x)` / `arccos(x)` — principal inverse cosine.
+- `tan(x)` — complex tangent; `tan^(-1)(x)` / `arctan(x)` — principal inverse tangent.
+- `sinh(x)`, `cosh(x)`, and `tanh(x)` — hyperbolic sine, cosine, and tangent.
 
 All these operations are applied element-wise to matrices and vectors.
 
@@ -145,25 +144,31 @@ $comp(#m compose #m)$ // => mat(1, 4, 9; 16, 25, 36)
 
 You can also apply custom mapping functions to each element in Typst.
 The callback is the first argument, followed by one or more matrices. It
-receives one element from each matrix, followed by the zero-based, row-major
-cell index. When a callback returns numeric math content, `map` converts it
-to a Typst float where possible; other content (including highlights) is
-preserved.
+receives one element from each matrix, followed by its zero-based column
+coordinate `x` and row coordinate `y`. When a callback returns numeric math
+content, `map` converts it to a Typst float where possible; other content
+(including highlights) is preserved.
 
 ```typst
 #import "@preview/kalt:0.1.1": comp, map;
 
-$map(#{ (a, index) => $#a + #index + 3$ }, mat(2, 2; 2, 6))$
+$map(#{ (a, x, y) => $#a + #x + #y + 3$ }, mat(2, 2; 2, 6))$
 ```
 
-The helpers `any` and `all` apply a predicate to aligned cells from one or
-more matrices and report whether the predicate succeeds for any or every cell:
+The helpers `any` and `all` take a predicate followed by one or more
+matrices or vectors. The predicate receives one element from each input at
+the current coordinate; if shapes differ, missing cells are passed as `none`.
+It must return a boolean. `any` returns true when at least one coordinate
+satisfies the predicate, while `all` returns true only when every coordinate
+satisfies it.
 
 ```typst
 #import "@preview/kalt:0.1.1": any, all, comp;
-
-#any(a => comp(a) > 3, $mat(1, 2; 3, 4)$) // => true
-#all(a => comp(a) > 0, $mat(1, 2; 3, 4)$) // => true
+#let m = $mat(1, 2; 3, 4)$
+#any(value => comp(value) > 3, m) // => true
+#any(value => comp(value) < 0, m) // => false
+#all(value => comp(value) > 0, m) // => true
+#all(value => comp(value) > 1, m) // => false
 ```
 
 Or merge multiple matrices together:

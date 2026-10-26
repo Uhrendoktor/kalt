@@ -23,17 +23,15 @@
 
 /// Maps one or more matrices/vectors element-wise using the given function.
 ///
-/// - `fn(..elements, index) -> element`: A Typst function receiving one value from each matrix and the zero-based row-major cell index last.
-/// - `..mats`: The matrices to map.
+/// - `fn(..elements, x, y) -> element`: A callback receiving one value from each matrix, then the zero-based column (`x`) and row (`y`) coordinates.
+/// - `..mats`: One or more matrices or vectors whose cells are combined at matching coordinates.
 ///
 /// = Returns
-/// A new matrix/vector containing the mapped elements.
+/// A matrix containing the mapped elements.
 ///
 /// = Note
-/// Missing cells are passed as `none`.
-/// Cells can be missing if the matrices have different sizes.
+/// Missing cells are passed as `none` when input shapes differ.
 /// Numeric math results are converted to floats when possible; other content is preserved.
-/// Maps matrices element-wise and passes each cell's zero-based row-major index last.
 #let map(fn, ..mats) = {
   let elements = mats.pos().map(mat => sertyp.call(kalt.to_elements, mat))
   let max_rows = calc.max(..elements.map(element => element.len()))
@@ -47,9 +45,10 @@
     while (j < max_cols) {
       let value = fn(
         ..elements.map(row => row.at(i, default: array(())).at(j, default: none)),
-        i * max_cols + j,
+        j,
+        i,
       )
-      if type(value) == content and repr(value).starts-with("content((func: \"math.equation\"") {
+      if type(value) == content {
         let computed = comp(value)
         if type(computed) == float {
           value = computed
@@ -61,9 +60,6 @@
     i += 1
   }
 
-  if max_cols == 1 {
-    return math.vec(..mapped.map(row => row.at(0)))
-  }
   return math.mat(..mapped)
 }
 
@@ -93,14 +89,40 @@
   return value
 }
 
-/// Returns whether the predicate succeeds for at least one aligned matrix cell.
+/// Returns whether a predicate succeeds for at least one aligned matrix cell.
+///
+/// - `fn(..elements) -> bool`: A predicate receiving one cell from each input matrix at the current coordinate.
+/// - `..mats`: One or more matrices or vectors to compare cell-by-cell. Missing cells are passed as `none`.
+///
+/// = Returns
+/// `true` when at least one predicate result is true; otherwise `false`.
+///
+/// = Example
+/// ```typst
+/// #import "@preview/kalt:0.1.1": any, comp
+/// #let m = $mat(1, 2; 3, 4)$
+/// #any(value => comp(value) > 3, m) // true
+/// ```
 #let any(fn, ..mats) = reduce(
   (acc, ..elements) => acc or fn(..elements),
   false,
   ..mats,
 )
 
-/// Returns whether the predicate succeeds for every aligned matrix cell.
+/// Returns whether a predicate succeeds for every aligned matrix cell.
+///
+/// - `fn(..elements) -> bool`: A predicate receiving one cell from each input matrix at the current coordinate.
+/// - `..mats`: One or more matrices or vectors to compare cell-by-cell. Missing cells are passed as `none`.
+///
+/// = Returns
+/// `true` only when every predicate result is true; otherwise `false`.
+///
+/// = Example
+/// ```typst
+/// #import "@preview/kalt:0.1.1": all, comp
+/// #let m = $mat(1, 2; 3, 4)$
+/// #all(value => comp(value) > 0, m) // true
+/// ```
 #let all(fn, ..mats) = reduce(
   (acc, ..elements) => acc and fn(..elements),
   true,
