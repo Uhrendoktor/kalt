@@ -17,3 +17,9 @@
   (v: $0$, e: $0$),
 )
 
+#unary_operation(
+  "Inverse Tangent Short Alias",
+  [The atan operator spelling is accepted too],
+  c1 => { $op("atan")(#c1)$ },
+  (v: $0$, e: $0$),
+)
