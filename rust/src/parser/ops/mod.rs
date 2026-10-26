@@ -258,7 +258,10 @@ pub mod element_wise {
     {
         match t {
             Tensor::Scalar(value) => Tensor::Scalar(function(value)),
-            Tensor::Matrix(matrix) => Tensor::Matrix(matrix.mapv(function)),
+            Tensor::Matrix(mut matrix) => {
+                matrix.mapv_inplace(function);
+                Tensor::Matrix(matrix)
+            },
         }
     }
 
