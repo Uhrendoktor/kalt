@@ -100,9 +100,9 @@ $comp(mat(1,2,3;4,5,6)[1:2:, [2,1]])$ // => mat(6, 5)
 
 ### Trigonometric and Hyperbolic Functions
 
-- `sin(x)` — complex sine; `sin^(-1)(x)`, `arcsin(x)` — principal inverse sine.
-- `cos(x)` — complex cosine; `cos^(-1)(x)`, `arccos(x)` — principal inverse cosine.
-- `tan(x)` — complex tangent; `tan^(-1)(x)`, `arctan(x)` — principal inverse tangent.
+- `sin(x)` — complex sine; `sin^(-1)(x)`, `arcsin(x)`, and the short operator alias `op("asin")(x)` — principal inverse sine.
+- `cos(x)` — complex cosine; `cos^(-1)(x)`, `arccos(x)`, and the short operator alias `op("acos")(x)` — principal inverse cosine.
+- `tan(x)` — complex tangent; `tan^(-1)(x)`, `arctan(x)`, and the short operator alias `op("atan")(x)` — principal inverse tangent.
 - `sinh(x)`, `cosh(x)`, and `tanh(x)` — hyperbolic sine, cosine, and tangent.
 
 All these operations are applied element-wise to matrices and vectors.
