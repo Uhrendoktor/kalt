@@ -16,3 +16,10 @@
   c1 => { $arccos(#c1)$ },
   (v: $1$, e: $0$),
 )
+
+#unary_operation(
+  "Inverse Cosine Short Alias",
+  [The acos function name is an alias for inverse cosine],
+  c1 => { $acos(#c1)$ },
+  (v: $1$, e: $0$),
+)
