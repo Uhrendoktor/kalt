@@ -1,5 +1,5 @@
 use chumsky::{Parser, span::Spanned};
-use sertyp::{SYMBOL_Im, SYMBOL_Re, TypstError, chumsky::parser::character};
+use sertyp::{SYMBOL_Im, SYMBOL_Re, chumsky::parser::character};
 
 use crate::{
     Expects,
