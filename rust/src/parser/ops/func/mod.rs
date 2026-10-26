@@ -15,7 +15,7 @@ use crate::parser::ParserError;
 
 /// Generates a consistent parser and element-wise implementation for trig functions.
 macro_rules! trig_function {
-    ($parser_name:ident, $function_name:ident, $symbol:literal, $method:ident, $description:literal) => {
+    ($parser_name:ident, $function_name:ident, $symbol:literal, $method:ident, $description:literal $(,)?) => {
         #[kalt_macros::parser]
         fn $parser_name() -> () {
             $crate::parser::ops::word_or_op($symbol).ignored()
@@ -49,7 +49,7 @@ macro_rules! trig_function {
         $alias:literal,
         $short_alias:literal,
         $method:ident,
-        $description:literal
+        $description:literal $(,)?
     ) => {
         #[kalt_macros::parser]
         fn $parser_name() -> () {
