@@ -1,5 +1,5 @@
 use chumsky::{Parser, primitive::choice};
-use num::{Complex, complex::ComplexFloat};
+use num::Complex;
 
 use crate::{
     Expects,

@@ -22,7 +22,7 @@ fn modulo_c<'data>(
 ) -> Expects<'data, Complex<f64>> {
     let span = lhs.span.union(rhs.span);
 
-    if rhs.inner.norm_sqr() == 0.0 {
+    if rhs.inner.re == 0.0 && rhs.inner.im == 0.0 {
         return Err(TypstError::full(
             span,
             "Modulo Error",

@@ -1,4 +1,4 @@
-use chumsky::{Parser, span::Spanned};
+use chumsky::Parser;
 use num::Complex;
 
 use crate::{
