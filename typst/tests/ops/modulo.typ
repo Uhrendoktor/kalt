@@ -20,3 +20,12 @@
   (v1: $5$, v2: $0$, error: "Modulo Error"),
   (v1: $5+i$, v2: $0$, error: "Modulo Error"),
 )
+
+#binary_operation(
+  "Modulo Keyword Alias",
+  [The `mod` keyword is an alias for the percent operator],
+  (c1, c2) => { $ #c1 mod #c2 $ },
+  (v1: $7$, v2: $4$, e: $3$),
+  (v1: $-7$, v2: $4$, e: $1$),
+  (v1: $7$, v2: $-4$, e: $-1$),
+)
