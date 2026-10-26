@@ -45,16 +45,16 @@ fn modulo_c<'data>(
 pub fn modulo<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
-    operator: &'data str,
+    operator: String,
 ) -> Expects<'data, Tensor> {
     element_wise2(
         modulo_c,
-        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, operator, rhs])),
+        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, operator.clone(), rhs])),
         lhs,
         rhs,
     )
 }
 
 pratt_infix!(modulo, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(modulo(lhs, rhs, op.as_str())?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(modulo(lhs, rhs, op)?))
 });
