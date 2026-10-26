@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    sinh_fn,
     sinh,
     "sinh",
     sinh,
