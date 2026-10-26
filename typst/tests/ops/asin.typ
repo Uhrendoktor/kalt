@@ -17,3 +17,9 @@
   (v: $0$, e: $0$),
 )
 
+#unary_operation(
+  "Inverse Sine Short Alias",
+  [The asin operator spelling is accepted too],
+  c1 => { $op("asin")(#c1)$ },
+  (v: $0$, e: $0$),
+)
