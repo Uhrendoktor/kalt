@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    arcsin_fn,
     arcsin,
     inverse "sin",
     "arcsin",
