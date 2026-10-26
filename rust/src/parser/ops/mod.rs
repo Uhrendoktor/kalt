@@ -251,6 +251,17 @@ pub mod element_wise {
         parser::atoms::{matrix::Matrix, tensor::Tensor},
     };
 
+    /// Applies a pure complex-valued function to a tensor's scalar or matrix cells.
+    pub fn unary_tensor<F>(t: Tensor, function: F) -> Tensor
+    where
+        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
+    {
+        match t {
+            Tensor::Scalar(value) => Tensor::Scalar(function(value)),
+            Tensor::Matrix(matrix) => Tensor::Matrix(matrix.mapv(function)),
+        }
+    }
+
     /// Applies a pure complex-valued function to a scalar or element-wise to a matrix.
     pub fn unary<'data, F>(
         t: SimpleSpanned<Tensor>,
@@ -259,7 +270,7 @@ pub mod element_wise {
     where
         F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
     {
-        element_wise(|value| Ok(function(*value)), |_| Ok(()), t)
+        Ok(unary_tensor(t.inner, function))
     }
 
     pub fn element_wise<
