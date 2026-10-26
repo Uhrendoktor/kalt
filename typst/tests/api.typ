@@ -21,7 +21,7 @@
 )
 
 #let highlighted = map(
-  value => highlight(str(value), fill: yellow),
+  (value, x, y) => highlight(str(value), fill: yellow),
   $mat(1, 2)$,
 )
 #assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
