@@ -21,8 +21,12 @@ use crate::parser::ops::factorial::{pratt_factorial, pratt_factorial_operator};
 use crate::parser::ops::floor::floor;
 use crate::parser::ops::func::ln::ln;
 use crate::parser::ops::func::{
-    sin::sin, arcsin::arcsin, cos::cos, arccos::arccos, tan::tan, arctan::arctan,
-    sinh::sinh, cosh::cosh, tanh::tanh,
+    sin::{asin, sin},
+    cos::{acos, cos},
+    tan::{atan, tan},
+    sinh::sinh,
+    cosh::cosh,
+    tanh::tanh,
 };
 use crate::parser::ops::func::log::log;
 use crate::parser::ops::func::re_im::{im, re};
@@ -112,9 +116,9 @@ pub fn atom_like(
         binom(),
         ln(expr.clone()),
         log(expr.clone()),
-        arcsin(expr.clone()),
-        arccos(expr.clone()),
-        arctan(expr.clone()),
+        asin(expr.clone()),
+        acos(expr.clone()),
+        atan(expr.clone()),
         sin(expr.clone()),
         cos(expr.clone()),
         tan(expr.clone()),
