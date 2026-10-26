@@ -21,17 +21,6 @@
   return sertyp.call(kalt.comp, body)
 }
 
-/// Maps one or more matrices/vectors element-wise using the given function.
-///
-/// - `fn(..elements, x, y) -> element`: A callback receiving one value from each matrix, then the zero-based column (`x`) and row (`y`) coordinates.
-/// - `..mats`: One or more matrices or vectors whose cells are combined at matching coordinates.
-///
-/// = Returns
-/// A matrix containing the mapped elements.
-///
-/// = Note
-/// Missing cells are passed as `none` when input shapes differ.
-/// Numeric math results are converted to floats when possible; other content is preserved.
 #let to-float-if-possible(value) = {
   if type(value) == content {
     let computed = comp(value)
@@ -50,7 +39,7 @@
 ///
 /// = Note
 /// Missing cells are passed as `none` when input shapes differ.
-/// Numeric cells are passed to the callback as Typst floats when possible; non-numeric content is preserved.
+/// Content cells are evaluated before the callback and replaced by their float result when `comp` returns one. Other content is passed through.
 #let map(fn, ..mats) = {
   let elements = mats.pos().map(mat => {
     sertyp.call(kalt.to_elements, mat).map(row => row.map(to-float-if-possible))
