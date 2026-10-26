@@ -41,7 +41,7 @@ macro_rules! trig_function {
                     $crate::parser::pratt::span(parser),
                 )
                 .map(|(_, value)| {
-                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
+                    $crate::parser::ops::element_wise::unary(value?, |value: num::Complex<f64>| {
                         value.$function_name()
                     })
                 })
@@ -55,7 +55,7 @@ macro_rules! trig_function {
                         $crate::parser::pratt::pratt,
                     )
                     .filter(|(_, exponent)| {
-                        $crate::parser::ops::func::trig_common::is_negative_one(&exponent.inner)
+                        $crate::parser::ops::pow::is_negative_one(&exponent.inner)
                     })
                     .ignored(),
                     chumsky::primitive::choice((
@@ -81,7 +81,7 @@ macro_rules! trig_function {
                     $crate::parser::pratt::span(parser),
                 )
                 .map(|(_, value)| {
-                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
+                    $crate::parser::ops::element_wise::unary(value?, |value: num::Complex<f64>| {
                         value.[<a $function_name>]()
                     })
                 })
@@ -98,7 +98,6 @@ pub mod log;
 pub mod re_im;
 pub mod sin;
 pub mod tan;
-pub mod trig_common;
 
 /// Parses a typst `attach` with specific parsers for base and subscript (b)
 pub fn subscript_parser<
