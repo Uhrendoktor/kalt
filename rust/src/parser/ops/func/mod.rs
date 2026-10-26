@@ -13,11 +13,10 @@ use sertyp::{
 
 use crate::parser::ParserError;
 
-/// Generates a trigonometric function and, where applicable, its inverse.
+/// Generates a trigonometric function and its inverse.
 macro_rules! trig_function {
     (
         $function_name:ident,
-        inverse,
         $description:literal,
         $inverse_description:literal $(,)?
     ) => {
@@ -84,35 +83,6 @@ macro_rules! trig_function {
                 .map(|(_, value)| {
                     $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
                         value.[<a $function_name>]()
-                    })
-                })
-            }
-        }
-    };
-    ($function_name:ident, $description:literal $(,)?) => {
-        paste::paste! {
-            #[kalt_macros::parser]
-            fn [<$function_name _fn>]() -> () {
-                $crate::parser::ops::word_or_op(stringify!($function_name)).ignored()
-            }
-
-            #[doc = $description]
-            #[kalt_macros::parser]
-            pub fn $function_name(
-                parser: impl 'this + chumsky::Parser<
-                    'this,
-                    I,
-                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
-                    $crate::parser::ParserError<'data>,
-                >,
-            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-                $crate::parser::ops::func::func_parser(
-                    [<$function_name _fn>](),
-                    $crate::parser::pratt::span(parser),
-                )
-                .map(|(_, value)| {
-                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
-                        value.$function_name()
                     })
                 })
             }
