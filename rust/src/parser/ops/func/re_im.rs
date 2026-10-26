@@ -2,11 +2,11 @@ use chumsky::{Parser, span::Spanned};
 use sertyp::{SYMBOL_Im, SYMBOL_Re, TypstError, chumsky::parser::character};
 
 use crate::{
-    Expects, match_tensor,
+    Expects,
     parser::{
         ParserError,
-        atoms::{matrix::Matrix, tensor::Tensor},
-        ops::func::func_parser,
+        atoms::tensor::Tensor,
+        ops::{element_wise::unary_tensor, func::func_parser},
         pratt::span,
     },
 };
@@ -15,14 +15,7 @@ use crate::{
 /// scalar -> scalar (imaginary part)
 /// matrix -> matrix (element-wise)
 pub fn im_t(t: Spanned<Tensor>) -> Tensor {
-    match_tensor!((t) => {
-        s => |s: Spanned<num::Complex<f64>>| Ok::<_, TypstError>(num::Complex::<f64>::new(s.im, 0.0)),
-        m => |mut m: Spanned<Matrix>| {
-            m.inner.mapv_inplace(|el| num::Complex::<f64>::new(el.im, 0.0));
-            Ok(m.inner)
-        }
-    })
-    .unwrap()
+    unary_tensor(t.inner, |value| num::Complex::<f64>::new(value.im, 0.0))
 }
 
 /// Returns the imaginary part of a tensor:
@@ -40,14 +33,7 @@ pub fn im<'data>(
 /// scalar -> scalar (real part)
 /// matrix -> matrix (element-wise)
 pub fn re_t(t: Spanned<Tensor>) -> Tensor {
-    match_tensor!((t) => {
-        s => |s: Spanned<num::Complex<f64>>| Ok::<_, TypstError>(num::Complex::<f64>::new(s.re, 0.0)),
-        m => |mut m: Spanned<Matrix>| {
-            m.inner.mapv_inplace(|el| num::Complex::<f64>::new(el.re, 0.0));
-            Ok(m.inner)
-        }
-    })
-    .unwrap()
+    unary_tensor(t.inner, |value| num::Complex::<f64>::new(value.re, 0.0))
 }
 
 /// Returns the real part of a tensor:
