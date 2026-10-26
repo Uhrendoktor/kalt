@@ -47,7 +47,6 @@ macro_rules! trig_function {
         $function_name:ident,
         inverse $base:literal,
         $alias:literal,
-        $short_alias:literal,
         $method:ident,
         $description:literal $(,)?
     ) => {
@@ -62,11 +61,7 @@ macro_rules! trig_function {
                     $crate::parser::ops::func::trig_common::is_negative_one(&exponent.inner)
                 })
                 .ignored(),
-                chumsky::primitive::choice((
-                    $crate::parser::ops::word_or_op($alias),
-                    $crate::parser::ops::word_or_op($short_alias),
-                ))
-                .ignored(),
+                $crate::parser::ops::word_or_op($alias).ignored(),
             ))
         }
 
