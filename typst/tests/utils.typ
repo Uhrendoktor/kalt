@@ -12,7 +12,7 @@
 // Compares scalar or complex scalar output with a tolerance of 1e-6.
 #let validate-scalar(output, expected) = {
   let is-nan-or-inf(val) = {
-    if val in ("NaN", "nan", "Inf", "inf") { return true }
+    if val in ("NaN", "nan", "Inf", "inf", "float.nan", "float.inf", "-float.inf") { return true }
     return false
   }
   let part(op, output) = {
