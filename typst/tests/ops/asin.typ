@@ -17,9 +17,3 @@
   (v: $0$, e: $0$),
 )
 
-#unary_operation(
-  "Inverse Sine Short Alias",
-  [The asin function name is an alias for inverse sine],
-  c1 => { $asin(#c1)$ },
-  (v: $0$, e: $0$),
-)
