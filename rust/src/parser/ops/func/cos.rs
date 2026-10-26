@@ -1,5 +1,4 @@
 crate::parser::ops::func::trig_function!(
-    cos_fn,
     cos,
     "cos",
     cos,
