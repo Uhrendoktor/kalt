@@ -12,10 +12,10 @@ use crate::{
 
 /// Parses the infix modulo operator.
 #[kalt_macros::parser]
-pub fn pratt_modulo_operator() -> char {
+pub fn pratt_modulo_operator() -> String {
     choice((
-        character('%'),
-        super::word_or_op("mod").map(|_| '%'),
+        character('%').map(|operator| operator.to_string()),
+        super::word_or_op("mod"),
     ))
 }
 
@@ -45,15 +45,16 @@ fn modulo_c<'data>(
 pub fn modulo<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
+    operator: &str,
 ) -> Expects<'data, Tensor> {
     element_wise2(
         modulo_c,
-        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, "%", rhs])),
+        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, operator, rhs])),
         lhs,
         rhs,
     )
 }
 
-pratt_infix!(modulo => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(modulo(lhs, rhs)?))
+pratt_infix!(modulo, String => |op, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(modulo(lhs, rhs, op.as_str())?))
 });
