@@ -15,75 +15,78 @@ use crate::parser::ParserError;
 
 /// Generates a consistent parser and element-wise implementation for trig functions.
 macro_rules! trig_function {
-    ($parser_name:ident, $function_name:ident, $symbol:literal, $method:ident, $description:literal $(,)?) => {
-        #[kalt_macros::parser]
-        fn $parser_name() -> () {
-            $crate::parser::ops::word_or_op($symbol).ignored()
-        }
+    ($function_name:ident, $symbol:literal, $method:ident, $description:literal $(,)?) => {
+        paste::paste! {
+            #[kalt_macros::parser]
+            fn [<$function_name _fn>]() -> () {
+                $crate::parser::ops::word_or_op($symbol).ignored()
+            }
 
-        #[doc = $description]
-        #[kalt_macros::parser]
-        pub fn $function_name(
-            parser: impl 'this + chumsky::Parser<
-                'this,
-                I,
-                $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
-                $crate::parser::ParserError<'data>,
-            >,
-        ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-            $crate::parser::ops::func::func_parser(
-                $parser_name(),
-                $crate::parser::pratt::span(parser),
-            )
-            .map(|(_, value)| {
-                $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
-                    value.$method()
+            #[doc = $description]
+            #[kalt_macros::parser]
+            pub fn $function_name(
+                parser: impl 'this + chumsky::Parser<
+                    'this,
+                    I,
+                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
+                    $crate::parser::ParserError<'data>,
+                >,
+            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+                $crate::parser::ops::func::func_parser(
+                    [<$function_name _fn>](),
+                    $crate::parser::pratt::span(parser),
+                )
+                .map(|(_, value)| {
+                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
+                        value.$method()
+                    })
                 })
-            })
+            }
         }
     };
     (
-        $parser_name:ident,
         $function_name:ident,
         inverse $base:literal,
         $alias:literal,
         $method:ident,
         $description:literal $(,)?
     ) => {
-        #[kalt_macros::parser]
-        fn $parser_name() -> () {
-            chumsky::primitive::choice((
-                $crate::parser::ops::pow::pow_parser(
-                    || $crate::parser::ops::word_or_op($base),
-                    $crate::parser::pratt::pratt,
-                )
-                .filter(|(_, exponent)| {
-                    $crate::parser::ops::func::trig_common::is_negative_one(&exponent.inner)
-                })
-                .ignored(),
-                $crate::parser::ops::word_or_op($alias).ignored(),
-            ))
-        }
+        paste::paste! {
+            #[kalt_macros::parser]
+            fn [<$function_name _fn>]() -> () {
+                chumsky::primitive::choice((
+                    $crate::parser::ops::pow::pow_parser(
+                        || $crate::parser::ops::word_or_op($base),
+                        $crate::parser::pratt::pratt,
+                    )
+                    .filter(|(_, exponent)| {
+                        $crate::parser::ops::func::trig_common::is_negative_one(&exponent.inner)
+                    })
+                    .ignored(),
+                    $crate::parser::ops::word_or_op($alias).ignored(),
+                ))
+            }
 
-        #[doc = $description]
-        #[kalt_macros::parser]
-        pub fn $function_name(
-            parser: impl 'this + chumsky::Parser<
-                'this,
-                I,
-                $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
-                $crate::parser::ParserError<'data>,
-            >,
-        ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-            $crate::parser::ops::func::func_parser(
-                $parser_name(),
-                $crate::parser::pratt::span(parser),
-            )
-            .map(|(_, value)| {
-                $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
-                    value.$method()
+            #[doc = $description]
+            #[kalt_macros::parser]
+            pub fn $function_name(
+                parser: impl 'this + chumsky::Parser<
+                    'this,
+                    I,
+                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
+                    $crate::parser::ParserError<'data>,
+                >,
+            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+                $crate::parser::ops::func::func_parser(
+                    [<$function_name _fn>](),
+                    $crate::parser::pratt::span(parser),
+                )
+                .map(|(_, value)| {
+                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
+                        value.$method()
+                    })
                 })
-            })
+            }
         }
     };
 }
