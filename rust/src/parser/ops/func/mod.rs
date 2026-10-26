@@ -122,15 +122,12 @@ macro_rules! trig_function {
 pub(crate) use trig_function;
 
 pub mod cos;
-pub mod cosh;
 pub mod gamma;
 pub mod ln;
 pub mod log;
 pub mod re_im;
 pub mod sin;
-pub mod sinh;
 pub mod tan;
-pub mod tanh;
 pub mod trig_common;
 
 /// Parses a typst `attach` with specific parsers for base and subscript (b)
