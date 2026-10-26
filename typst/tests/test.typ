@@ -23,7 +23,7 @@
 #include "ops/sinh.typ";
 #include "ops/cosh.typ";
 #include "ops/tanh.typ";
-#include "helpers.typ";
+#include "api.typ";
 #include "ops/div.typ";
 #include "ops/floor.typ";
 #include "ops/factorial.typ";
