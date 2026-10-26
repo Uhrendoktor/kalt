@@ -13,13 +13,18 @@ use sertyp::{
 
 use crate::parser::ParserError;
 
-/// Generates a consistent parser and element-wise implementation for trig functions.
+/// Generates a trigonometric function and, where applicable, its inverse.
 macro_rules! trig_function {
-    ($function_name:ident, $symbol:literal, $method:ident, $description:literal $(,)?) => {
+    (
+        $function_name:ident,
+        inverse,
+        $description:literal,
+        $inverse_description:literal $(,)?
+    ) => {
         paste::paste! {
             #[kalt_macros::parser]
             fn [<$function_name _fn>]() -> () {
-                $crate::parser::ops::word_or_op($symbol).ignored()
+                $crate::parser::ops::word_or_op(stringify!($function_name)).ignored()
             }
 
             #[doc = $description]
@@ -38,33 +43,57 @@ macro_rules! trig_function {
                 )
                 .map(|(_, value)| {
                     $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
-                        value.$method()
+                        value.$function_name()
                     })
                 })
             }
-        }
-    };
-    (
-        $function_name:ident,
-        inverse $base:literal,
-        $alias:literal,
-        $method:ident,
-        $description:literal $(,)?
-    ) => {
-        paste::paste! {
+
             #[kalt_macros::parser]
-            fn [<$function_name _fn>]() -> () {
+            fn [<a $function_name _fn>]() -> () {
                 chumsky::primitive::choice((
                     $crate::parser::ops::pow::pow_parser(
-                        || $crate::parser::ops::word_or_op($base),
+                        || $crate::parser::ops::word_or_op(stringify!($function_name)),
                         $crate::parser::pratt::pratt,
                     )
                     .filter(|(_, exponent)| {
                         $crate::parser::ops::func::trig_common::is_negative_one(&exponent.inner)
                     })
                     .ignored(),
-                    $crate::parser::ops::word_or_op($alias).ignored(),
+                    chumsky::primitive::choice((
+                        $crate::parser::ops::word_or_op(concat!("a", stringify!($function_name))),
+                        $crate::parser::ops::word_or_op(concat!("arc", stringify!($function_name))),
+                    ))
+                    .ignored(),
                 ))
+            }
+
+            #[doc = $inverse_description]
+            #[kalt_macros::parser]
+            pub fn [<a $function_name>](
+                parser: impl 'this + chumsky::Parser<
+                    'this,
+                    I,
+                    $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor>,
+                    $crate::parser::ParserError<'data>,
+                >,
+            ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+                $crate::parser::ops::func::func_parser(
+                    [<a $function_name _fn>](),
+                    $crate::parser::pratt::span(parser),
+                )
+                .map(|(_, value)| {
+                    $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
+                        value.[<a $function_name>]()
+                    })
+                })
+            }
+        }
+    };
+    ($function_name:ident, $description:literal $(,)?) => {
+        paste::paste! {
+            #[kalt_macros::parser]
+            fn [<$function_name _fn>]() -> () {
+                $crate::parser::ops::word_or_op(stringify!($function_name)).ignored()
             }
 
             #[doc = $description]
@@ -83,7 +112,7 @@ macro_rules! trig_function {
                 )
                 .map(|(_, value)| {
                     $crate::parser::ops::func::trig_common::unary(value?, |value: num::Complex<f64>| {
-                        value.$method()
+                        value.$function_name()
                     })
                 })
             }
