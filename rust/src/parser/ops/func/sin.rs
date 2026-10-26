@@ -1,6 +1,5 @@
 crate::parser::ops::func::trig_function!(
     sin,
-    inverse,
     "Applies complex sine to a scalar or element-wise to a matrix.",
     "Applies principal inverse sine to a scalar or element-wise to a matrix.",
 );
@@ -8,4 +7,5 @@ crate::parser::ops::func::trig_function!(
 crate::parser::ops::func::trig_function!(
     sinh,
     "Applies hyperbolic sine to a scalar or element-wise to a matrix.",
+    "Applies principal inverse hyperbolic sine to a scalar or element-wise to a matrix.",
 );
