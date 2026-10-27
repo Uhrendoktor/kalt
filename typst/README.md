@@ -1,8 +1,8 @@
 # Kalt
 
-Kalt evaluates Typst math expressions in place. The evaluator supports complex numbers, vectors, matrices, element-wise operations, matrix products, indexing, and mathematical functions. Results remain Typst content where possible, so they can still be composed and formatted in a document.
+Kalt lets you calculate directly inside a Typst document. Wrap an expression in `comp(...)` to evaluate it. Real-number results can be reused in Typst code; complex numbers, vectors, and matrices keep their mathematical formatting.
 
-This reference is organized as an API guide: first the evaluation contract, then operators and functions, matrices and indexing, and the Typst helper functions.
+Start with **Quick start** to add Kalt to a document. Use the examples throughout this guide as templates, and look up an operator or function when you need to know exactly how it behaves.
 
 ## Visual examples
 
@@ -66,7 +66,7 @@ Most element-wise operations follow these rules:
 | Matrix/vector | Matrix/vector of the same shape | Apply the operation to matching cells |
 | Matrices with incompatible shapes | — | Return an error |
 
-These are Kalt's rules, not NumPy's full broadcasting rules: Kalt supports scalar-to-matrix application, but two non-scalar matrices generally must have exactly matching shapes for element-wise operations. The `dot` operator is different: matrix dimensions must satisfy the usual inner-dimension rule.
+A scalar can be applied to every cell of a matrix. For an element-by-element operation, two matrices must have the same shape. `dot` is different: for matrix multiplication, the number of columns in the left matrix must equal the number of rows in the right matrix.
 
 ## Arithmetic operators
 
@@ -173,7 +173,7 @@ Because results are numeric, `¬(2 - 1)` is valid and returns `0`, while `¬5` i
 
 ### Ordinary dot versus Boolean product
 
-Kalt's existing `dot` operator performs ordinary arithmetic dot/matrix multiplication. The `⊙` operator selects Boolean-semiring multiplication, where pairwise AND results are combined with OR.
+Kalt's existing `dot` operator performs ordinary arithmetic dot/matrix multiplication. The `⊙` operator is a Boolean matrix product: two entries count as a match only when both are `1`, and an output entry is `1` when at least one match exists.
 
 For vectors:
 
@@ -279,16 +279,22 @@ The bracket-style rounding operators use the mixed floor/ceiling symbols as show
 
 ### Trigonometric and hyperbolic functions
 
-| Function | Inverse aliases |
+| Function | Ways to write its inverse |
 | --- | --- |
 | `sin(x)` | `sin^(-1)(x)`, `arcsin(x)`, `op("asin")(x)` |
 | `cos(x)` | `cos^(-1)(x)`, `arccos(x)`, `op("acos")(x)` |
 | `tan(x)` | `tan^(-1)(x)`, `arctan(x)`, `op("atan")(x)` |
-| `sinh(x)` | — |
-| `cosh(x)` | — |
-| `tanh(x)` | — |
+| `sinh(x)` | `sinh^(-1)(x)`, `arcsinh(x)`, `op("asinh")(x)` |
+| `cosh(x)` | `cosh^(-1)(x)`, `arccosh(x)`, `op("acosh")(x)` |
+| `tanh(x)` | `tanh^(-1)(x)`, `arctanh(x)`, `op("atanh")(x)` |
 
-Inverse trigonometric functions return principal values.
+Yes—each hyperbolic function has an inverse. For example, `arcsinh(x)` and `op("asinh")(x)` both mean inverse hyperbolic sine. The superscript `(-1)` is another spelling of the inverse function; it does **not** mean the reciprocal `1 / sinh(x)`. Inverse trigonometric and hyperbolic functions return principal complex values.
+
+```typst
+$comp(arcsinh(sinh(1)))$       // 1
+$comp(op("asinh")(sinh(1)))$ // 1
+$comp(sinh^(-1)(sinh(1)))$     // 1
+```
 
 ### Logarithms
 
@@ -383,13 +389,23 @@ From tightest to loosest:
 
 A comparison chain is non-associative in Kalt. Use explicit parentheses and logical operators to combine comparisons.
 
-## Feature boundaries
+## Limitations to know
 
-- Boolean results are numeric indicators; there is no separate Boolean data type in the evaluator.
-- `&` and `|` are not overloaded for logic or bitwise operations. Use `∧`, `∨`, `¬` for logic, and `⊙` for Boolean-semiring product. Vertical bars are already used for absolute value.
-- Bitwise integer operations and arithmetic over GF(2) are not implemented.
-- Kalt supports scalar broadcasting but does not implement NumPy's general N-dimensional broadcasting system.
+- Logical values are numbers: false is `0`, true is `1`. There is no separate Boolean value type inside Kalt.
+- Use `¬`, `∧`, and `∨` for logic. `&` and `|` are not logical operators, and `|x|` is used for absolute value.
+- `⊙` is for Boolean matrix products whose entries are real `0` or `1`; it is not element-wise multiplication or multiplication modulo 2.
+- Kalt can apply a scalar to a matrix, but it does not automatically resize two differently shaped matrices to make them fit.
+- Bitwise integer operations are not supported.
 
-## Further reading
+## Choosing the right operation
 
-The guide is organized in the spirit of established numerical-library documentation: user-facing operations, shapes, examples, error conditions, and helper APIs are documented separately. For broader comparison, see the [NumPy user guide](https://numpy.org/doc/stable/user/index.html), [NumPy broadcasting reference](https://numpy.org/doc/stable/user/basics.broadcasting.html), and Wolfram Language's [Logic & Boolean Algebra guide](https://reference.wolfram.com/language/guide/LogicAndBooleanAlgebra.html.en).
+These are the distinctions that matter most in everyday use:
+
+| What you want to do | Use | Remember |
+| --- | --- | --- |
+| Multiply matching cells in two matrices | `A * B` | The matrices must have the same shape. |
+| Multiply matrices in the usual linear-algebra sense | `A dot B` | Columns in `A` must match rows in `B`. |
+| Multiply matrices of `0`/`1` indicators using logic | `A ⊙ B` | Every entry must be real and exactly `0` or `1`. |
+| Test a condition and use the result in a calculation | `a > b`, `a = b` | The result is the number `1` or `0`, not a Typst Boolean. |
+| Combine two conditions | `(a > b) ∧ (b > c)` | Put each comparison in parentheses; comparison chains are rejected. |
+| Apply a function to every entry in a matrix | `sin(A)`, `sqrt(A)` | The function is evaluated separately for each entry. |
