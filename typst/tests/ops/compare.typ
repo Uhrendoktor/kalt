@@ -62,7 +62,7 @@
   "Ordering rejects non-real values",
   [Ordered comparisons are undefined for complex values with nonzero imaginary parts.],
   (a, b) => { $ #a < #b $ },
-  (v1: $1+2i$, v2: $3$, error: "real-valued operands"),
+  (v1: $1+2i$, v2: $3$, error: "ℝ"),
 )
 
 #binary_operation(
