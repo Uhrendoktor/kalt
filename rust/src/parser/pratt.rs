@@ -1,5 +1,5 @@
 use chumsky::IterParser;
-use chumsky::pratt::{infix, left, non_assoc, postfix};
+use chumsky::pratt::{infix, left, none, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
@@ -187,7 +187,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     infix(left(4), pratt_add_operator(), pratt_add),
                     infix(left(4), pratt_sub_operator(), pratt_sub),
                     // A chain such as a < b < c is rejected; write (a < b) ∧ (b < c).
-                    infix(non_assoc(3), pratt_compare_operator(), pratt_compare),
+                    infix(none(3), pratt_compare_operator(), pratt_compare),
                     prefix(2, pratt_not_operator(), pratt_logical_not),
                     infix(left(1), pratt_and_operator(), pratt_logical_and),
                     infix(left(0), pratt_or_operator(), pratt_logical_or),
