@@ -30,9 +30,9 @@
 #assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
 
 
-#assert-eq("true indicator participates in arithmetic", comp($op("true") + op("true")$), 2.0)
-#assert-eq("true indicator can be an exponent", comp($2^(op("true"))$), 2.0)
-#assert-eq(
+#assert-typst-eq("true indicator participates in arithmetic", comp($op("true") + op("true")$), 2.0)
+#assert-typst-eq("true indicator can be an exponent", comp($2^(op("true"))$), 2.0)
+#assert-typst-eq(
   "comparison and logical precedence",
   comp($(2 + 3 > 4) ∧ (1 < 2)$),
   1.0,
