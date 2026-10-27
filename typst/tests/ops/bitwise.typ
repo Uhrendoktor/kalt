@@ -21,7 +21,7 @@
 #binary_operation(
   "Bitwise OR",
   [Computes the bitwise OR of two real integers.],
-  (a, b) => { $ #a | #b $ },
+  (a, b) => { $ #a op("bitor") #b $ },
   (v1: $6$, v2: $3$, e: $7$),
   (v1: $4$, v2: $1$, e: $5$),
   (v1: $-6$, v2: $3$, e: $-5$),
@@ -30,7 +30,7 @@
 #binary_operation(
   "Bitwise XOR",
   [Computes the bitwise exclusive OR of two real integers.],
-  (a, b) => { $ #a ⊕ #b $ },
+  (a, b) => { $ #a op("bitxor") #b $ },
   (v1: $6$, v2: $3$, e: $5$),
   (v1: $7$, v2: $7$, e: $0$),
   (v1: $-6$, v2: $3$, e: $-7$),

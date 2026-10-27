@@ -173,14 +173,14 @@ Because results are numeric, `¬(2 - 1)` is valid and returns `0`, while `¬5` i
 
 ### Bitwise integer operators
 
-Use `op("bitand")`, `|`, and `⊕` for bitwise AND, OR, and XOR. These are separate from logical `∧` and `∨`: bitwise operators require real integers and operate on their binary representations. For matrices, they apply cell by cell; scalar-to-matrix application is also supported.
+Use `op("bitand")`, `op("bitor")`, and `op("bitxor")` for bitwise AND, OR, and XOR. These are separate from logical `∧` and `∨`: bitwise operators require real integers and operate on their binary representations. For matrices, they apply cell by cell; scalar-to-matrix application is also supported.
 
 Kalt stores numeric values as floating-point numbers, so bitwise operands must be integers in the safe-integer range `-9007199254740991` through `9007199254740991`. Values outside this range are rejected because floating-point numbers cannot distinguish every integer there. Complex, fractional, non-finite, or out-of-range operands produce an error.
 
 ```typst
 $comp(6 op("bitand") 3)$ // 2
-$comp(6 | 3)$ // 7
-$comp(6 ⊕ 3)$ // 5
+$comp(6 op("bitor") 3)$ // 7
+$comp(6 op("bitxor") 3)$ // 5
 $comp(mat(6, 2) op("bitand") mat(3, 1))$ // mat(2, 0)
 ```
 
@@ -397,8 +397,8 @@ From tightest to loosest:
 5. Addition and subtraction.
 6. Comparisons.
 7. Bitwise AND (`op("bitand")`).
-8. Bitwise XOR (`⊕`).
-9. Bitwise OR (`|`).
+8. Bitwise XOR (`op("bitxor")`).
+9. Bitwise OR (`op("bitor")`).
 10. Logical NOT.
 11. Logical AND.
 12. Logical OR.
@@ -408,7 +408,7 @@ A comparison chain is non-associative in Kalt. Use explicit parentheses and logi
 ## Limitations to know
 
 - Logical values are numbers: false is `0`, true is `1`. There is no separate Boolean value type inside Kalt.
-- Use `¬`, `∧`, and `∨` for logic. Use `op("bitand")`, `|`, and `⊕` for bitwise integer operations; these require integer operands and are not substitutes for logical operators. Vertical bars are also used for absolute values.
+- Use `¬`, `∧`, and `∨` for logic. Use `op("bitand")`, `op("bitor")`, and `op("bitxor")` for bitwise integer operations; these require integer operands and are not substitutes for logical operators. Vertical bars are also used for absolute values.
 - `⊙` is for Boolean matrix products whose entries are real `0` or `1`; it is not element-wise multiplication or multiplication modulo 2.
 - Kalt can apply a scalar to a matrix, but it does not automatically resize two differently shaped matrices to make them fit.
 - Bitwise operators are defined only for real integers in Kalt's floating-point safe-integer range.
