@@ -1,4 +1,4 @@
-use chumsky::span::{SimpleSpanned, Span};
+use chumsky::span::SimpleSpanned;
 use num::Complex;
 use sertyp::content;
 
