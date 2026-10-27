@@ -11,8 +11,8 @@
   (v: $1$, e: $0$),
   (v: $op("true")$, e: $0$),
   (v: $op("false")$, e: $1$),
-  (v: $2$, error: "0 or 1"),
-  (v: $1+i$, error: "0 or 1"),
+  (v: $2$, error: "{0, 1}"),
+  (v: $1+i$, error: "ℂ"),
 )
 
 #binary_operation(
@@ -23,7 +23,7 @@
   (v1: $1$, v2: $0$, e: $0$),
   (v1: $0$, v2: $1$, e: $0$),
   (v1: $0$, v2: $0$, e: $0$),
-  (v1: $2$, v2: $1$, error: "0 or 1"),
+  (v1: $2$, v2: $1$, error: "{0, 1}"),
 )
 
 #binary_operation(
