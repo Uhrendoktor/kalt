@@ -35,40 +35,36 @@ pub fn cast_negative<'data>(
             TypstError::full(
                 index.span,
                 "Index Dimension Error",
-                "dimension representable as i64",
+                format!("dimension ∈ [0, {}]", i64::MAX),
                 len.to_string(),
             )
         })?;
-        let mut x = **index;
-        if x < 0 {
-            x += len_i64
-        }
-        if x < 0 {
+        let value = **index;
+        let normalized = if value < 0 { value + len_i64 } else { value };
+        let in_bounds = normalized >= 0
+            && if interval_open {
+                normalized < len_i64
+            } else {
+                normalized <= len_i64
+            };
+        if !in_bounds {
             return Err(TypstError::full(
                 index.span,
-                "negative index",
-                equation!(sequence!("index", SYMBOL_in, format!("[-{}, -1]", len))),
-                (x - len_i64).to_string(),
+                "Index Range Error",
+                if interval_open {
+                    format!("index ∈ [{}, {})", -len_i64, len_i64)
+                } else {
+                    format!("index ∈ [{}, {}]", -len_i64, len_i64)
+                },
+                value.to_string(),
             ));
         }
-        if (interval_open && x >= len_i64) || (!interval_open && x > len_i64) {
-            return Err(TypstError::full(
-                index.span,
-                "index out of bounds",
-                equation!(sequence!(
-                    "index",
-                    SYMBOL_in,
-                    format!("[0, {}{}", len, if interval_open { ")" } else { "]" })
-                )),
-                x.to_string(),
-            ));
-        }
-        usize::try_from(x).map_err(|_| {
+        usize::try_from(normalized).map_err(|_| {
             TypstError::full(
                 index.span,
                 "Index Range Error",
-                "non-negative index representable as usize",
-                x.to_string(),
+                format!("index ∈ [0, {}]", len),
+                normalized.to_string(),
             )
         })
     }
