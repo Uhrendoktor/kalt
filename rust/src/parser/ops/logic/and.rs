@@ -3,13 +3,13 @@ use sertyp::{SYMBOL_and, chumsky::parser::character, content};
 
 use crate::{
     Expects, pratt_infix,
-    parser::{atoms::tensor::Tensor, ops::element_wise::{element_wise2, validate_same_shape}},
+    parser::{atoms::tensor::Tensor, ops::element_wise::{element_wise_binary, validate_same_shape}},
 };
 
 use super::{boolean_indicator, boolean_value};
 
 pub fn logical_and<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise2(
+    element_wise_binary(
         |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? && boolean_value(rhs)?)),
         validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, SYMBOL_and, rhs])),
         lhs,

@@ -9,7 +9,7 @@ use crate::{
 use super::{boolean_indicator, boolean_value};
 
 pub fn logical_not<'data>(value: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise(
+    element_wise_unary(
         |value| Ok(boolean_indicator(!boolean_value(value)?)),
         |_| Ok(()),
         value,

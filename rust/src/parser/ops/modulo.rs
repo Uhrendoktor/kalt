@@ -6,7 +6,7 @@ use crate::{
     Expects, pratt_infix,
     parser::{
         atoms::tensor::Tensor,
-        ops::element_wise::{element_wise2, validate_same_shape},
+        ops::element_wise::{element_wise_binary, validate_same_shape},
     },
 };
 
@@ -47,7 +47,7 @@ pub fn modulo<'data>(
     rhs: SimpleSpanned<Tensor>,
     operator: String,
 ) -> Expects<'data, Tensor> {
-    element_wise2(
+    element_wise_binary(
         modulo_c,
         validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, operator.clone(), rhs])),
         lhs,
