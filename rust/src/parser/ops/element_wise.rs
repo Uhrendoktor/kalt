@@ -1,5 +1,5 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use sertyp::{Content, SYMBOL_CC, SYMBOL_dot_op, TypstError, Underline, content, sequence};
+use sertyp::{Content, SYMBOL_CC, TypstError, Underline, content, sequence};
 
 use crate::{
     Expects, matrix_shape,
