@@ -4,21 +4,20 @@ use chumsky::{
 };
 use num::Complex;
 use sertyp::{
-    SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_and, SYMBOL_eq, SYMBOL_eq_not, SYMBOL_gt,
-    SYMBOL_gt_eq, SYMBOL_in, SYMBOL_lt, SYMBOL_lt_eq, SYMBOL_not, SYMBOL_or, TypstError,
-    chumsky::parser::character, content,
+    SYMBOL_CC, SYMBOL_RR, SYMBOL_eq, SYMBOL_eq_not, SYMBOL_gt, SYMBOL_gt_eq,
+    SYMBOL_in, SYMBOL_lt, SYMBOL_lt_eq, TypstError, chumsky::parser::character,
+    content,
 };
 
 use crate::{
-    Expects, pratt_infix, pratt_prefix,
+    Expects, pratt_infix,
     parser::{
         atoms::tensor::Tensor,
-        ops::{
-            composed_operator,
-            element_wise::{element_wise, element_wise2, validate_same_shape},
-        },
+        ops::{composed_operator, element_wise::{element_wise2, validate_same_shape}},
     },
 };
+
+use super::boolean_indicator;
 
 #[kalt_macros::parser]
 pub fn pratt_l_operator() -> char {
@@ -157,94 +156,3 @@ pratt_infix!(eq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
 pratt_infix!(neq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_neq(lhs, rhs)?))
 });
-
-pub(crate) fn boolean_value<'data>(
-    value: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, bool> {
-    if value.inner.im != 0.0 {
-        return Err(TypstError::full(
-            value.span,
-            "Boolean Operand Error",
-            content!(sertyp::sequence!["n", SYMBOL_in, SYMBOL_RR]),
-            content!(sertyp::sequence![value.inner.to_string(), SYMBOL_in, SYMBOL_CC]),
-        ));
-    }
-
-    match (value.inner.re == 0.0, value.inner.re == 1.0) {
-        (true, false) => Ok(false),
-        (false, true) => Ok(true),
-        _ => {
-            let actual_domain = if value.inner.re.fract() == 0.0 { SYMBOL_ZZ } else { SYMBOL_RR };
-            Err(TypstError::full(
-                value.span,
-                "Boolean Operand Error",
-                content!(sertyp::sequence!["n", SYMBOL_in, "{0, 1}"]),
-                content!(sertyp::sequence![value.inner.re.to_string(), SYMBOL_in, actual_domain]),
-            ))
-        }
-    }
-}
-
-pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
-    Complex::new(if value { 1.0 } else { 0.0 }, 0.0)
-}
-
-macro_rules! logical_binary_tensor {
-    ($name:ident, $symbol:ident, $operator:tt) => {
-        pub fn $name<'data>(
-            lhs: SimpleSpanned<Tensor>,
-            rhs: SimpleSpanned<Tensor>,
-        ) -> Expects<'data, Tensor> {
-            element_wise2(
-                |lhs, rhs| {
-                    let left = boolean_value(lhs)?;
-                    let right = boolean_value(rhs)?;
-                    Ok(boolean_indicator(left $operator right))
-                },
-                validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, $symbol, rhs])),
-                lhs,
-                rhs,
-            )
-        }
-    };
-}
-
-logical_binary_tensor!(logical_and, SYMBOL_and, &&);
-logical_binary_tensor!(logical_or, SYMBOL_or, ||);
-
-#[kalt_macros::parser]
-pub fn pratt_and_operator() -> char { character(SYMBOL_and) }
-
-#[kalt_macros::parser]
-pub fn pratt_or_operator() -> char { character(SYMBOL_or) }
-
-pratt_infix!(logical_and => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(logical_and(lhs, rhs)?))
-});
-pratt_infix!(logical_or => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(logical_or(lhs, rhs)?))
-});
-
-pub fn logical_not<'data>(value: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise(
-        |value| Ok(boolean_indicator(!boolean_value(value)?)),
-        |_| Ok(()),
-        value,
-    )
-}
-
-#[kalt_macros::parser]
-pub fn pratt_not_operator() -> char { character(SYMBOL_not) }
-
-pratt_prefix!(logical_not => |_op, rhs: Spanned<_>| {
-    let span = rhs.span;
-    Ok(span.make_wrapped(logical_not(rhs)?))
-});
-
-#[kalt_macros::parser]
-pub fn boolean_literal() -> Expects<'data, Tensor> {
-    choice((
-        super::word_or_op("true").map(|_| Ok(Tensor::Scalar(Complex::new(1.0, 0.0)))),
-        super::word_or_op("false").map(|_| Ok(Tensor::Scalar(Complex::new(0.0, 0.0)))),
-    ))
-}
