@@ -1,7 +1,7 @@
 // Public Typst API behavior tests.
 
 #import "../lib.typ": all, any, comp, map
-#import "utils.typ": assert-typst-eq, assert-eq, assert-error
+#import "utils.typ": assert-typst-eq, assert-eq
 
 #assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), float)
 #assert-typst-eq("comp 1x1 real matrix returns float", type(comp($mat(7)$)), float)
