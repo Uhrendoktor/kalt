@@ -48,6 +48,16 @@ pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(value as u8 as f64, 0.0)
 }
 
+pub(crate) fn boolean_binary_scalar<'data>(
+    lhs: SimpleSpanned<Complex<f64>>,
+    rhs: SimpleSpanned<Complex<f64>>,
+    operation: impl FnOnce(bool, bool) -> bool,
+) -> Expects<'data, Complex<f64>> {
+    let lhs = boolean_value(lhs)?;
+    let rhs = boolean_value(rhs)?;
+    Ok(boolean_indicator(operation(lhs, rhs)))
+}
+
 #[kalt_macros::parser]
 pub fn boolean_literal() -> Expects<'data, Tensor> {
     choice((

@@ -17,6 +17,7 @@
   (v1: $mat(1, 1)$, v2: $mat(1, 1)$, error: "Matrix Product Shape Error"),
   (v1: $mat(1, 2)$, v2: $mat(1; 1)$, error: "{0, 1}"),
   (v1: $mat(1, i)$, v2: $mat(1; 1)$, error: "ℂ"),
+  (v1: $0$, v2: $2$, error: "{0, 1}"),
 )
 
 #binary_operation(

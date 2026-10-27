@@ -6,7 +6,7 @@ crate::element_wise_binary_operator!(
     logical_or,
     SYMBOL_or,
     char,
-    |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? || boolean_value(rhs)?))
+    |lhs, rhs| super::boolean_binary_scalar(lhs, rhs, |lhs, rhs| lhs || rhs)
 );
 
 #[kalt_macros::parser]
