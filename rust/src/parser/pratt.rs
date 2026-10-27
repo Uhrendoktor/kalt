@@ -13,7 +13,8 @@ use sertyp::{TypstError, chumsky::parser::whitespaces};
 use crate::parser::ops::abs::abs;
 use crate::parser::ops::boolean_dot::{pratt_boolean_dot, pratt_boolean_dot_operator};
 use crate::parser::ops::bitwise::{
-    pratt_bitwise_and, pratt_bitwise_and_operator, pratt_bitwise_or, pratt_bitwise_or_operator,
+    pratt_bitwise_and, pratt_bitwise_and_operator, pratt_bitwise_not,
+    pratt_bitwise_not_operator, pratt_bitwise_or, pratt_bitwise_or_operator,
     pratt_bitwise_xor, pratt_bitwise_xor_operator,
 };
 use crate::parser::ops::add::{pratt_add, pratt_add_operator};
@@ -36,11 +37,9 @@ use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::logic::{
-    boolean_literal, pratt_and_operator, pratt_eq, pratt_eq_operator, pratt_g,
-    pratt_g_operator, pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator,
-    pratt_leq, pratt_leq_operator, pratt_logical_and, pratt_logical_not,
-    pratt_logical_or, pratt_neq, pratt_neq_operator, pratt_not_operator,
-    pratt_or_operator,
+    boolean_literal, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
+    pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator,
+    pratt_leq, pratt_leq_operator, pratt_neq, pratt_neq_operator,
 };
 use crate::parser::ops::pow::pow;
 use crate::parser::ops::root::root;
@@ -184,7 +183,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
             span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
                 (
                     // Tighter to looser: postfix, sign, products, addition, comparisons,
-                    // bitwise AND/XOR/OR, then logical NOT/AND/OR.
+                    // bitwise NOT, AND, XOR, and OR.
                     infix(left(8), pratt_dot_operator(), pratt_dot),
                     infix(left(8), pratt_boolean_dot_operator(), pratt_boolean_dot),
                     infix(left(8), pratt_mul_operator(), pratt_mul),
@@ -203,9 +202,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     infix(left(5), pratt_bitwise_and_operator(), pratt_bitwise_and),
                     infix(left(4), pratt_bitwise_xor_operator(), pratt_bitwise_xor),
                     infix(left(3), pratt_bitwise_or_operator(), pratt_bitwise_or),
-                    prefix(2, pratt_not_operator(), pratt_logical_not),
-                    infix(left(1), pratt_and_operator(), pratt_logical_and),
-                    infix(left(0), pratt_or_operator(), pratt_logical_or),
+                    prefix(9, pratt_bitwise_not_operator(), pratt_bitwise_not),
                     prefix(9, pratt_sign_operator(), pratt_sign),
                     postfix(11, pratt_factorial_operator(), pratt_factorial),
                     postfix(10, pratt_axes_index_operator(expr.clone()), pratt_axes_index),

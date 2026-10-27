@@ -4,18 +4,12 @@ use sertyp::{SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, content};
 
 use crate::{Expects, parser::atoms::tensor::Tensor};
 
-mod and;
 mod compare;
-mod not;
-mod or;
 
-pub use and::{pratt_and_operator, pratt_logical_and};
 pub use compare::{
     pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator, pratt_geq, pratt_geq_operator,
     pratt_l, pratt_l_operator, pratt_leq, pratt_leq_operator, pratt_neq, pratt_neq_operator,
 };
-pub use not::{pratt_logical_not, pratt_not_operator};
-pub use or::{pratt_logical_or, pratt_or_operator};
 
 pub(crate) fn boolean_value<'data>(
     value: SimpleSpanned<Complex<f64>>,
