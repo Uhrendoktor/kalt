@@ -11,7 +11,7 @@ crate::element_wise_binary_operator!(
     char,
     |lhs, rhs| crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
         Ok(num::Complex::new(
-            (super::bitwise_integer(lhs)? | super::bitwise_integer(rhs)?) as f64,
+            (crate::parser::validator::real_int(lhs.inner, lhs.span)? | crate::parser::validator::real_int(rhs.inner, rhs.span)?) as f64,
             0.0,
         ))
     })

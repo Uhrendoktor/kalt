@@ -118,16 +118,20 @@ pub mod validator {
             ));
         }
 
-        // i64::MAX as f64 rounds up to 2^63, so the upper bound is exclusive.
-        if float < i64::MIN as f64 || float >= i64::MAX as f64 {
+        // Reject integers that may already have been rounded when parsed as f64.
+        if float.abs() > MAX_EXACT_INTEGER {
             return Err(TypstError::full(
                 span,
                 "Integer Range Error",
-                sequence!["i", SYMBOL_in, format!("[{}, {}]", i64::MIN, i64::MAX)],
+                sequence![
+                    "i", SYMBOL_in,
+                    format!("[-{}, {}]", MAX_EXACT_INTEGER, MAX_EXACT_INTEGER)
+                ],
                 sequence![float.to_string(), SYMBOL_in, SYMBOL_RR],
             ));
         }
 
+        // MAX_EXACT_INTEGER is much smaller than i64::MAX, so this cast is in range.
         Ok(float as i64)
     }
 }
