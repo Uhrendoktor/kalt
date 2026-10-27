@@ -1,6 +1,7 @@
 // Numeric comparison operators. Results are encoded as 0 (false) or 1 (true).
 
-#import "../utils.typ": binary_operation
+#import "../utils.typ": binary_operation, assert-error
+#import "../lib.typ": comp
 
 #binary_operation(
   "Less than",
@@ -63,3 +64,21 @@
   (a, b) => { $ #a < #b $ },
   (v1: $1+2i$, v2: $3$, error: "real-valued operands"),
 )
+
+#binary_operation(
+  "Unicode less-than-or-equal alias",
+  [The mathematical ≤ symbol is an alias for <=.],
+  (a, b) => { $ #a ≤ #b $ },
+  (v1: $2$, v2: $3$, e: $1$),
+  (v1: $3$, v2: $2$, e: $0$),
+)
+
+#binary_operation(
+  "Unicode greater-than-or-equal alias",
+  [The mathematical ≥ symbol is an alias for >=.],
+  (a, b) => { $ #a ≥ #b $ },
+  (v1: $3$, v2: $2$, e: $1$),
+  (v1: $2$, v2: $3$, e: $0$),
+)
+
+#assert-error("Comparison chains are non-associative", comp($1 < 2 < 3$))
