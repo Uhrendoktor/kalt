@@ -1,7 +1,4 @@
-use chumsky::{
-    primitive::choice,
-    span::{SimpleSpanned, Span, Spanned, WrappingSpan},
-};
+use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
 use num::Complex;
 use sertyp::{TypstError, chumsky::parser::character};
 
@@ -13,7 +10,7 @@ use crate::{
 /// Parses the Boolean-semiring product operator `⊙`.
 #[kalt_macros::parser]
 pub fn pratt_boolean_dot_operator() -> char {
-    choice((character('⊙'),))
+    character('⊙')
 }
 
 fn bool_value<'data>(value: Complex<f64>, span: chumsky::span::SimpleSpan) -> Expects<'data, bool> {
