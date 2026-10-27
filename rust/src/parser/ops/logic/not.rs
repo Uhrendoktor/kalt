@@ -3,7 +3,7 @@ use sertyp::{SYMBOL_not, chumsky::parser::character};
 
 use crate::{
     Expects, pratt_prefix,
-    parser::{atoms::tensor::Tensor, ops::element_wise::element_wise},
+    parser::{atoms::tensor::Tensor, ops::element_wise::element_wise_unary},
 };
 
 use super::{boolean_indicator, boolean_value};
