@@ -14,7 +14,14 @@ initiate_protocol!();
 #[typst_func()]
 pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Item<'data> {
     let seq = LocatingSequence::from(&seq);
-    let c = parse!(pratt(), &seq);
+    let c = parse!(pratt(), &seq).map(|tensor| match tensor {
+        // A 1x1 matrix contains exactly one value, so expose it like a scalar.
+        // This keeps real results usable as Typst floats and avoids displaying mat(x).
+        Tensor::Matrix(matrix) if matrix.nrows() == 1 && matrix.ncols() == 1 => {
+            Tensor::Scalar(matrix[[0, 0]])
+        }
+        other => other,
+    });
 
     if let Ok(Tensor::Scalar(value)) = &c {
         if value.im == 0.0 {
