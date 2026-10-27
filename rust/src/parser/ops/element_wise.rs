@@ -1,5 +1,5 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use sertyp::{Content, SYMBOL_CC, TypstError, content};
+use sertyp::{Content, SYMBOL_CC, SYMBOL_dot_op, TypstError, Underline, content, sequence};
 
 use crate::{
     Expects, matrix_shape,
@@ -31,7 +31,7 @@ where
     Ok(unary_tensor(t.inner, function))
 }
 
-pub fn element_wise<
+pub fn element_wise_unary<
     'data,
     F: Fn(SimpleSpanned<num::Complex<f64>>) -> Expects<'data, num::Complex<f64>>,
     MC: Fn(SimpleSpanned<&Matrix>) -> Expects<'data, ()>,
@@ -54,7 +54,7 @@ pub fn element_wise<
     })
 }
 
-pub fn element_wise2<
+pub fn element_wise_binary<
     'data,
     F: Fn(
         SimpleSpanned<num::Complex<f64>>,
@@ -102,28 +102,57 @@ pub fn element_wise2<
     })
 }
 
+/// Applies a binary operation to real-valued scalar operands, preserving their spans.
+pub fn real_scalar_binary<'data>(
+    lhs: SimpleSpanned<num::Complex<f64>>,
+    rhs: SimpleSpanned<num::Complex<f64>>,
+    operation: impl FnOnce(
+        SimpleSpanned<f64>,
+        SimpleSpanned<f64>,
+    ) -> Expects<'data, num::Complex<f64>>,
+) -> Expects<'data, num::Complex<f64>> {
+    operation(
+        lhs.span.make_wrapped(crate::parser::validator::real(lhs.inner, lhs.span)?),
+        rhs.span.make_wrapped(crate::parser::validator::real(rhs.inner, rhs.span)?),
+    )
+}
+
 /// General matrix product for operations defined by a multiplication and reduction operation.
 ///
 /// Returns None when inner dimensions are incompatible. The identity and operations
 /// are supplied by the caller, so this is reusable for arithmetic and semiring products.
-pub fn matrix_product<T: Copy>(
-    lhs: &ndarray::Array2<T>,
-    rhs: &ndarray::Array2<T>,
+pub fn matrix_product<'data, T: Copy>(
+    lhs: SimpleSpanned<&ndarray::Array2<T>>,
+    rhs: SimpleSpanned<&ndarray::Array2<T>>,
     identity: T,
     multiply: impl Fn(T, T) -> T,
     reduce: impl Fn(T, T) -> T,
-) -> Option<ndarray::Array2<T>> {
-    if lhs.ncols() != rhs.nrows() {
-        return None;
+    operator: char,
+) -> Expects<'data, ndarray::Array2<T>> {
+    if lhs.inner.ncols() != rhs.inner.nrows() {
+        return Err(TypstError::full(
+            lhs.span.union(rhs.span),
+            "Matrix Product Shape Error",
+            sequence![
+                matrix_shape!({SYMBOL_CC} ^ ({'N'} x {Underline::underline('M')})),
+                operator,
+                matrix_shape!({SYMBOL_CC} ^ ({Underline::underline('M')} x {'P'})),
+            ],
+            sequence![
+                matrix_shape!({SYMBOL_CC} ^ ({lhs.inner.nrows().to_string()} x {Underline::underline(lhs.inner.ncols().to_string())})),
+                operator,
+                matrix_shape!({SYMBOL_CC} ^ ({Underline::underline(rhs.inner.nrows().to_string())} x {rhs.inner.ncols().to_string()})),
+            ],
+        ));
     }
-    Some(ndarray::Array2::from_shape_fn(
-        (lhs.nrows(), rhs.ncols()),
+    Ok(ndarray::Array2::from_shape_fn(
+        (lhs.inner.nrows(), rhs.inner.ncols()),
         |(row, col)| {
             let mut accumulator = identity;
-            for inner in 0..lhs.ncols() {
+            for inner in 0..lhs.inner.ncols() {
                 accumulator = reduce(
                     accumulator,
-                    multiply(lhs[[row, inner]], rhs[[inner, col]]),
+                    multiply(lhs.inner[[row, inner]], rhs.inner[[inner, col]]),
                 );
             }
             accumulator
@@ -131,9 +160,8 @@ pub fn matrix_product<T: Copy>(
     ))
 }
 
-/// Dispatches a binary tensor operation to a matrix product for matrix-matrix
-/// inputs and to element-wise evaluation whenever at least one operand is scalar.
-pub fn binary_tensor_operation<'data, F, M>(
+/// Uses a custom matrix operation for matrix pairs and element-wise evaluation if either operand is scalar.
+pub fn element_wise_binary_combinatorial<'data, F, M>(
     scalar_operation: F,
     matrix_operation: M,
     lhs: SimpleSpanned<Tensor>,
@@ -164,7 +192,7 @@ where
             rhs_span.make_wrapped(&rhs),
         )
         .map(Tensor::Matrix),
-        (lhs, rhs) => element_wise2(scalar_operation, |_, _| Ok(()), lhs, rhs),
+        (lhs, rhs) => element_wise_binary(scalar_operation, |_, _| Ok(()), lhs, rhs),
     }
 }
 

@@ -4,16 +4,15 @@ use chumsky::{
 };
 use num::Complex;
 use sertyp::{
-    SYMBOL_CC, SYMBOL_RR, SYMBOL_eq, SYMBOL_eq_not, SYMBOL_gt, SYMBOL_gt_eq,
-    SYMBOL_in, SYMBOL_lt, SYMBOL_lt_eq, TypstError, chumsky::parser::character,
-    content,
+    SYMBOL_eq, SYMBOL_eq_not, SYMBOL_gt, SYMBOL_gt_eq, SYMBOL_lt, SYMBOL_lt_eq,
+    chumsky::parser::character, content,
 };
 
 use crate::{
     Expects, pratt_infix,
     parser::{
         atoms::tensor::Tensor,
-        ops::{composed_operator, element_wise::{element_wise2, validate_same_shape}},
+        ops::{composed_operator, element_wise::{element_wise_binary, real_scalar_binary, validate_same_shape}},
     },
 };
 
@@ -63,23 +62,14 @@ fn compare_complex_scalar<'data>(
     Ok(boolean_indicator(comparison(lhs.inner, rhs.inner)))
 }
 
-fn compare_ordered_scalar<'data>(
+fn compare_real_scalar<'data>(
     lhs: SimpleSpanned<Complex<f64>>,
     rhs: SimpleSpanned<Complex<f64>>,
-    operator: char,
     comparison: impl Fn(f64, f64) -> bool,
 ) -> Expects<'data, Complex<f64>> {
-    if lhs.inner.im != 0.0 || rhs.inner.im != 0.0 {
-        return Err(TypstError::full(
-            lhs.span.union(rhs.span),
-            "Comparison Error",
-            content!(sertyp::sequence!["a, b", SYMBOL_in, SYMBOL_RR]),
-            content!(sertyp::sequence![
-                lhs.inner.to_string(), operator, rhs.inner.to_string()
-            ]),
-        ));
-    }
-    Ok(boolean_indicator(comparison(lhs.inner.re, rhs.inner.re)))
+    real_scalar_binary(lhs, rhs, |lhs, rhs| {
+        Ok(boolean_indicator(comparison(lhs.inner, rhs.inner)))
+    })
 }
 
 fn compare_tensors<'data, F>(
@@ -94,7 +84,7 @@ where
         SimpleSpanned<Complex<f64>>,
     ) -> Expects<'data, Complex<f64>>,
 {
-    element_wise2(
+    element_wise_binary(
         comparison,
         validate_same_shape(move |lhs, rhs| content!(sertyp::sequence![lhs, operator, rhs])),
         lhs,
@@ -102,27 +92,27 @@ where
     )
 }
 
-pub fn compare_less_than<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_lt<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_lt, |lhs, rhs| {
-        compare_ordered_scalar(lhs, rhs, SYMBOL_lt, |left, right| left < right)
+        compare_real_scalar(lhs, rhs, |left, right| left < right)
     })
 }
 
-pub fn compare_less_than_or_equal<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_le<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_lt_eq, |lhs, rhs| {
-        compare_ordered_scalar(lhs, rhs, SYMBOL_lt_eq, |left, right| left <= right)
+        compare_real_scalar(lhs, rhs, |left, right| left <= right)
     })
 }
 
-pub fn compare_greater_than<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_gt<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_gt, |lhs, rhs| {
-        compare_ordered_scalar(lhs, rhs, SYMBOL_gt, |left, right| left > right)
+        compare_real_scalar(lhs, rhs, |left, right| left > right)
     })
 }
 
-pub fn compare_greater_than_or_equal<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_ge<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_gt_eq, |lhs, rhs| {
-        compare_ordered_scalar(lhs, rhs, SYMBOL_gt_eq, |left, right| left >= right)
+        compare_real_scalar(lhs, rhs, |left, right| left >= right)
     })
 }
 
@@ -139,16 +129,16 @@ pub fn compare_neq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>
 }
 
 pratt_infix!(l, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_less_than(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_lt(lhs, rhs)?))
 });
 pratt_infix!(leq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_less_than_or_equal(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_le(lhs, rhs)?))
 });
 pratt_infix!(g, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_greater_than(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_gt(lhs, rhs)?))
 });
 pratt_infix!(geq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_greater_than_or_equal(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_ge(lhs, rhs)?))
 });
 pratt_infix!(eq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_eq(lhs, rhs)?))

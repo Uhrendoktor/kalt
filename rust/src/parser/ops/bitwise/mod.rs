@@ -8,22 +8,21 @@ pub use xor::{bitwise_xor, pratt_bitwise_xor, pratt_bitwise_xor_operator};
 
 const MAX_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
 
-fn validate_bitwise_range<'data>(
-    value: f64,
-    span: chumsky::span::SimpleSpan,
-) -> crate::Expects<'data, ()> {
+fn bitwise_integer<'data>(
+    value: chumsky::span::SimpleSpanned<f64>,
+) -> crate::Expects<'data, i64> {
     use sertyp::{SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, SYMBOL_lt_eq, TypstError, content};
-    if value.abs() <= MAX_SAFE_INTEGER {
-        return Ok(());
+    if value.inner.abs() > MAX_SAFE_INTEGER {
+        return Err(TypstError::full(
+            value.span,
+            "Bitwise Operand Error",
+            content!(sertyp::sequence![
+                "n", SYMBOL_in, SYMBOL_ZZ, ", |n|", SYMBOL_lt_eq, MAX_SAFE_INTEGER.to_string()
+            ]),
+            content!(sertyp::sequence![value.inner.to_string(), SYMBOL_in, SYMBOL_RR]),
+        ));
     }
-    Err(TypstError::full(
-        span,
-        "Bitwise Operand Error",
-        content!(sertyp::sequence![
-            "n", SYMBOL_in, SYMBOL_ZZ, ", |n|", SYMBOL_lt_eq, MAX_SAFE_INTEGER.to_string()
-        ]),
-        content!(sertyp::sequence![value.to_string(), SYMBOL_in, SYMBOL_RR]),
-    ))
+    crate::parser::validator::real_int(value.inner, value.span)
 }
 
 macro_rules! bitwise_operation {
@@ -32,15 +31,14 @@ macro_rules! bitwise_operation {
             lhs: chumsky::span::SimpleSpanned<crate::parser::atoms::tensor::Tensor>,
             rhs: chumsky::span::SimpleSpanned<crate::parser::atoms::tensor::Tensor>,
         ) -> crate::Expects<'data, crate::parser::atoms::tensor::Tensor> {
-            crate::parser::ops::element_wise::element_wise2(
+            crate::parser::ops::element_wise::element_wise_binary(
                 |lhs, rhs| {
-                    let left_real = crate::parser::validator::real(lhs.inner, lhs.span)?;
-                    let right_real = crate::parser::validator::real(rhs.inner, rhs.span)?;
-                    let left = crate::parser::validator::real_int(left_real, lhs.span)?;
-                    let right = crate::parser::validator::real_int(right_real, rhs.span)?;
-                    super::validate_bitwise_range(left_real, lhs.span)?;
-                    super::validate_bitwise_range(right_real, rhs.span)?;
-                    Ok(num::Complex::new((left $operator right) as f64, 0.0))
+                    crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
+                        Ok(num::Complex::new(
+                            (super::bitwise_integer(lhs)? $operator super::bitwise_integer(rhs)?) as f64,
+                            0.0,
+                        ))
+                    })
                 },
                 crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
                     sertyp::content!(sertyp::sequence![lhs, $symbol, rhs])
