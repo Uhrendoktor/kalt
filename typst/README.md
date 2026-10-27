@@ -362,7 +362,7 @@ These helpers apply a predicate at each aligned coordinate. The predicate must r
 Kalt reports invalid operations, non-real ordered comparisons, invalid integer bitwise operands, and incompatible matrix shapes as inline Typst errors. Typical causes include:
 
 - an ordered comparison involving a complex number with a nonzero imaginary part;
-- applying `¬`, `∧`, or `∨` to values other than real `0`/`1`;
+- applying the bitwise operators to fractional, complex, or out-of-safe-range values;
 - applying `⊙` to values other than real `0`/`1`;
 - element-wise matrix operations whose non-scalar operands have different shapes;
 - dot products with incompatible inner dimensions;
@@ -374,7 +374,7 @@ From tightest to loosest:
 
 1. Grouping, Typst math attachments (such as powers/roots), and function-like atoms.
 2. Factorial and indexing.
-3. Unary sign.
+3. Unary sign and bitwise NOT (`¬`).
 4. Dot product, Boolean product, element-wise multiplication, modulo, and cross product.
 5. Addition and subtraction.
 6. Comparisons.
