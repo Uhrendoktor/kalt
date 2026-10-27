@@ -29,6 +29,16 @@
 )
 #assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
 
+
+#assert-eq("true indicator participates in arithmetic", comp($op("true") + op("true")$), 2.0)
+#assert-eq("true indicator can be an exponent", comp($2^(op("true"))$), 2.0)
+#assert-eq(
+  "comparison and logical precedence",
+  comp($(2 + 3 > 4) ∧ (1 < 2)$),
+  1.0,
+)
+#assert-error("comparison chains must be parenthesized", comp($1 < 2 < 3$))
+
 #assert-typst-eq("any finds matching cell", any(value => comp(value) > 3, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("any rejects no matches", any(value => comp(value) > 9, $mat(1, 2; 3, 4)$), false)
 #assert-typst-eq("all accepts every matching cell", all(value => comp(value) > 0, $mat(1, 2; 3, 4)$), true)
