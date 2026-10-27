@@ -1,5 +1,5 @@
 use chumsky::IterParser;
-use chumsky::pratt::{infix, left, postfix};
+use chumsky::pratt::{infix, left, non_assoc, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
@@ -11,6 +11,7 @@ use sertyp::locating::GroupType;
 use sertyp::{TypstError, chumsky::parser::whitespaces};
 
 use crate::parser::ops::abs::abs;
+use crate::parser::ops::boolean_dot::{boolean_dot, pratt_boolean_dot_operator};
 use crate::parser::ops::add::{pratt_add, pratt_add_operator};
 use crate::parser::ops::binom::binom;
 use crate::parser::ops::ceil::ceil;
@@ -30,6 +31,11 @@ use crate::parser::ops::func::re_im::{im, re};
 use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
+use crate::parser::ops::logic::{
+    boolean_literal, pratt_and_operator, pratt_compare_operator, pratt_logical_and,
+    pratt_logical_not, pratt_not_operator, pratt_logical_or, pratt_or_operator,
+    pratt_compare,
+};
 use crate::parser::ops::pow::pow;
 use crate::parser::ops::root::root;
 use crate::parser::ops::sub::{pratt_sub, pratt_sub_operator};
@@ -104,6 +110,7 @@ pub fn atom_like(
     // ordered by likelihood to improve performance
     choice((
         group(expr.clone()),
+        boolean_literal(),
         tensor(),
         fraction(),
         pow(),
@@ -170,23 +177,23 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
         unspan(
             span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
                 (
-                    // Multiplication: dot product
-                    infix(left(3), pratt_dot_operator(), pratt_dot),
-                    // Multiplication: element wise
-                    infix(left(3), pratt_mul_operator(), pratt_mul),
-                    infix(left(3), pratt_modulo_operator(), pratt_modulo),
-                    // Multiplication: cross product
-                    infix(left(3), pratt_cross_operator(), pratt_cross),
-                    // Addition
-                    infix(left(2), pratt_add_operator(), pratt_add),
-                    // Subtraction
-                    infix(left(2), pratt_sub_operator(), pratt_sub),
-                    // Sign
-                    prefix(5, pratt_sign_operator(), pratt_sign),
-                    // Factorial,
-                    postfix(6, pratt_factorial_operator(), pratt_factorial),
-                    // Indexing
-                    postfix(4, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
+                    // Highest: existing arithmetic and indexing. Precedence values are
+                    // shifted to make room for comparisons, NOT, AND, and OR.
+                    infix(left(5), pratt_dot_operator(), pratt_dot),
+                    infix(left(5), pratt_boolean_dot_operator(), crate::parser::ops::boolean_dot::pratt_boolean_dot),
+                    infix(left(5), pratt_mul_operator(), pratt_mul),
+                    infix(left(5), pratt_modulo_operator(), pratt_modulo),
+                    infix(left(5), pratt_cross_operator(), pratt_cross),
+                    infix(left(4), pratt_add_operator(), pratt_add),
+                    infix(left(4), pratt_sub_operator(), pratt_sub),
+                    // A chain such as a < b < c is rejected; write (a < b) ∧ (b < c).
+                    infix(non_assoc(3), pratt_compare_operator(), pratt_compare),
+                    prefix(2, pratt_not_operator(), pratt_logical_not),
+                    infix(left(1), pratt_and_operator(), pratt_logical_and),
+                    infix(left(0), pratt_or_operator(), pratt_logical_or),
+                    prefix(6, pratt_sign_operator(), pratt_sign),
+                    postfix(8, pratt_factorial_operator(), pratt_factorial),
+                    postfix(7, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
                 ),
             ),
         )
