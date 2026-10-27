@@ -8,7 +8,7 @@ use crate::{
 
 #[kalt_macros::parser]
 pub fn pratt_bitwise_not_operator() -> char {
-    character('~')
+    character('∼')
 }
 
 pratt_prefix!(bitwise_not => |_op, rhs: Spanned<_>| {
