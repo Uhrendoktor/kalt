@@ -1,7 +1,5 @@
 use sertyp::{SYMBOL_or, chumsky::parser::character};
 
-use super::{boolean_indicator, boolean_value};
-
 crate::element_wise_binary_operator!(
     logical_or,
     SYMBOL_or,
