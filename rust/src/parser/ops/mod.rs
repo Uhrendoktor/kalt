@@ -5,7 +5,7 @@ use chumsky::{
 };
 use sertyp::{
     Content, TypstError,
-    chumsky::{Token, parser::word},
+    chumsky::{Token, parser::{character, word}},
     math::Op,
 };
 
@@ -31,6 +31,18 @@ pub mod round;
 pub mod sign;
 pub mod sub;
 pub mod transpose;
+
+/// Parses a two-character spelling of a single operator, such as <=.
+///
+/// Both characters are consumed before the parser returns the canonical symbol.
+/// Register this parser before any parser for its one-character prefix; otherwise
+/// the shorter operator could consume the beginning of a composed operator.
+#[kalt_macros::parser]
+pub fn composed_operator(first: char, second: char, canonical: char) -> char {
+    character(first)
+        .then_ignore(character(second))
+        .map(move |_| canonical)
+}
 
 /// Generates a pratt infix parser that combines two tensors using the specified operation.
 ///

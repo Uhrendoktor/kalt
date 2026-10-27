@@ -1,5 +1,7 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use sertyp::{TypstError, chumsky::parser::character};
+use sertyp::{
+    SYMBOL_dot_o, SYMBOL_times, TypstError, chumsky::parser::character,
+};
 
 use crate::{
     Expects, pratt_infix,
@@ -9,12 +11,15 @@ use crate::{
     },
 };
 
-use super::logic::{boolean_indicator, boolean_value};
+use super::{
+    dot::matrix_product,
+    logic::{boolean_indicator, boolean_value},
+};
 
-/// Parses the Boolean-semiring product operator `⊙`.
+/// Parses the Boolean-semiring product operator ⊙.
 #[kalt_macros::parser]
 pub fn pratt_boolean_dot_operator() -> char {
-    character('⊙')
+    character(SYMBOL_dot_o)
 }
 
 fn validate_bool_matrix<'data>(
@@ -27,9 +32,9 @@ fn validate_bool_matrix<'data>(
     Ok(())
 }
 
-/// Boolean-semiring matrix/vector product. Pairwise AND is reduced with OR.
-/// Scalar cases share `element_wise2`; the matrix-by-matrix case must use the
-/// inner-dimension product rather than element-wise shape matching.
+/// Boolean-semiring matrix/vector product. Scalar and matrix-scalar cases use
+/// the shared element-wise utility; matrix-matrix multiplication shares the
+/// same shape check and product loop as ordinary dot, but uses AND followed by OR.
 pub fn boolean_dot<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
@@ -44,34 +49,29 @@ pub fn boolean_dot<'data>(
             validate_bool_matrix(&lhs, lhs_span)?;
             validate_bool_matrix(&rhs, rhs_span)?;
 
-            if lhs.ncols() != rhs.nrows() {
+            let Some(output) = matrix_product(
+                &lhs,
+                &rhs,
+                boolean_indicator(false),
+                |lhs, rhs| boolean_indicator(lhs.re == 1.0 && rhs.re == 1.0),
+                |left, right| boolean_indicator(left.re == 1.0 || right.re == 1.0),
+            ) else {
                 return Err(TypstError::full(
                     full_span,
                     "Boolean Product Shape Error",
                     "matrices with compatible inner dimensions",
                     format!(
-                        "{}×{} and {}×{}",
+                        "{}{}{} and {}{}{}",
                         lhs.nrows(),
+                        SYMBOL_times,
                         lhs.ncols(),
                         rhs.nrows(),
+                        SYMBOL_times,
                         rhs.ncols()
                     ),
                 ));
-            }
+            };
 
-            let mut output = Matrix::from_elem(
-                (lhs.nrows(), rhs.ncols()),
-                boolean_indicator(false),
-            );
-            for row in 0..lhs.nrows() {
-                for col in 0..rhs.ncols() {
-                    // Boolean multiplication uses AND for each pair and OR for reduction.
-                    let any_overlap = (0..lhs.ncols()).any(|inner| {
-                        lhs[[row, inner]].re == 1.0 && rhs[[inner, col]].re == 1.0
-                    });
-                    output[[row, col]] = boolean_indicator(any_overlap);
-                }
-            }
             Ok(Tensor::Matrix(output))
         }
         (lhs, rhs) => element_wise2(
