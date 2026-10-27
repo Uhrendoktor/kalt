@@ -11,7 +11,7 @@ use sertyp::locating::GroupType;
 use sertyp::{TypstError, chumsky::parser::whitespaces};
 
 use crate::parser::ops::abs::abs;
-use crate::parser::ops::boolean_dot::{boolean_dot, pratt_boolean_dot_operator};
+use crate::parser::ops::boolean_dot::{pratt_boolean_dot, pratt_boolean_dot_operator};
 use crate::parser::ops::add::{pratt_add, pratt_add_operator};
 use crate::parser::ops::binom::binom;
 use crate::parser::ops::ceil::ceil;
@@ -180,7 +180,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     // Highest: existing arithmetic and indexing. Precedence values are
                     // shifted to make room for comparisons, NOT, AND, and OR.
                     infix(left(5), pratt_dot_operator(), pratt_dot),
-                    infix(left(5), pratt_boolean_dot_operator(), crate::parser::ops::boolean_dot::pratt_boolean_dot),
+                    infix(left(5), pratt_boolean_dot_operator(), pratt_boolean_dot),
                     infix(left(5), pratt_mul_operator(), pratt_mul),
                     infix(left(5), pratt_modulo_operator(), pratt_modulo),
                     infix(left(5), pratt_cross_operator(), pratt_cross),
