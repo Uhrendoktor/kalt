@@ -1,4 +1,4 @@
-use sertyp::SYMBOL_amp;
+
 
 use crate::parser::ops::element_wise_binary_operator;
 
@@ -9,7 +9,7 @@ pub fn pratt_bitwise_and_operator() -> String {
 
 element_wise_binary_operator!(
     bitwise_and,
-    SYMBOL_amp,
+    "bitand",
     String,
     |lhs, rhs| crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
         Ok(num::Complex::new(

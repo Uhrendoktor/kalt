@@ -5,7 +5,7 @@
 #binary_operation(
   "Bitwise AND",
   [Computes the bitwise AND of two real integers.],
-  (a, b) => { $ #a & #b $ },
+  (a, b) => { $ #a bitand #b $ },
   (v1: $6$, v2: $3$, e: $2$),
   (v1: $6$, v2: $2$, e: $2$),
   (v1: $5$, v2: $2$, e: $0$),
