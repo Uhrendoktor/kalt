@@ -1,21 +1,11 @@
-use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use sertyp::{SYMBOL_and, chumsky::parser::character, content};
+use chumsky::span::{Span, Spanned, WrappingSpan};
+use sertyp::{SYMBOL_and, chumsky::parser::character};
 
-use crate::{
-    Expects, pratt_infix,
-    parser::{atoms::tensor::Tensor, ops::element_wise::{element_wise_binary, validate_same_shape}},
-};
+use crate::pratt_infix;
 
-use super::{boolean_indicator, boolean_value};
+use super::logical_binary_tensor;
 
-pub fn logical_and<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise_binary(
-        |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? && boolean_value(rhs)?)),
-        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, SYMBOL_and, rhs])),
-        lhs,
-        rhs,
-    )
-}
+logical_binary_tensor!(logical_and, SYMBOL_and, &&);
 
 #[kalt_macros::parser]
 pub fn pratt_and_operator() -> char { character(SYMBOL_and) }

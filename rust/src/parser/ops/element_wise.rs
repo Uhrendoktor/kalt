@@ -132,7 +132,7 @@ pub fn matrix_product<'data, T: Copy>(
     if lhs.inner.ncols() != rhs.inner.nrows() {
         return Err(TypstError::full(
             lhs.span.union(rhs.span),
-            "Matrix Product Shape Error",
+            "Matrix Product Shape Error: compatible inner dimensions required",
             sequence![
                 matrix_shape!({SYMBOL_CC} ^ ({'N'} x {Underline::underline('M')})),
                 operator,

@@ -49,7 +49,7 @@ macro_rules! bitwise_operation {
         }
 
         crate::pratt_infix!($name => |_op, lhs: chumsky::span::Spanned<_>, rhs: chumsky::span::Spanned<_>| {
-            Ok(chumsky::span::Span::union(lhs.span, rhs.span).make_wrapped($name(lhs, rhs)?))
+            Ok(lhs.span.union(rhs.span).make_wrapped($name(lhs, rhs)?))
         });
     };
 }
