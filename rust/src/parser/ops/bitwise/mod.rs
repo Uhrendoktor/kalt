@@ -1,6 +1,6 @@
 mod and;
-mod or;
 mod not;
+mod or;
 mod xor;
 
 pub use and::{bitwise_and, pratt_bitwise_and, pratt_bitwise_and_operator};
