@@ -33,11 +33,10 @@ pub fn boolean_dot<'data>(
                 span: rhs_span,
             },
         ) => {
-            for value in &lhs {
-                boolean_value(lhs_span.make_wrapped(*value))?;
-            }
-            for value in &rhs {
-                boolean_value(rhs_span.make_wrapped(*value))?;
+            for (matrix, span) in [(&lhs, lhs_span), (&rhs, rhs_span)] {
+                for value in matrix {
+                    boolean_value(span.make_wrapped(*value))?;
+                }
             }
             matrix_product(
                 lhs_span.make_wrapped(&lhs),

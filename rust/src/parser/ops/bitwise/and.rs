@@ -1,5 +1,3 @@
-
-
 #[kalt_macros::parser]
 pub fn pratt_bitwise_and_operator() -> String {
     super::super::word_or_op("bitand")

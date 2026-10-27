@@ -33,8 +33,6 @@ macro_rules! element_wise_binary_operator {
         });
     };
 }
-pub(crate) use element_wise_binary_operator;
-
 pub mod abs;
 pub mod add;
 pub mod binom;
