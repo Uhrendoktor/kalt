@@ -1,7 +1,7 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
 use num::Complex;
 use sertyp::{
-    SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_bar_v, SYMBOL_in, SYMBOL_lt_eq, SYMBOL_xor,
+    SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, SYMBOL_lt_eq, SYMBOL_union_sq, SYMBOL_xor,
     TypstError, chumsky::parser::character, content,
 };
 
@@ -65,7 +65,7 @@ pub fn bitwise_and<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>
 }
 
 pub fn bitwise_or<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
-    bitwise_tensor(lhs, rhs, SYMBOL_bar_v, |left, right| left | right)
+    bitwise_tensor(lhs, rhs, SYMBOL_union_sq, |left, right| left | right)
 }
 
 pub fn bitwise_xor<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
@@ -76,7 +76,7 @@ pub fn bitwise_xor<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>
 pub fn pratt_bitwise_and_operator() -> char { character('&') }
 
 #[kalt_macros::parser]
-pub fn pratt_bitwise_or_operator() -> char { character(SYMBOL_bar_v) }
+pub fn pratt_bitwise_or_operator() -> char { character(SYMBOL_union_sq) }
 
 #[kalt_macros::parser]
 pub fn pratt_bitwise_xor_operator() -> char { character(SYMBOL_xor) }

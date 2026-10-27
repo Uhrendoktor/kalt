@@ -17,7 +17,7 @@
 #binary_operation(
   "Bitwise OR",
   [Computes the bitwise OR of two real integers.],
-  (a, b) => { $ #a | #b $ },
+  (a, b) => { $ #a ⊔ #b $ },
   (v1: $6$, v2: $3$, e: $7$),
   (v1: $4$, v2: $1$, e: $5$),
 )
