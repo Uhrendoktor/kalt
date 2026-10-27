@@ -4,7 +4,6 @@ use chumsky::input::MapExtra;
 use chumsky::span::{SimpleSpan, Span, Spanned, WrappingSpan};
 use chumsky::{Parser, primitive::choice, span::SimpleSpanned};
 use ndarray::Axis;
-use num::ToPrimitive;
 use sertyp::chumsky::parser::whitespaces;
 use sertyp::{FromString, SYMBOL_eq_not, SYMBOL_in, equation, sequence};
 use sertyp::{
@@ -32,19 +31,27 @@ pub fn cast_negative<'data>(
     interval_open: bool,
 ) -> impl FnOnce(&SimpleSpanned<i64>) -> Expects<'data, usize> {
     move |index: &SimpleSpanned<i64>| {
+        let len_i64 = i64::try_from(len).map_err(|_| {
+            TypstError::full(
+                index.span,
+                "Index Dimension Error",
+                "dimension representable as i64",
+                len.to_string(),
+            )
+        })?;
         let mut x = **index;
         if x < 0 {
-            x += len as i64
+            x += len_i64
         }
         if x < 0 {
             return Err(TypstError::full(
                 index.span,
                 "negative index",
                 equation!(sequence!("index", SYMBOL_in, format!("[-{}, -1]", len))),
-                (x - len as i64).to_string(),
+                (x - len_i64).to_string(),
             ));
         }
-        if (interval_open && x >= len as i64) || (!interval_open && x > len as i64) {
+        if (interval_open && x >= len_i64) || (!interval_open && x > len_i64) {
             return Err(TypstError::full(
                 index.span,
                 "index out of bounds",
@@ -56,7 +63,14 @@ pub fn cast_negative<'data>(
                 x.to_string(),
             ));
         }
-        Ok(x as usize)
+        usize::try_from(x).map_err(|_| {
+            TypstError::full(
+                index.span,
+                "Index Range Error",
+                "non-negative index representable as usize",
+                x.to_string(),
+            )
+        })
     }
 }
 
@@ -92,9 +106,18 @@ pub fn to_indices<'a>(
             }
 
             let step_v: isize = step
-                .as_deref()
-                .cloned()
-                .map(|n| n.to_isize().unwrap())
+                .as_ref()
+                .map(|step| {
+                    isize::try_from(**step).map_err(|_| {
+                        TypstError::full(
+                            step.span,
+                            "Range Step Error",
+                            format!("step ∈ [{}, {}]", isize::MIN, isize::MAX),
+                            (**step).to_string(),
+                        )
+                    })
+                })
+                .transpose()?
                 .unwrap_or(1);
             if step_v == 0 {
                 return Err(TypstError::full(
