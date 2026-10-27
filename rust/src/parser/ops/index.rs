@@ -5,6 +5,7 @@ use chumsky::span::{SimpleSpan, Span, Spanned, WrappingSpan};
 use chumsky::{Parser, primitive::choice, span::SimpleSpanned};
 use ndarray::Axis;
 use sertyp::chumsky::parser::whitespaces;
+use sertyp::FromString;
 use sertyp::{
     TypstError,
     chumsky::{
