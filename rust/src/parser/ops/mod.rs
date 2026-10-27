@@ -12,6 +12,7 @@ use sertyp::{
 pub mod abs;
 pub mod add;
 pub mod binom;
+pub mod boolean_dot;
 pub mod ceil;
 pub mod conjugate;
 pub mod cross;
@@ -21,6 +22,7 @@ pub mod factorial;
 pub mod floor;
 pub mod func;
 pub mod index;
+pub mod logic;
 pub mod mul;
 pub mod modulo;
 pub mod pow;
