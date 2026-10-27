@@ -20,13 +20,11 @@ use crate::{
     },
 };
 
-/// Less-than comparison parser.
 #[kalt_macros::parser]
 pub fn pratt_l_operator() -> char {
     character(SYMBOL_lt)
 }
 
-/// Less-than-or-equal parser. The two-character alias is parsed as one operator.
 #[kalt_macros::parser]
 pub fn pratt_leq_operator() -> char {
     choice((
@@ -35,13 +33,11 @@ pub fn pratt_leq_operator() -> char {
     ))
 }
 
-/// Greater-than comparison parser.
 #[kalt_macros::parser]
 pub fn pratt_g_operator() -> char {
     character(SYMBOL_gt)
 }
 
-/// Greater-than-or-equal parser. The two-character alias is parsed as one operator.
 #[kalt_macros::parser]
 pub fn pratt_geq_operator() -> char {
     choice((
@@ -50,19 +46,16 @@ pub fn pratt_geq_operator() -> char {
     ))
 }
 
-/// Equality comparison parser.
 #[kalt_macros::parser]
 pub fn pratt_eq_operator() -> char {
     character(SYMBOL_eq)
 }
 
-/// Inequality comparison parser.
 #[kalt_macros::parser]
 pub fn pratt_neq_operator() -> char {
     character(SYMBOL_eq_not)
 }
 
-/// Compares two complex scalars directly (used for exact equality and inequality).
 fn compare_complex_scalar<'data>(
     lhs: SimpleSpanned<Complex<f64>>,
     rhs: SimpleSpanned<Complex<f64>>,
@@ -71,68 +64,25 @@ fn compare_complex_scalar<'data>(
     Ok(boolean_indicator(comparison(lhs.inner, rhs.inner)))
 }
 
-/// Compares the real parts after rejecting values with a nonzero imaginary part.
 fn compare_ordered_scalar<'data>(
     lhs: SimpleSpanned<Complex<f64>>,
     rhs: SimpleSpanned<Complex<f64>>,
+    operator: char,
     comparison: impl Fn(f64, f64) -> bool,
 ) -> Expects<'data, Complex<f64>> {
-    let span = lhs.span.union(rhs.span);
     if lhs.inner.im != 0.0 || rhs.inner.im != 0.0 {
         return Err(TypstError::full(
-            span,
+            lhs.span.union(rhs.span),
             "Comparison Error",
-            "real-valued operands",
-            format!("{} and {}", lhs.inner, rhs.inner),
+            content!(sertyp::sequence!["a, b", SYMBOL_in, SYMBOL_RR]),
+            content!(sertyp::sequence![
+                lhs.inner.to_string(), operator, rhs.inner.to_string()
+            ]),
         ));
     }
     Ok(boolean_indicator(comparison(lhs.inner.re, rhs.inner.re)))
 }
 
-fn equal_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_complex_scalar(lhs, rhs, |lhs, rhs| lhs == rhs)
-}
-
-fn unequal_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_complex_scalar(lhs, rhs, |lhs, rhs| lhs != rhs)
-}
-
-fn less_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_ordered_scalar(lhs, rhs, |lhs, rhs| lhs < rhs)
-}
-
-fn less_or_equal_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_ordered_scalar(lhs, rhs, |lhs, rhs| lhs <= rhs)
-}
-
-fn greater_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_ordered_scalar(lhs, rhs, |lhs, rhs| lhs > rhs)
-}
-
-fn greater_or_equal_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
-    compare_ordered_scalar(lhs, rhs, |lhs, rhs| lhs >= rhs)
-}
-
-/// Applies one explicit comparison to matching matrix cells. A scalar operand
-/// is still broadcast by element_wise2; non-scalar matrices must match shapes.
 fn compare_tensors<'data, F>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
@@ -147,54 +97,46 @@ where
 {
     element_wise2(
         comparison,
-        validate_same_shape(move |lhs, rhs| {
-            content!(sertyp::sequence![lhs, operator, rhs])
-        }),
+        validate_same_shape(move |lhs, rhs| content!(sertyp::sequence![lhs, operator, rhs])),
         lhs,
         rhs,
     )
 }
 
-pub fn compare_l<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_lt, less_scalar)
+pub fn compare_l<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_lt, |lhs, rhs| {
+        compare_ordered_scalar(lhs, rhs, SYMBOL_lt, |left, right| left < right)
+    })
 }
 
-pub fn compare_leq<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_lt_eq, less_or_equal_scalar)
+pub fn compare_leq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_lt_eq, |lhs, rhs| {
+        compare_ordered_scalar(lhs, rhs, SYMBOL_lt_eq, |left, right| left <= right)
+    })
 }
 
-pub fn compare_g<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_gt, greater_scalar)
+pub fn compare_g<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_gt, |lhs, rhs| {
+        compare_ordered_scalar(lhs, rhs, SYMBOL_gt, |left, right| left > right)
+    })
 }
 
-pub fn compare_geq<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_gt_eq, greater_or_equal_scalar)
+pub fn compare_geq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_gt_eq, |lhs, rhs| {
+        compare_ordered_scalar(lhs, rhs, SYMBOL_gt_eq, |left, right| left >= right)
+    })
 }
 
-pub fn compare_eq<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_eq, equal_scalar)
+pub fn compare_eq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_eq, |lhs, rhs| {
+        compare_complex_scalar(lhs, rhs, |left, right| left == right)
+    })
 }
 
-pub fn compare_neq<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    compare_tensors(lhs, rhs, SYMBOL_eq_not, unequal_scalar)
+pub fn compare_neq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+    compare_tensors(lhs, rhs, SYMBOL_eq_not, |lhs, rhs| {
+        compare_complex_scalar(lhs, rhs, |left, right| left != right)
+    })
 }
 
 pratt_infix!(l, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
@@ -216,9 +158,6 @@ pratt_infix!(neq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_neq(lhs, rhs)?))
 });
 
-/// Validates Kalt's numeric Boolean encoding, shared by logical operators
-/// and the Boolean-semiring product. Keep the real-valued and indicator checks
-/// separate so diagnostics explain which constraint failed.
 pub(crate) fn boolean_value<'data>(
     value: SimpleSpanned<Complex<f64>>,
 ) -> Expects<'data, bool> {
@@ -231,24 +170,21 @@ pub(crate) fn boolean_value<'data>(
         ));
     }
 
-    if value.inner.re != 0.0 && value.inner.re != 1.0 {
-        let actual_domain = if value.inner.re.fract() == 0.0 {
-            SYMBOL_ZZ
-        } else {
-            SYMBOL_RR
-        };
-        return Err(TypstError::full(
-            value.span,
-            "Boolean Operand Error",
-            content!(sertyp::sequence!["n", SYMBOL_in, "{0, 1}"]),
-            content!(sertyp::sequence![value.inner.re.to_string(), SYMBOL_in, actual_domain]),
-        ));
+    match (value.inner.re == 0.0, value.inner.re == 1.0) {
+        (true, false) => Ok(false),
+        (false, true) => Ok(true),
+        _ => {
+            let actual_domain = if value.inner.re.fract() == 0.0 { SYMBOL_ZZ } else { SYMBOL_RR };
+            Err(TypstError::full(
+                value.span,
+                "Boolean Operand Error",
+                content!(sertyp::sequence!["n", SYMBOL_in, "{0, 1}"]),
+                content!(sertyp::sequence![value.inner.re.to_string(), SYMBOL_in, actual_domain]),
+            ))
+        }
     }
-
-    Ok(value.inner.re == 1.0)
 }
 
-/// Converts a logical result back to Kalt's numeric 0/1 representation.
 pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(if value { 1.0 } else { 0.0 }, 0.0)
 }
@@ -258,93 +194,65 @@ fn logical_binary_scalar<'data>(
     rhs: SimpleSpanned<Complex<f64>>,
     operation: impl Fn(bool, bool) -> bool,
 ) -> Expects<'data, Complex<f64>> {
-    let left = boolean_value(lhs)?;
-    let right = boolean_value(rhs)?;
-    Ok(boolean_indicator(operation(left, right)))
+    Ok(boolean_indicator(operation(boolean_value(lhs)?, boolean_value(rhs)?)))
 }
 
-fn logical_and_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
+fn logical_and_scalar<'data>(lhs: SimpleSpanned<Complex<f64>>, rhs: SimpleSpanned<Complex<f64>>) -> Expects<'data, Complex<f64>> {
     logical_binary_scalar(lhs, rhs, |left, right| left && right)
 }
 
-fn logical_or_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-) -> Expects<'data, Complex<f64>> {
+fn logical_or_scalar<'data>(lhs: SimpleSpanned<Complex<f64>>, rhs: SimpleSpanned<Complex<f64>>) -> Expects<'data, Complex<f64>> {
     logical_binary_scalar(lhs, rhs, |left, right| left || right)
 }
 
-/// Element-wise logical AND. Every operand must be real and exactly 0 or 1.
-pub fn logical_and<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    element_wise2(
-        logical_and_scalar,
-        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, SYMBOL_and, rhs])),
-        lhs,
-        rhs,
-    )
+macro_rules! logical_binary_tensor {
+    ($name:ident, $scalar:ident, $symbol:ident) => {
+        pub fn $name<'data>(
+            lhs: SimpleSpanned<Tensor>,
+            rhs: SimpleSpanned<Tensor>,
+        ) -> Expects<'data, Tensor> {
+            element_wise2(
+                $scalar,
+                validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, $symbol, rhs])),
+                lhs,
+                rhs,
+            )
+        }
+    };
 }
 
-/// Element-wise logical OR. Every operand must be real and exactly 0 or 1.
-pub fn logical_or<'data>(
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor> {
-    element_wise2(
-        logical_or_scalar,
-        validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, SYMBOL_or, rhs])),
-        lhs,
-        rhs,
-    )
-}
+logical_binary_tensor!(logical_and, logical_and_scalar, SYMBOL_and);
+logical_binary_tensor!(logical_or, logical_or_scalar, SYMBOL_or);
 
 #[kalt_macros::parser]
-pub fn pratt_and_operator() -> char {
-    character(SYMBOL_and)
-}
+pub fn pratt_and_operator() -> char { character(SYMBOL_and) }
 
 #[kalt_macros::parser]
-pub fn pratt_or_operator() -> char {
-    character(SYMBOL_or)
-}
+pub fn pratt_or_operator() -> char { character(SYMBOL_or) }
 
 pratt_infix!(logical_and => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(logical_and(lhs, rhs)?))
 });
-
 pratt_infix!(logical_or => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(logical_or(lhs, rhs)?))
 });
 
-/// Applies logical NOT element-wise. Each value must be real and exactly 0 or 1.
 pub fn logical_not<'data>(value: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     element_wise(
-        |value| {
-            let result = !boolean_value(value)?;
-            Ok(boolean_indicator(result))
-        },
+        |value| Ok(boolean_indicator(!boolean_value(value)?)),
         |_| Ok(()),
         value,
     )
 }
 
 #[kalt_macros::parser]
-pub fn pratt_not_operator() -> char {
-    character(SYMBOL_not)
-}
+pub fn pratt_not_operator() -> char { character(SYMBOL_not) }
 
 pratt_prefix!(logical_not => |_op, rhs: Spanned<_>| {
     let span = rhs.span;
     Ok(span.make_wrapped(logical_not(rhs)?))
 });
 
-/// Parses op("true") / op("false") (or the equivalent text tokens)
-/// as the numeric Boolean indicators 1 and 0.
 #[kalt_macros::parser]
 pub fn boolean_literal() -> Expects<'data, Tensor> {
     choice((

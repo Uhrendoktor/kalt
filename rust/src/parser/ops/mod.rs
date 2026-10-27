@@ -12,6 +12,7 @@ use sertyp::{
 pub mod abs;
 pub mod add;
 pub mod binom;
+pub mod bitwise;
 pub mod boolean_dot;
 pub mod ceil;
 pub mod conjugate;
@@ -359,6 +360,73 @@ pub mod element_wise {
                 Ok(m1.inner)
             }
         })
+    }
+
+    /// General matrix product for operations defined by a multiplication and reduction operation.
+    ///
+    /// Returns None when inner dimensions are incompatible. The identity and operations
+    /// are supplied by the caller, so this is reusable for arithmetic and semiring products.
+    pub fn matrix_product<T: Copy>(
+        lhs: &ndarray::Array2<T>,
+        rhs: &ndarray::Array2<T>,
+        identity: T,
+        multiply: impl Fn(T, T) -> T,
+        reduce: impl Fn(T, T) -> T,
+    ) -> Option<ndarray::Array2<T>> {
+        if lhs.ncols() != rhs.nrows() {
+            return None;
+        }
+        let mut output = ndarray::Array2::from_elem((lhs.nrows(), rhs.ncols()), identity);
+        for row in 0..lhs.nrows() {
+            for col in 0..rhs.ncols() {
+                let mut accumulator = identity;
+                for inner in 0..lhs.ncols() {
+                    accumulator = reduce(
+                        accumulator,
+                        multiply(lhs[[row, inner]], rhs[[inner, col]]),
+                    );
+                }
+                output[[row, col]] = accumulator;
+            }
+        }
+        Some(output)
+    }
+
+    /// Dispatches a binary tensor operation to a matrix product for matrix-matrix
+    /// inputs and to element-wise evaluation whenever at least one operand is scalar.
+    pub fn binary_tensor_operation<'data, F, M>(
+        scalar_operation: F,
+        matrix_operation: M,
+        lhs: SimpleSpanned<Tensor>,
+        rhs: SimpleSpanned<Tensor>,
+    ) -> Expects<'data, Tensor>
+    where
+        F: Fn(
+            SimpleSpanned<num::Complex<f64>>,
+            SimpleSpanned<num::Complex<f64>>,
+        ) -> Expects<'data, num::Complex<f64>>,
+        M: Fn(
+            SimpleSpanned<&Matrix>,
+            SimpleSpanned<&Matrix>,
+        ) -> Expects<'data, Matrix>,
+    {
+        match (lhs, rhs) {
+            (
+                SimpleSpanned {
+                    inner: Tensor::Matrix(lhs),
+                    span: lhs_span,
+                },
+                SimpleSpanned {
+                    inner: Tensor::Matrix(rhs),
+                    span: rhs_span,
+                },
+            ) => matrix_operation(
+                lhs_span.make_wrapped(&lhs),
+                rhs_span.make_wrapped(&rhs),
+            )
+            .map(Tensor::Matrix),
+            (lhs, rhs) => element_wise2(scalar_operation, |_, _| Ok(()), lhs, rhs),
+        }
     }
 
     /// Validates that two matrices have the same shape and returns a formattable matrix shape error if they do not.

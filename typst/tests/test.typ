@@ -11,6 +11,7 @@
 #include "ops/cross.typ";
 #include "ops/compare.typ";
 #include "ops/logic.typ";
+#include "ops/bitwise.typ";
 #include "ops/boolean_dot.typ";
 #include "ops/conjugate.typ";
 #include "ops/dot.typ";

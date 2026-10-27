@@ -1,20 +1,16 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use sertyp::{
-    SYMBOL_dot_o, SYMBOL_times, TypstError, chumsky::parser::character,
-};
+use ndarray::Array2;
+use sertyp::{SYMBOL_dot_o, SYMBOL_times, TypstError, chumsky::parser::character};
 
 use crate::{
     Expects, pratt_infix,
     parser::{
         atoms::{matrix::Matrix, tensor::Tensor},
-        ops::element_wise::element_wise2,
+        ops::element_wise::{binary_tensor_operation, matrix_product},
     },
 };
 
-use super::{
-    dot::matrix_product,
-    logic::{boolean_indicator, boolean_value},
-};
+use super::logic::{boolean_indicator, boolean_value};
 
 /// Parses the Boolean-semiring product operator ⊙.
 #[kalt_macros::parser]
@@ -22,68 +18,45 @@ pub fn pratt_boolean_dot_operator() -> char {
     character(SYMBOL_dot_o)
 }
 
-fn validate_bool_matrix<'data>(
-    matrix: &Matrix,
-    span: chumsky::span::SimpleSpan,
-) -> Expects<'data, ()> {
-    for value in matrix.iter() {
-        boolean_value(span.make_wrapped(*value))?;
+fn boolean_matrix<'data>(matrix: SimpleSpanned<&Matrix>) -> Expects<'data, Array2<bool>> {
+    let mut result = Array2::from_elem(matrix.inner.raw_dim(), false);
+    for ((row, col), value) in matrix.inner.indexed_iter() {
+        result[[row, col]] = boolean_value(matrix.span.make_wrapped(*value))?;
     }
-    Ok(())
+    Ok(result)
 }
 
-/// Boolean-semiring matrix/vector product. Scalar and matrix-scalar cases use
-/// the shared element-wise utility; matrix-matrix multiplication shares the
-/// same shape check and product loop as ordinary dot, but uses AND followed by OR.
+/// Boolean-semiring product: pairwise AND is reduced with OR. The shared tensor
+/// utility dispatches scalar cases to element-wise evaluation and matrix pairs to
+/// the semiring product loop.
 pub fn boolean_dot<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
 ) -> Expects<'data, Tensor> {
-    let lhs_span = lhs.span;
-    let rhs_span = rhs.span;
-    let full_span = lhs_span.union(rhs_span);
-
-    match (lhs.inner, rhs.inner) {
-        (Tensor::Matrix(lhs), Tensor::Matrix(rhs)) => {
-            // Validate every cell before applying the Boolean-semiring rule.
-            validate_bool_matrix(&lhs, lhs_span)?;
-            validate_bool_matrix(&rhs, rhs_span)?;
-
-            let Some(output) = matrix_product(
-                &lhs,
-                &rhs,
-                boolean_indicator(false),
-                |lhs, rhs| boolean_indicator(lhs.re == 1.0 && rhs.re == 1.0),
-                |left, right| boolean_indicator(left.re == 1.0 || right.re == 1.0),
-            ) else {
+    binary_tensor_operation(
+        |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? && boolean_value(rhs)?)),
+        |lhs: SimpleSpanned<&Matrix>, rhs: SimpleSpanned<&Matrix>| {
+            let lhs_bool = boolean_matrix(lhs)?;
+            let rhs_bool = boolean_matrix(rhs)?;
+            let Some(product) =
+                matrix_product(&lhs_bool, &rhs_bool, false, |a, b| a && b, |a, b| a || b)
+            else {
                 return Err(TypstError::full(
-                    full_span,
+                    lhs.span.union(rhs.span),
                     "Boolean Product Shape Error",
                     "matrices with compatible inner dimensions",
                     format!(
                         "{}{}{} and {}{}{}",
-                        lhs.nrows(),
-                        SYMBOL_times,
-                        lhs.ncols(),
-                        rhs.nrows(),
-                        SYMBOL_times,
-                        rhs.ncols()
+                        lhs.inner.nrows(), SYMBOL_times, lhs.inner.ncols(),
+                        rhs.inner.nrows(), SYMBOL_times, rhs.inner.ncols()
                     ),
                 ));
             };
-
-            Ok(Tensor::Matrix(output))
-        }
-        (lhs, rhs) => element_wise2(
-            |lhs, rhs| {
-                let result = boolean_value(lhs)? && boolean_value(rhs)?;
-                Ok(boolean_indicator(result))
-            },
-            |_, _| Ok(()),
-            lhs_span.make_wrapped(lhs),
-            rhs_span.make_wrapped(rhs),
-        ),
-    }
+            Ok(product.mapv(boolean_indicator))
+        },
+        lhs,
+        rhs,
+    )
 }
 
 pratt_infix!(boolean_dot => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
