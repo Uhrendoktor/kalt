@@ -5,7 +5,7 @@
 
 #assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), float)
 #assert-typst-eq("comp 1x1 real matrix returns float", type(comp($mat(7)$)), float)
-#assert-eq("comp 1x1 real matrix unwraps to scalar", comp($mat(7)$), 7)
+#assert-typst-eq("comp 1x1 real matrix unwraps to scalar", comp($mat(7)$), 7.0)
 #assert-typst-eq("comp 1x1 complex matrix returns content", type(comp($mat(7i)$)), content)
 
 #assert-eq(
