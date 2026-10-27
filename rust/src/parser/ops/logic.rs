@@ -10,7 +10,7 @@ use sertyp::{
 };
 
 use crate::{
-    Expects, pratt_infix, pratt_prefix, pratt_prefix,
+    Expects, pratt_infix, pratt_prefix,
     parser::{
         atoms::tensor::Tensor,
         ops::element_wise::{element_wise, element_wise2, validate_same_shape},
