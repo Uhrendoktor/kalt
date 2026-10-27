@@ -1,12 +1,14 @@
+use sertyp::{SYMBOL_and, chumsky::parser::character};
+
 #[kalt_macros::parser]
-pub fn pratt_bitwise_and_operator() -> String {
-    super::super::word_or_op("bitand")
+pub fn pratt_bitwise_and_operator() -> char {
+    character(SYMBOL_and)
 }
 
 crate::element_wise_binary_operator!(
     bitwise_and,
-    "bitand",
-    String,
+    SYMBOL_and,
+    char,
     |lhs, rhs| crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
         Ok(num::Complex::new(
             (super::bitwise_integer(lhs)? & super::bitwise_integer(rhs)?) as f64,

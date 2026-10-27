@@ -1,12 +1,14 @@
 mod and;
 mod or;
+mod not;
 mod xor;
 
 pub use and::{bitwise_and, pratt_bitwise_and, pratt_bitwise_and_operator};
 pub use or::{bitwise_or, pratt_bitwise_or, pratt_bitwise_or_operator};
+pub use not::{bitwise_not, pratt_bitwise_not, pratt_bitwise_not_operator};
 pub use xor::{bitwise_xor, pratt_bitwise_xor, pratt_bitwise_xor_operator};
 
-fn bitwise_integer<'data>(
+pub(crate) fn bitwise_integer<'data>(
     value: chumsky::span::SimpleSpanned<f64>,
 ) -> crate::Expects<'data, i64> {
     use sertyp::{SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, SYMBOL_lt_eq, TypstError, content};
