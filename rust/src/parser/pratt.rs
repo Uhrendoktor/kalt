@@ -37,7 +37,7 @@ use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::logic::{
-    boolean_literal, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
+    boolean_literal, pratt_logical_not, pratt_not_operator, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
     pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator,
     pratt_leq, pratt_leq_operator, pratt_neq, pratt_neq_operator,
 };
@@ -203,6 +203,7 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     infix(left(4), pratt_bitwise_xor_operator(), pratt_bitwise_xor),
                     infix(left(3), pratt_bitwise_or_operator(), pratt_bitwise_or),
                     prefix(9, pratt_bitwise_not_operator(), pratt_bitwise_not),
+                    prefix(9, pratt_not_operator(), pratt_logical_not),
                     prefix(9, pratt_sign_operator(), pratt_sign),
                     postfix(11, pratt_factorial_operator(), pratt_factorial),
                     postfix(10, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
