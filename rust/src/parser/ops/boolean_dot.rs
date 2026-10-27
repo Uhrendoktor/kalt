@@ -1,11 +1,15 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use num::Complex;
 use sertyp::{TypstError, chumsky::parser::character};
 
 use crate::{
     Expects, pratt_infix,
-    parser::atoms::{matrix::Matrix, tensor::Tensor},
+    parser::{
+        atoms::{matrix::Matrix, tensor::Tensor},
+        ops::element_wise::element_wise2,
+    },
 };
+
+use super::logic::{boolean_indicator, boolean_value};
 
 /// Parses the Boolean-semiring product operator `⊙`.
 #[kalt_macros::parser]
@@ -13,35 +17,19 @@ pub fn pratt_boolean_dot_operator() -> char {
     character('⊙')
 }
 
-fn bool_value<'data>(value: Complex<f64>, span: chumsky::span::SimpleSpan) -> Expects<'data, bool> {
-    if value.im == 0.0 && (value.re == 0.0 || value.re == 1.0) {
-        Ok(value.re == 1.0)
-    } else {
-        Err(TypstError::full(
-            span,
-            "Boolean Product Error",
-            "values that are real and equal to 0 or 1",
-            value.to_string(),
-        ))
-    }
-}
-
 fn validate_bool_matrix<'data>(
     matrix: &Matrix,
     span: chumsky::span::SimpleSpan,
 ) -> Expects<'data, ()> {
     for value in matrix.iter() {
-        bool_value(*value, span)?;
+        boolean_value(span.make_wrapped(*value))?;
     }
     Ok(())
 }
 
-fn indicator(value: bool) -> Complex<f64> {
-    Complex::new(if value { 1.0 } else { 0.0 }, 0.0)
-}
-
 /// Boolean-semiring matrix/vector product. Pairwise AND is reduced with OR.
-/// Numeric operands are accepted only when every entry is exactly real 0 or 1.
+/// Scalar cases share `element_wise2`; the matrix-by-matrix case must use the
+/// inner-dimension product rather than element-wise shape matching.
 pub fn boolean_dot<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
@@ -51,20 +39,8 @@ pub fn boolean_dot<'data>(
     let full_span = lhs_span.union(rhs_span);
 
     match (lhs.inner, rhs.inner) {
-        (Tensor::Scalar(lhs), Tensor::Scalar(rhs)) => {
-            Ok(Tensor::Scalar(indicator(bool_value(lhs, lhs_span)? && bool_value(rhs, rhs_span)?)))
-        }
-        (Tensor::Scalar(lhs), Tensor::Matrix(rhs)) => {
-            let lhs = bool_value(lhs, lhs_span)?;
-            validate_bool_matrix(&rhs, rhs_span)?;
-            Ok(Tensor::Matrix(rhs.mapv(|value| indicator(lhs && value.re == 1.0))))
-        }
-        (Tensor::Matrix(lhs), Tensor::Scalar(rhs)) => {
-            validate_bool_matrix(&lhs, lhs_span)?;
-            let rhs = bool_value(rhs, rhs_span)?;
-            Ok(Tensor::Matrix(lhs.mapv(|value| indicator(value.re == 1.0 && rhs))))
-        }
         (Tensor::Matrix(lhs), Tensor::Matrix(rhs)) => {
+            // Validate every cell before applying the Boolean-semiring rule.
             validate_bool_matrix(&lhs, lhs_span)?;
             validate_bool_matrix(&rhs, rhs_span)?;
 
@@ -85,22 +61,28 @@ pub fn boolean_dot<'data>(
 
             let mut output = Matrix::from_elem(
                 (lhs.nrows(), rhs.ncols()),
-                Complex::new(0.0, 0.0),
+                boolean_indicator(false),
             );
             for row in 0..lhs.nrows() {
                 for col in 0..rhs.ncols() {
-                    let mut any_overlap = false;
-                    for inner in 0..lhs.ncols() {
-                        if lhs[[row, inner]].re == 1.0 && rhs[[inner, col]].re == 1.0 {
-                            any_overlap = true;
-                            break;
-                        }
-                    }
-                    output[[row, col]] = indicator(any_overlap);
+                    // Boolean multiplication uses AND for each pair and OR for reduction.
+                    let any_overlap = (0..lhs.ncols()).any(|inner| {
+                        lhs[[row, inner]].re == 1.0 && rhs[[inner, col]].re == 1.0
+                    });
+                    output[[row, col]] = boolean_indicator(any_overlap);
                 }
             }
             Ok(Tensor::Matrix(output))
         }
+        (lhs, rhs) => element_wise2(
+            |lhs, rhs| {
+                let result = boolean_value(lhs)? && boolean_value(rhs)?;
+                Ok(boolean_indicator(result))
+            },
+            |_, _| Ok(()),
+            lhs_span.make_wrapped(lhs),
+            rhs_span.make_wrapped(rhs),
+        ),
     }
 }
 
