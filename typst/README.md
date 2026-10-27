@@ -151,9 +151,9 @@ $comp(op("true") + op("true"))$ // 2
 
 ### Integer AND, OR, XOR, and NOT
 
-Kalt represents Boolean values numerically: false is `0` and true is `1`. The symbols `∧`, `∨`, and `⊕` perform bitwise AND, OR, and XOR on real integers. On inputs limited to `0` and `1`, AND and OR give the familiar logical results. These operators also work on other integers, including negative values.
+Kalt represents Boolean values numerically: false is `0` and true is `1`. The symbols `∧`, `∨`, and `⊕` perform bitwise AND, OR, and XOR on real integers. For operands restricted to `0` and `1`, AND and OR give the familiar logical results. These operators also work on other integers, including negative values.
 
-The NOT symbol `¬` keeps the established Boolean behavior for `0` and `1` (`0 → 1`, `1 → 0`). For any other integer, it performs two's-complement bitwise NOT, so `¬2 = -3` and `¬(-6) = 5`. Fractional or complex operands are rejected.
+Logical NOT `¬` is reserved for Boolean indicators: `¬0 = 1` and `¬1 = 0`; other values are rejected. Bitwise NOT uses the separate tilde symbol `~` and performs two's-complement integer complement, so `~1 = -2`, `~2 = -3`, and `~(-6) = 5`. Keeping the operators separate avoids making `¬1` ambiguous between logical negation and bitwise complement.
 
 Kalt stores numeric values as floating-point numbers, so integer bitwise operands must lie within the safe-integer range `-9007199254740991` through `9007199254740991`. Values outside that range are rejected because floating-point numbers cannot distinguish every integer there. The operators apply element-wise to matrices, and scalar-to-matrix operations are supported when matrix shapes are compatible.
 
@@ -161,7 +161,7 @@ Kalt stores numeric values as floating-point numbers, so integer bitwise operand
 $comp(6 ∧ 3)$ // 2
 $comp(6 ∨ 3)$ // 7
 $comp(6 ⊕ 3)$ // 5
-$comp(¬2)$    // -3
+$comp(~2)$    // -3
 $comp(¬0)$    // 1
 $comp(mat(6, 2) ∧ mat(3, 1))$ // mat(2, 0)
 ```
@@ -374,7 +374,7 @@ From tightest to loosest:
 
 1. Grouping, Typst math attachments (such as powers/roots), and function-like atoms.
 2. Factorial and indexing.
-3. Unary sign and bitwise NOT (`¬`).
+3. Unary sign, logical NOT (`¬`), and bitwise NOT (`~`).
 4. Dot product, Boolean product, element-wise multiplication, modulo, and cross product.
 5. Addition and subtraction.
 6. Comparisons.
@@ -387,7 +387,7 @@ A comparison chain is non-associative in Kalt. Use explicit parentheses and logi
 ## Limitations to know
 
 - Boolean indicators are numeric: false is `0`, true is `1`. There is no separate Boolean value type inside Kalt.
-- `∧`, `∨`, and `⊕` are bitwise integer AND, OR, and XOR. `¬` preserves Boolean NOT for 0/1 and complements other real safe integers.
+- `∧`, `∨`, and `⊕` are bitwise integer AND, OR, and XOR. `¬` is logical NOT for 0/1; `~` is bitwise NOT for real safe integers.
 - `⊙` is for Boolean matrix products whose entries are real `0` or `1`; it is not element-wise multiplication or multiplication modulo 2.
 - Kalt can apply a scalar to a matrix, but it does not automatically resize two differently shaped matrices to make them fit.
 - Bitwise operators are defined only for real integers in Kalt's floating-point safe-integer range.

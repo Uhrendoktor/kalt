@@ -49,7 +49,7 @@ pub fn boolean_dot<'data>(
             .map(|product| Tensor::Matrix(product.mapv(boolean_indicator)))
         }
         (lhs, rhs) => element_wise_binary(
-            |lhs, rhs| super::logic::boolean_binary_scalar(lhs, rhs, |lhs, rhs| lhs && rhs),
+            |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? & boolean_value(rhs)?)),
             |_, _| Ok(()),
             lhs,
             rhs,

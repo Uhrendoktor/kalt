@@ -1,18 +1,16 @@
-// NOT preserves Boolean indicators and complements other integers bitwise.
+// Logical NOT is strict: it accepts only the numeric Boolean indicators 0 and 1.
 
 #import "../utils.typ": unary_operation
 
 #unary_operation(
-  "Boolean NOT and integer complement",
-  [¬ maps Boolean indicators 0↔1 and applies two's-complement bitwise NOT to other real safe integers.],
+  "Logical NOT",
+  [¬ maps 0 to 1 and 1 to 0; non-Boolean indicators are rejected.],
   a => { $ ¬ #a $ },
   (v: $0$, e: $1$),
   (v: $1$, e: $0$),
   (v: $op("true")$, e: $0$),
   (v: $op("false")$, e: $1$),
-  (v: $2$, e: $-3$),
-  (v: $-6$, e: $5$),
-  (v: $6.5$, error: "Integer Error"),
-  (v: $1+i$, error: "Real Value Error"),
-  (v: $9007199254740992$, error: "Bitwise Operand Error"),
+  (v: $2$, error: "{0, 1}"),
+  (v: $6.5$, error: "{0, 1}"),
+  (v: $1+i$, error: "ℂ"),
 )
