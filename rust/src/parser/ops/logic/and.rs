@@ -1,10 +1,8 @@
 use sertyp::{SYMBOL_and, chumsky::parser::character};
 
-use crate::parser::ops::element_wise_binary_operator;
-
 use super::{boolean_indicator, boolean_value};
 
-element_wise_binary_operator!(
+crate::element_wise_binary_operator!(
     logical_and,
     SYMBOL_and,
     char,

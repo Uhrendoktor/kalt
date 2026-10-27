@@ -1,13 +1,11 @@
 
 
-use crate::parser::ops::element_wise_binary_operator;
-
 #[kalt_macros::parser]
 pub fn pratt_bitwise_and_operator() -> String {
     super::super::word_or_op("bitand")
 }
 
-element_wise_binary_operator!(
+crate::element_wise_binary_operator!(
     bitwise_and,
     "bitand",
     String,

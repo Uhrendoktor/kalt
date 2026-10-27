@@ -27,7 +27,7 @@ macro_rules! element_wise_binary_operator {
             )
         }
 
-        $crate::pratt_infix!($name, $operator_type => |_op: $operator_type, lhs, rhs| {
+        $crate::pratt_infix!($name, $operator_type => |_op: $operator_type, lhs: chumsky::span::Spanned<_>, rhs: chumsky::span::Spanned<_>| {
             use chumsky::span::{Span, WrappingSpan};
             Ok(lhs.span.union(rhs.span).make_wrapped($name(lhs, rhs)?))
         });
