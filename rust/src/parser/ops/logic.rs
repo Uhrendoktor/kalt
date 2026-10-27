@@ -4,7 +4,7 @@ use chumsky::{
 };
 use num::Complex;
 use sertyp::{
-    TypstError,
+    SYMBOL_CC, SYMBOL_RR, SYMBOL_in, TypstError,
     chumsky::parser::character,
     content,
 };
@@ -87,7 +87,7 @@ fn compare_scalar<'data>(
         }
         _ => unreachable!("comparison parser only produces known operators"),
     };
-    Ok(Complex::new(if result { 1.0 } else { 0.0 }, 0.0))
+    Ok(boolean_indicator(result))
 }
 
 /// Applies a comparison element-wise. Comparisons return numeric 0/1 values.
@@ -128,19 +128,36 @@ pratt_infix!(neq, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
 });
 
-/// Validates the numeric encoding used for logical operators: real 0 is false
-/// and real 1 is true. Other values are rejected rather than treated as truthy.
-fn boolean_value<'data>(value: SimpleSpanned<Complex<f64>>) -> Expects<'data, bool> {
-    if value.inner.im == 0.0 && (value.inner.re == 0.0 || value.inner.re == 1.0) {
-        Ok(value.inner.re == 1.0)
-    } else {
-        Err(TypstError::full(
+/// Validates Kalt's numeric Boolean encoding, shared by logical operators
+/// and the Boolean-semiring product. Keep the real-valued and indicator checks
+/// separate so diagnostics explain which constraint failed.
+pub(crate) fn boolean_value<'data>(
+    value: SimpleSpanned<Complex<f64>>,
+) -> Expects<'data, bool> {
+    if value.inner.im != 0.0 {
+        return Err(TypstError::full(
             value.span,
-            "Boolean Logic Error",
-            "a real value equal to 0 or 1",
-            value.inner.to_string(),
-        ))
+            "Boolean Operand Error",
+            content!(sertyp::sequence!["n", SYMBOL_in, SYMBOL_RR]),
+            content!(sertyp::sequence![value.inner.to_string(), SYMBOL_in, SYMBOL_CC]),
+        ));
     }
+
+    if value.inner.re != 0.0 && value.inner.re != 1.0 {
+        return Err(TypstError::full(
+            value.span,
+            "Boolean Operand Error",
+            content!(sertyp::sequence!["n", SYMBOL_in, "{0, 1}"]),
+            content!(sertyp::sequence![value.inner.re.to_string(), SYMBOL_in, SYMBOL_RR]),
+        ));
+    }
+
+    Ok(value.inner.re == 1.0)
+}
+
+/// Converts a logical result back to Kalt's numeric 0/1 representation.
+pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
+    Complex::new(if value { 1.0 } else { 0.0 }, 0.0)
 }
 
 fn logical_scalar<'data>(
