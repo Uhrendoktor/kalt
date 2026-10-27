@@ -1,7 +1,9 @@
-use chumsky::{primitive::choice, select, span::{Span, WrappingSpan}};
-use sertyp::{
-    Content, SYMBOL_amp, chumsky::{Token, parser::character},
+use chumsky::{
+    primitive::choice,
+    select,
+    span::{Span, WrappingSpan},
 };
+use sertyp::{Content, SYMBOL_amp, chumsky::{Token, parser::character}};
 
 use super::bitwise_operation;
 

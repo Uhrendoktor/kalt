@@ -119,8 +119,8 @@ pub fn real_scalar_binary<'data>(
 
 /// General matrix product for operations defined by a multiplication and reduction operation.
 ///
-/// Returns None when inner dimensions are incompatible. The identity and operations
-/// are supplied by the caller, so this is reusable for arithmetic and semiring products.
+/// Returns a span-aware Typst error when inner dimensions are incompatible. The
+/// identity and operations are supplied by the caller, so this is reusable for semiring products.
 pub fn matrix_product<'data, T: Copy>(
     lhs: SimpleSpanned<&ndarray::Array2<T>>,
     rhs: SimpleSpanned<&ndarray::Array2<T>>,

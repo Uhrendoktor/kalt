@@ -4,7 +4,7 @@
 
 #binary_operation(
   "Boolean dot product",
-  [For vectors, returns 1 if any aligned pair is 1 and 1; unlike ordinary dot, it does not count matches.],
+  [For vectors, returns 1 if at least one aligned pair contains two 1s; unlike ordinary dot, it does not count matches.],
   (a, b) => { $ #a ⊙ #b $ },
   (v1: $mat(1, 1)$, v2: $mat(1; 1)$, e: $1$),
   (v1: $mat(1, 1)$, v2: $mat(1; 0)$, e: $1$),

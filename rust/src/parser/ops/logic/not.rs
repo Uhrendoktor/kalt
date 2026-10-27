@@ -1,4 +1,4 @@
-use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
+use chumsky::span::{SimpleSpanned, Spanned, WrappingSpan};
 use sertyp::{SYMBOL_not, chumsky::parser::character};
 
 use crate::{
