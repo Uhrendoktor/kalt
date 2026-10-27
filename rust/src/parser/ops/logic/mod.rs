@@ -4,29 +4,6 @@ use sertyp::{SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, content};
 
 use crate::{Expects, parser::atoms::tensor::Tensor};
 
-macro_rules! logical_binary_tensor {
-    ($name:ident, $symbol:expr, $operator:tt) => {
-        pub fn $name<'data>(
-            lhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
-            rhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
-        ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-            $crate::parser::ops::element_wise::element_wise_binary(
-                |lhs, rhs| {
-                    let lhs = $crate::parser::ops::logic::boolean_value(lhs)?;
-                    let rhs = $crate::parser::ops::logic::boolean_value(rhs)?;
-                    Ok($crate::parser::ops::logic::boolean_indicator(lhs $operator rhs))
-                },
-                $crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
-                    sertyp::content!(sertyp::sequence![lhs, $symbol, rhs])
-                }),
-                lhs,
-                rhs,
-            )
-        }
-    };
-}
-pub(crate) use logical_binary_tensor;
-
 mod and;
 mod compare;
 mod not;
@@ -68,7 +45,7 @@ pub(crate) fn boolean_value<'data>(
 }
 
 pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
-    Complex::new(value as u8 as f64, 0.0)
+    Complex::new(value as f64, 0.0)
 }
 
 #[kalt_macros::parser]

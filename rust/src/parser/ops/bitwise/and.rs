@@ -1,4 +1,4 @@
-use sertyp::{SYMBOL_amp, chumsky::parser::character};
+use sertyp::SYMBOL_amp;
 
 use crate::parser::ops::element_wise_binary_operator;
 
