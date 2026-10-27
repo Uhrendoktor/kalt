@@ -109,7 +109,7 @@ pub fn compare_less_than<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<T
     })
 }
 
-pub fn compare_less_thaneq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_less_than_or_equal<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_lt_eq, |lhs, rhs| {
         compare_ordered_scalar(lhs, rhs, SYMBOL_lt_eq, |left, right| left <= right)
     })
@@ -121,7 +121,7 @@ pub fn compare_greater_than<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanne
     })
 }
 
-pub fn compare_greater_thaneq<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
+pub fn compare_greater_than_or_equal<'data>(lhs: SimpleSpanned<Tensor>, rhs: SimpleSpanned<Tensor>) -> Expects<'data, Tensor> {
     compare_tensors(lhs, rhs, SYMBOL_gt_eq, |lhs, rhs| {
         compare_ordered_scalar(lhs, rhs, SYMBOL_gt_eq, |left, right| left >= right)
     })
@@ -143,13 +143,13 @@ pratt_infix!(l, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_less_than(lhs, rhs)?))
 });
 pratt_infix!(leq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_less_thaneq(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_less_than_or_equal(lhs, rhs)?))
 });
 pratt_infix!(g, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_greater_than(lhs, rhs)?))
 });
 pratt_infix!(geq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
-    Ok(lhs.span.union(rhs.span).make_wrapped(compare_greater_thaneq(lhs, rhs)?))
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare_greater_than_or_equal(lhs, rhs)?))
 });
 pratt_infix!(eq, char => |_op: char, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare_eq(lhs, rhs)?))
