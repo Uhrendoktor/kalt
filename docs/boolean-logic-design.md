@@ -1,74 +1,97 @@
-# Boolean and Comparison Operators: Numeric-Embedding Proposal
+# Boolean and Comparison Operators: Typed Values with Numeric Promotion
 
-**Status:** design proposal for review; no evaluator code changes included.
+**Status:** proposal for review; no evaluator code changes included.
 
 ## Recommendation
 
-Do not create a strict Boolean domain that breaks arithmetic, matrices, powers, or dot products. Given Kalt's numeric-first evaluator and the goal of reducing cross-type edge cases, the simplest coherent model is to represent Boolean outcomes through the numeric embedding **false = 0, true = 1**.
+Keep Boolean values as a real value domain, available anywhere the parser can produce a value, including matrix entries. Do not immediately erase them into numeric 0/1, because that loses the information needed to choose Boolean-specific operations.
 
-This lets Kalt retain its existing numeric `Tensor` and matrix storage. If it is important for a top-level result to display as the words `true`/`false`, a Boolean display tag can be preserved at the API/output boundary, but it must not block numeric promotion. A full per-element Boolean type is not needed merely to make comparisons composable.
+At the same time, allow Booleans to be promoted to numbers in ordinary numeric contexts. This avoids the main failure mode of strict typing: expressions such as `2^true` and `true + 1` need not fail just because one operand originated as Boolean.
 
-## Semantics to validate
+The working model is:
 
-| Expression | Result | Rationale |
+- `Bool` is a first-class value type, with Boolean scalar and Boolean tensor/matrix results.
+- `Numeric` remains Kalt's existing complex scalar / numeric matrix domain.
+- A Boolean can be converted to numeric 0/1 when a numeric operation needs it.
+- A numeric value does **not** automatically become a Boolean merely because its value is 0 or 1. The syntax and evaluated type determine the domain; never infer intent from values alone.
+
+This preserves both information and composability, without changing Kalt's numeric matrix storage into an arbitrary heterogeneous array.
+
+## Rules to validate
+
+| Expression | Recommended result | Why |
 | --- | --- | --- |
-| `3 > 2` | `1` | Comparison results are numeric indicators. |
-| `3 < 2` | `0` | False is zero. |
-| `true`, `false` | `1`, `0` | Optional readable aliases for the indicator values. |
-| `2^true` | `2^1 = 2` | Boolean results are accepted by numeric operators. |
-| `true + true` | `2` | Arithmetic is ordinary arithmetic, not closed Boolean algebra. |
-| `true = 1` | `1` | Equality uses the same 0/1 numeric embedding. |
-| `true ∧ false` | `0` | Logical operations return numeric indicators. |
-| `3 ∧ 2` | `1` | Under the proposed numeric/truth-value rule, zero means false and nonzero means true. |
-| `¬0`, `¬5` | `1`, `0` | NOT is an element-wise zero test. |
+| `3 > 2` | Boolean `true` | Comparisons produce actual Boolean values. |
+| `2^true` | `2^1 = 2` | Arithmetic context promotes Boolean to 0/1. |
+| `true + true` | Numeric `2` | Arithmetic is ordinary arithmetic, not Boolean algebra. |
+| `true = 1` | `true` | In a mixed Boolean/numeric comparison, promote the Boolean to 1. |
+| `true ∧ false` | Boolean `false` | Logical operations remain in the Boolean domain. |
+| `¬(5 > 0)` | Boolean `false` | Negate a proposition. |
+| `¬5` | Clear type error | A number is not a proposition. Do not silently invent truthiness. |
+| `A < B` | Boolean matrix | Element-wise comparison preserves Boolean type information. |
 
-The rule for logical operators should be explicit: a numeric entry is false exactly when it is zero and true otherwise. Then AND/OR/NOT can be applied element-wise to numeric scalars and matrices and return 0/1. This includes complex values: zero means both real and imaginary parts are zero; nonzero means true. NaN/infinity behavior should be tested and documented separately rather than accidentally inherited.
+For `¬5`, treating every nonzero number as true is a possible *truthiness* policy, but it comes from programming-language conventions rather than Boolean algebra. It should only be adopted as a deliberate product decision, not as a side effect of encoding Booleans as 0/1. The recommended default for a math-first evaluator is to require a Boolean operand: `¬(5 != 0)` is valid, `¬5` is not. This avoids confusion with the nonsensical arithmetic complement `1 - 5 = -4`.
 
-This intentionally chooses numeric composability over strict Boolean typing. Users who expect a type error for `3 ∧ 2` may find this permissive, but the behavior is predictable once the zero/nonzero rule is stated and it eliminates numeric/Boolean cross-product errors.
+Wolfram Language similarly distinguishes symbolic truth values and provides `Boole` for explicit conversion. Its documentation says `Boole[expr]` returns 1/0 for `True`/`False` and remains unchanged if the argument is neither. [Wolfram Logic & Boolean Algebra](https://reference.wolfram.com/language/guide/LogicAndBooleanAlgebra.html.en), [Wolfram Boole](https://reference.wolfram.com/language/ref/Boole.html).
 
-## Matrices and dot products
+## Matrices: preserve the type from parsed entries
 
-- Matrix cells can contain comparisons or Boolean expressions because each element is parsed/evaluated before the containing matrix is assembled; the result is normalized to numeric 0/1 in the current numeric matrix representation.
-- Comparison on matrices is element-wise and returns a numeric 0/1 matrix with the same shape.
-- AND/OR/NOT on matrices is element-wise, respects Kalt's existing shape/broadcast rules, and returns numeric 0/1 entries.
-- Ordinary `dot` retains its existing arithmetic meaning. For Boolean-encoded vectors `[1, 1]` and `[1, 1]`, the dot product is `2`, counting the positions where both entries are true. This is often useful.
-- Boolean-semiring matrix multiplication is a different operation: pairwise multiplication is AND and the accumulation is OR, so the result tells whether any overlap exists rather than counting overlaps. Do not change Kalt's ordinary dot product to this interpretation. Add a separately named `bool_dot` only if that use case emerges.
+Every matrix element is parsed and evaluated, so matrix construction should inspect the *evaluated types*:
 
-## Algebra terminology
+- If every element is Boolean (a Boolean literal, comparison, or logical expression), build a Boolean matrix.
+- If every element is numeric, build the existing numeric matrix. A matrix written as `mat(0, 1)` is numeric; Kalt cannot infer that the author intended a Boolean matrix from the values alone.
+- If a matrix mixes Boolean and numeric entries, use numeric promotion: convert Boolean entries to 0/1 and build a numeric matrix. This allows expressions such as `mat(1 < 2, 3)` to remain useful instead of raising a new class of matrix errors.
+- For a Boolean matrix made from numeric 0/1 data, require an explicit constructor/conversion such as `boolmat(...)` or `as_bool(A)`. This marks intent unambiguously.
 
-The set `{0,1}` under *ordinary* integer addition and multiplication is not itself a ring, because `1 + 1 = 2` leaves the set. This proposal instead embeds Boolean outcomes into the integers (or real-valued numeric representation): a Boolean value can enter any numeric operation, and the result may be any number.
+This makes the distinction visible: `mat(1 < 2, 3 < 4)` is Boolean, while `mat(1 < 2, 3)` promotes to numeric. Keep the existing `Array2<Complex<f64>>` storage for numeric matrices and introduce Boolean storage separately.
 
-There are other valid algebras, but they must not be confused:
-- **Integer embedding:** `true = 1`, `false = 0`; ordinary arithmetic; dot product counts overlaps.
-- **Boolean semiring:** OR acts as addition and AND as multiplication; Boolean matrix multiplication answers whether any overlap exists.
-- **Boolean ring / GF(2):** addition is XOR and multiplication is AND; `1 + 1 = 0` modulo 2.
+## Dot products: dispatch by the actual operand types
 
-For Kalt, the first model aligns best with its existing numeric tensor and general equation-evaluation purpose.
+Two operations are mathematically legitimate, and they must not be confused.
 
-## Operator syntax
+### Numeric dot product
 
-- Comparisons: `<`, `>`, `≤`, `≥`, equality and inequality. They return numeric indicators.
-- Logic: use unambiguous mathematical symbols `∧`, `∨`, `¬`. They apply the zero/nonzero rule and return numeric indicators.
-- Do not make `&` and `|` context-dependent. Kalt already uses vertical bars for absolute value. If bitwise operations are ever needed, add explicitly named functions or reserve `&`/`|` exclusively for integer bitwise operations.
-- Implement chained comparisons such as `1 < 2 < 3` as `(1 < 2) ∧ (2 < 3)`, not ordinary left-associative infix comparisons.
-- Precedence (tightest to loosest): existing arithmetic; comparisons; NOT; AND; OR. Parentheses can always disambiguate.
+Ordinary arithmetic multiplication and summation. For `[1, 1] dot [1, 1]`, the result is `2`. This counts matching true entries if the numbers happen to be 0/1.
+
+### Boolean dot product (recommended for two Boolean operands)
+
+Use the Boolean semiring: pairwise AND followed by OR reduction.
+
+`A ⊙ B = (a₁ ∧ b₁) ∨ ... ∨ (aₙ ∧ bₙ)`
+
+For two Boolean vectors `[true, true]` and `[true, true]`, the result is `true`, because at least one pair overlaps. For matrices, each output cell is true iff there is at least one compatible index where both entries are true. This is the standard Boolean matrix product used in graph and relation calculations. See [Boolean matrices](https://ww2.coastal.edu/dweathers/edm/boolean-matrices.html) and [Boolean product](https://www.csd.uwo.ca/~abrandt5/teaching/DiscreteStructures/Chapter3/matrices.html).
+
+**Dispatch rule:** if both dot operands are Boolean tensors, use Boolean-semiring multiplication and return Boolean values. If at least one operand is numeric, use ordinary numeric dot product, promoting Boolean entries to 0/1 as needed. Thus, a pure Boolean dot can return Boolean while an explicitly numeric 0/1 dot returns a count. The result depends on actual types, not guessing from matrix contents.
+
+### Not the same as modulo 2
+
+Modulo-2 dot product computes the parity of matching positions: two matches yield 0, one match yields 1. That's linear algebra over GF(2), where addition is XOR and multiplication is AND. Boolean-semiring multiplication uses OR instead of XOR: any number of matches greater than zero yields true. Do not silently use modulo 2 for Boolean dot product.
+
+## Other operator behavior
+
+- Arithmetic operators (`+`, `-`, `*`, `/`, `^`, numeric functions) accept Boolean operands by numeric promotion to 0/1 and return numeric values.
+- Comparisons return Boolean values. Ordering is defined only for real-valued numeric operands; complex values with nonzero imaginary part have no ordering. Equality compares two Booleans logically; when one side is numeric, promote the Boolean to 0/1. Exact versus approximate numeric equality remains a separate decision.
+- Logical `∧`, `∨`, `¬` accept Boolean values and return Boolean values. On Boolean matrices they operate element-wise and preserve shape. Numeric operands are not automatically interpreted as truthy/falsy; use comparisons such as `x != 0`.
+- Ordinary arithmetic on two Boolean matrices promotes them to numeric matrices; only logical operations and Boolean dot operate in the Boolean domain. Numeric dot remains standard matrix multiplication.
+- If support for GF(2) or bitwise operators is needed later, give it explicit names; do not conflate it with Boolean logic. Keep `&` and `|` out of context-sensitive overloading, particularly because vertical bars already denote absolute value in Kalt.
 
 ## Implementation plan
 
-1. Validate the numeric-embedding semantics, especially whether logical operators should accept arbitrary numeric values using zero/nonzero truth.
-2. Add comparison operators that return real numeric 0/1 values, plus Boolean literal aliases if desired.
-3. Add `∧`, `∨`, `¬` as element-wise zero/nonzero operations, using existing tensor shape and broadcasting machinery.
-4. Add dedicated comparison-chain parsing.
-5. Add tests through the real Typst interface for precedence, aliases, comparison boundaries, complex ordering, matrix expressions and shapes, numeric promotion in powers/arithmetic/dot products, NaN/infinity, and regressions for absolute value, factorial, and exponentiation.
-6. Decide whether direct comparison output should display as `0/1` (simplest and honest representation) or as `false/true` while preserving the numeric 0/1 semantics internally. Do not allow this presentation decision to create type barriers.
+1. Validate this type/promotion model and the decision that `¬5` is an error rather than a truthiness test.
+2. Introduce an evaluator-level value enum that can represent numeric tensors and Boolean scalar/tensor values. Keep existing numeric `Tensor` and numeric matrix operations largely unchanged.
+3. Update matrix construction to infer Boolean matrices from all-Boolean evaluated entries, and promote mixed Boolean/numeric entries to numeric.
+4. Add comparison operators and a dedicated parser for chained comparisons such as `1 < 2 < 3`.
+5. Add Boolean logic and element-wise Boolean matrix operations.
+6. Dispatch dot by operand domain: Boolean-semiring for Boolean × Boolean; ordinary arithmetic when either side is numeric, promoting Boolean operands to 0/1.
+7. Specify Typst output behavior, then test expressions through the public Typst interface: `¬5`, arithmetic promotion, Boolean/numeric equality, all matrix-construction cases, Boolean dot vs numeric dot vs GF(2), shapes, complex ordering, precedence, and existing-operation regressions.
 
 ## Research basis
 
-- [Wolfram True](https://reference.wolfram.com/language/ref/True.html): Wolfram represents `True` as a symbolic Boolean value.
-- [Wolfram Boole](https://reference.wolfram.com/language/ref/Boole.html): explicit conversion of truth values to 1/0.
-- [Wolfram Dot](https://reference.wolfram.com/language/ref/Dot.html): ordinary dot products contract indices using the usual operation defined for their entries.
-- [Wolfram Logic & Boolean Algebra](https://reference.wolfram.com/language/guide/LogicAndBooleanAlgebra.html): distinguishes symbolic Boolean values, logical operators, and conversion to 0/1.
-- [Python Boolean type](https://docs.python.org/3/library/stdtypes.html#boolean-type): a contrasting design where booleans are a subclass of integers, while documentation warns against relying on the numeric behavior.
-- [Boolean matrix multiplication over the Boolean semiring](https://cs.au.dk/~larsen/papers/BooleanMatrixVectorLB.pdf): distinguishes OR/AND matrix multiplication from ordinary numeric multiplication.
-- [Kalt numeric Tensor](https://github.com/Uhrendoktor/kalt/blob/main/rust/src/parser/atoms/tensor.rs): currently represents scalar complex numbers and numeric matrices.
-- [Kalt numeric Matrix](https://github.com/Uhrendoktor/kalt/blob/main/rust/src/parser/atoms/matrix.rs): currently stores matrices as `Array2<Complex<f64>>`.
+- [Wolfram Logic & Boolean Algebra](https://reference.wolfram.com/language/guide/LogicAndBooleanAlgebra.html.en): distinct symbolic truth values and logical operators.
+- [Wolfram Boole](https://reference.wolfram.com/language/ref/Boole.html): explicit conversion of `True`/`False` to 1/0.
+- [Wolfram Dot](https://reference.wolfram.com/language/ref/Dot.html): ordinary numeric/tensor dot products.
+- [Boolean matrices](https://ww2.coastal.edu/dweathers/edm/boolean-matrices.html): Boolean dot defined as OR of pairwise ANDs.
+- [Boolean product](https://www.csd.uwo.ca/~abrandt5/teaching/DiscreteStructures/Chapter3/matrices.html): Boolean matrix multiplication contrasted with ordinary matrix multiplication.
+- [GF(2)](https://graphsearch.epfl.ch/en/concept/11137263): addition modulo 2 corresponds to XOR, distinct from OR in the Boolean semiring.
+- [Kalt numeric Tensor](https://github.com/Uhrendoktor/kalt/blob/main/rust/src/parser/atoms/tensor.rs): currently represents complex scalars and numeric matrices.
+- [Kalt numeric Matrix](https://github.com/Uhrendoktor/kalt/blob/main/rust/src/parser/atoms/matrix.rs): numeric matrix storage is `Array2<Complex<f64>>`.
