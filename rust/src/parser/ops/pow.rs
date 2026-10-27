@@ -72,19 +72,8 @@ pub fn pow_m<'data>(span: SimpleSpan, m: &Matrix, c: &num::Complex<f64>) -> Expe
             ),
         ));
     }
-    if c.re.fract() != 0.0 {
-        return Err(TypstError::full(
-            span,
-            "Non integer square-matrix exponentitiation",
-            matrix_shape_exponent('N', 'N', SYMBOL_NN),
-            matrix_shape_exponent(
-                m.dim().0.to_string(),
-                m.dim().1.to_string(),
-                content!(Complex::from(*c)),
-            ),
-        ));
-    }
-    if c.re < 0.0 {
+    let mut exponent = crate::parser::validator::real_int(c.re, span)?;
+    if exponent < 0 {
         return Err(TypstError::full(
             span,
             "Negative integer square-matrix exponentitiation",
@@ -96,7 +85,6 @@ pub fn pow_m<'data>(span: SimpleSpan, m: &Matrix, c: &num::Complex<f64>) -> Expe
             ),
         ));
     }
-    let mut exponent = crate::parser::validator::real_int(c.re, span)?;
     let mut base = m.clone();
     let mut result = Matrix::eye(m.nrows());
     // Exponentiation by squaring takes O(log n) matrix multiplications instead of O(n).
