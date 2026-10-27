@@ -121,14 +121,14 @@ pub fn real_scalar_binary<'data>(
 ///
 /// Returns a span-aware Typst error when inner dimensions are incompatible. The
 /// identity and operations are supplied by the caller, so this is reusable for semiring products.
-pub fn matrix_product<'data, T: Copy>(
+pub fn matrix_product<'data, T: Copy, U: Copy>(
     lhs: SimpleSpanned<&ndarray::Array2<T>>,
     rhs: SimpleSpanned<&ndarray::Array2<T>>,
-    identity: T,
-    multiply: impl Fn(T, T) -> T,
-    reduce: impl Fn(T, T) -> T,
+    identity: U,
+    multiply: impl Fn(T, T) -> U,
+    reduce: impl Fn(U, U) -> U,
     operator: char,
-) -> Expects<'data, ndarray::Array2<T>> {
+) -> Expects<'data, ndarray::Array2<U>> {
     if lhs.inner.ncols() != rhs.inner.nrows() {
         return Err(TypstError::full(
             lhs.span.union(rhs.span),
@@ -158,42 +158,6 @@ pub fn matrix_product<'data, T: Copy>(
             accumulator
         },
     ))
-}
-
-/// Uses a custom matrix operation for matrix pairs and element-wise evaluation if either operand is scalar.
-pub fn element_wise_binary_combinatorial<'data, F, M>(
-    scalar_operation: F,
-    matrix_operation: M,
-    lhs: SimpleSpanned<Tensor>,
-    rhs: SimpleSpanned<Tensor>,
-) -> Expects<'data, Tensor>
-where
-    F: Fn(
-        SimpleSpanned<num::Complex<f64>>,
-        SimpleSpanned<num::Complex<f64>>,
-    ) -> Expects<'data, num::Complex<f64>>,
-    M: Fn(
-        SimpleSpanned<&Matrix>,
-        SimpleSpanned<&Matrix>,
-    ) -> Expects<'data, Matrix>,
-{
-    match (lhs, rhs) {
-        (
-            SimpleSpanned {
-                inner: Tensor::Matrix(lhs),
-                span: lhs_span,
-            },
-            SimpleSpanned {
-                inner: Tensor::Matrix(rhs),
-                span: rhs_span,
-            },
-        ) => matrix_operation(
-            lhs_span.make_wrapped(&lhs),
-            rhs_span.make_wrapped(&rhs),
-        )
-        .map(Tensor::Matrix),
-        (lhs, rhs) => element_wise_binary(scalar_operation, |_, _| Ok(()), lhs, rhs),
-    }
 }
 
 /// Validates that two matrices have the same shape and returns a formattable matrix shape error if they do not.

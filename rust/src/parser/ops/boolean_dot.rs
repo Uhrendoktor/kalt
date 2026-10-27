@@ -1,12 +1,11 @@
 use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-use ndarray::Array2;
 use sertyp::{SYMBOL_dot_o, chumsky::parser::character};
 
 use crate::{
     Expects, pratt_infix,
     parser::{
-        atoms::{matrix::Matrix, tensor::Tensor},
-        ops::element_wise::{element_wise_binary_combinatorial, matrix_product},
+        atoms::tensor::Tensor,
+        ops::element_wise::{element_wise_binary, matrix_product},
     },
 };
 
@@ -18,39 +17,45 @@ pub fn pratt_boolean_dot_operator() -> char {
     character(SYMBOL_dot_o)
 }
 
-fn boolean_matrix<'data>(matrix: SimpleSpanned<&Matrix>) -> Expects<'data, Array2<bool>> {
-    let mut result = Array2::from_elem(matrix.inner.raw_dim(), false);
-    for ((row, col), value) in matrix.inner.indexed_iter() {
-        result[[row, col]] = boolean_value(matrix.span.make_wrapped(*value))?;
-    }
-    Ok(result)
-}
-
-/// Boolean-semiring product: pairwise AND is reduced with OR. The shared tensor
-/// utility dispatches scalar cases to element-wise evaluation and matrix pairs to
-/// the semiring product loop.
+/// Boolean-semiring product: pairwise AND is reduced with OR.
 pub fn boolean_dot<'data>(
     lhs: SimpleSpanned<Tensor>,
     rhs: SimpleSpanned<Tensor>,
 ) -> Expects<'data, Tensor> {
-    element_wise_binary_combinatorial(
-        |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? && boolean_value(rhs)?)),
-        |lhs: SimpleSpanned<&Matrix>, rhs: SimpleSpanned<&Matrix>| {
-            let lhs_bool = boolean_matrix(lhs)?;
-            let rhs_bool = boolean_matrix(rhs)?;
-            let product = matrix_product(
-                lhs.span.make_wrapped(&lhs_bool),
-                rhs.span.make_wrapped(&rhs_bool),
+    match (lhs, rhs) {
+        (
+            SimpleSpanned {
+                inner: Tensor::Matrix(lhs),
+                span: lhs_span,
+            },
+            SimpleSpanned {
+                inner: Tensor::Matrix(rhs),
+                span: rhs_span,
+            },
+        ) => {
+            for value in &lhs {
+                boolean_value(lhs_span.make_wrapped(*value))?;
+            }
+            for value in &rhs {
+                boolean_value(rhs_span.make_wrapped(*value))?;
+            }
+            matrix_product(
+                lhs_span.make_wrapped(&lhs),
+                rhs_span.make_wrapped(&rhs),
                 false,
-                |a, b| a && b,
-                |a, b| a || b,
+                |lhs, rhs| lhs.re == 1.0 && rhs.re == 1.0,
+                |lhs, rhs| lhs || rhs,
                 SYMBOL_dot_o,
-            )?;
-            Ok(product.mapv(boolean_indicator))
-        },
-        lhs,
-        rhs,
-    )
+            )
+            .map(|product| Tensor::Matrix(product.mapv(boolean_indicator)))
+        }
+        (lhs, rhs) => element_wise_binary(
+            |lhs, rhs| Ok(boolean_indicator(boolean_value(lhs)? && boolean_value(rhs)?)),
+            |_, _| Ok(()),
+            lhs,
+            rhs,
+        ),
+    }
 }
 
 pratt_infix!(boolean_dot => |_op, lhs: Spanned<_>, rhs: Spanned<_>| {
