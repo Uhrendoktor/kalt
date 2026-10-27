@@ -28,7 +28,7 @@ pub fn pratt_l_operator() -> char {
 #[kalt_macros::parser]
 pub fn pratt_leq_operator() -> char {
     choice((
-        composed_operator(SYMBOL_lt, SYMBOL_eq, SYMBOL_lt_eq),
+        composed_operator(SYMBOL_lt, SYMBOL_eq).map(|_| SYMBOL_lt_eq),
         character(SYMBOL_lt_eq),
     ))
 }
@@ -41,7 +41,7 @@ pub fn pratt_g_operator() -> char {
 #[kalt_macros::parser]
 pub fn pratt_geq_operator() -> char {
     choice((
-        composed_operator(SYMBOL_gt, SYMBOL_eq, SYMBOL_gt_eq),
+        composed_operator(SYMBOL_gt, SYMBOL_eq).map(|_| SYMBOL_gt_eq),
         character(SYMBOL_gt_eq),
     ))
 }
@@ -189,30 +189,18 @@ pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(if value { 1.0 } else { 0.0 }, 0.0)
 }
 
-fn logical_binary_scalar<'data>(
-    lhs: SimpleSpanned<Complex<f64>>,
-    rhs: SimpleSpanned<Complex<f64>>,
-    operation: impl Fn(bool, bool) -> bool,
-) -> Expects<'data, Complex<f64>> {
-    Ok(boolean_indicator(operation(boolean_value(lhs)?, boolean_value(rhs)?)))
-}
-
-fn logical_and_scalar<'data>(lhs: SimpleSpanned<Complex<f64>>, rhs: SimpleSpanned<Complex<f64>>) -> Expects<'data, Complex<f64>> {
-    logical_binary_scalar(lhs, rhs, |left, right| left && right)
-}
-
-fn logical_or_scalar<'data>(lhs: SimpleSpanned<Complex<f64>>, rhs: SimpleSpanned<Complex<f64>>) -> Expects<'data, Complex<f64>> {
-    logical_binary_scalar(lhs, rhs, |left, right| left || right)
-}
-
 macro_rules! logical_binary_tensor {
-    ($name:ident, $scalar:ident, $symbol:ident) => {
+    ($name:ident, $symbol:ident, $operator:tt) => {
         pub fn $name<'data>(
             lhs: SimpleSpanned<Tensor>,
             rhs: SimpleSpanned<Tensor>,
         ) -> Expects<'data, Tensor> {
             element_wise2(
-                $scalar,
+                |lhs, rhs| {
+                    let left = boolean_value(lhs)?;
+                    let right = boolean_value(rhs)?;
+                    Ok(boolean_indicator(left $operator right))
+                },
                 validate_same_shape(|lhs, rhs| content!(sertyp::sequence![lhs, $symbol, rhs])),
                 lhs,
                 rhs,
@@ -221,8 +209,8 @@ macro_rules! logical_binary_tensor {
     };
 }
 
-logical_binary_tensor!(logical_and, logical_and_scalar, SYMBOL_and);
-logical_binary_tensor!(logical_or, logical_or_scalar, SYMBOL_or);
+logical_binary_tensor!(logical_and, SYMBOL_and, &&);
+logical_binary_tensor!(logical_or, SYMBOL_or, ||);
 
 #[kalt_macros::parser]
 pub fn pratt_and_operator() -> char { character(SYMBOL_and) }

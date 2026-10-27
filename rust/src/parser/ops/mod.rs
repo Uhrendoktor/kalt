@@ -33,16 +33,10 @@ pub mod sign;
 pub mod sub;
 pub mod transpose;
 
-/// Parses a two-character spelling of a single operator, such as <=.
-///
-/// Both characters are consumed before the parser returns the canonical symbol.
-/// Register this parser before any parser for its one-character prefix; otherwise
-/// the shorter operator could consume the beginning of a composed operator.
+/// Consumes a two-character operator alias, leaving its meaning to the caller.
 #[kalt_macros::parser]
-pub fn composed_operator(first: char, second: char, canonical: char) -> char {
-    character(first)
-        .then_ignore(character(second))
-        .map(move |_| canonical)
+pub fn composed_operator(first: char, second: char) -> (char, char) {
+    character(first).then(character(second))
 }
 
 /// Generates a pratt infix parser that combines two tensors using the specified operation.

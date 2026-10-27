@@ -10,14 +10,14 @@
   (v1: $6$, v2: $2$, e: $2$),
   (v1: $5$, v2: $2$, e: $0$),
   (v1: $mat(6, 2)$, v2: $mat(3, 1)$, e: $mat(2, 0)$),
-  (v1: $6.5$, v2: $3$, error: "ℤ"),
-  (v1: $1+i$, v2: $3$, error: "ℂ"),
+  (v1: $6.5$, v2: $3$, error: "Integer Error"),
+  (v1: $1+i$, v2: $3$, error: "Real Value Error"),
 )
 
 #binary_operation(
   "Bitwise OR",
   [Computes the bitwise OR of two real integers.],
-  (a, b) => { $ #a ⊔ #b $ },
+  (a, b) => { $ #a | #b $ },
   (v1: $6$, v2: $3$, e: $7$),
   (v1: $4$, v2: $1$, e: $5$),
 )
