@@ -1,4 +1,5 @@
 use chumsky::span::{Spanned, WrappingSpan};
+use sertyp::chumsky::parser::character;
 
 use crate::{
     pratt_prefix,
@@ -7,7 +8,7 @@ use crate::{
 
 #[kalt_macros::parser]
 pub fn pratt_bitwise_not_operator() -> char {
-    chumsky::primitive::just('~').ignored().to(char::from('~'))
+    character('~')
 }
 
 pratt_prefix!(bitwise_not => |_op, rhs: Spanned<_>| {
