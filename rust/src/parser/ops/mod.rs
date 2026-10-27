@@ -9,6 +9,32 @@ use sertyp::{
     math::Op,
 };
 
+/// Generates an element-wise binary tensor operation and its Pratt application.
+#[macro_export]
+macro_rules! element_wise_binary_operator {
+    ($name:ident, $symbol:expr, $operator_type:ty, $operation:expr) => {
+        pub fn $name<'data>(
+            lhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
+            rhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
+        ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+            $crate::parser::ops::element_wise::element_wise_binary(
+                $operation,
+                $crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
+                    sertyp::content!(sertyp::sequence![lhs, $symbol, rhs])
+                }),
+                lhs,
+                rhs,
+            )
+        }
+
+        $crate::pratt_infix!($name, $operator_type => |_op: $operator_type, lhs, rhs| {
+            use chumsky::span::{Span, WrappingSpan};
+            Ok(lhs.span.union(rhs.span).make_wrapped($name(lhs, rhs)?))
+        });
+    };
+}
+pub(crate) use element_wise_binary_operator;
+
 pub mod abs;
 pub mod add;
 pub mod binom;

@@ -25,32 +25,3 @@ fn bitwise_integer<'data>(
     crate::parser::validator::real_int(value.inner, value.span)
 }
 
-macro_rules! bitwise_operation {
-    ($name:ident, $operator:tt, $symbol:expr) => {
-        pub fn $name<'data>(
-            lhs: chumsky::span::SimpleSpanned<crate::parser::atoms::tensor::Tensor>,
-            rhs: chumsky::span::SimpleSpanned<crate::parser::atoms::tensor::Tensor>,
-        ) -> crate::Expects<'data, crate::parser::atoms::tensor::Tensor> {
-            crate::parser::ops::element_wise::element_wise_binary(
-                |lhs, rhs| {
-                    crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
-                        Ok(num::Complex::new(
-                            (super::bitwise_integer(lhs)? $operator super::bitwise_integer(rhs)?) as f64,
-                            0.0,
-                        ))
-                    })
-                },
-                crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
-                    sertyp::content!(sertyp::sequence![lhs, $symbol, rhs])
-                }),
-                lhs,
-                rhs,
-            )
-        }
-
-        crate::pratt_infix!($name => |_op, lhs: chumsky::span::Spanned<_>, rhs: chumsky::span::Spanned<_>| {
-            Ok(lhs.span.union(rhs.span).make_wrapped($name(lhs, rhs)?))
-        });
-    };
-}
-pub(crate) use bitwise_operation;

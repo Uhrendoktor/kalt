@@ -1,21 +1,20 @@
-use chumsky::{
-    primitive::choice,
-    select,
-    span::{Span, WrappingSpan},
-};
-use sertyp::{Content, SYMBOL_amp, chumsky::{Token, parser::character}};
+use sertyp::{SYMBOL_amp, chumsky::parser::character};
 
-use super::bitwise_operation;
+use crate::parser::ops::element_wise_binary_operator;
 
 #[kalt_macros::parser]
-pub fn pratt_bitwise_and_operator() -> char {
-    choice((
-        character(SYMBOL_amp),
-        select!(
-            Token::Raw(Content::Unknown(raw))
-                if raw.func.full_name().is_some_and(|name| &*name == "align-point") => SYMBOL_amp
-        ),
-    ))
+pub fn pratt_bitwise_and_operator() -> String {
+    super::super::word_or_op("bitand")
 }
 
-bitwise_operation!(bitwise_and, &, SYMBOL_amp);
+element_wise_binary_operator!(
+    bitwise_and,
+    SYMBOL_amp,
+    String,
+    |lhs, rhs| crate::parser::ops::element_wise::real_scalar_binary(lhs, rhs, |lhs, rhs| {
+        Ok(num::Complex::new(
+            (super::bitwise_integer(lhs)? & super::bitwise_integer(rhs)?) as f64,
+            0.0,
+        ))
+    })
+);
