@@ -16,6 +16,17 @@ pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Item<'da
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
 
+    // Output exception 1: unwrap a 1×1 matrix because it contains one scalar,
+    // not a useful matrix structure to expose from comp.
+    let c = c.map(|tensor| match tensor {
+        Tensor::Matrix(matrix) if matrix.nrows() == 1 && matrix.ncols() == 1 => {
+            Tensor::Scalar(matrix[[0, 0]])
+        }
+        other => other,
+    });
+
+    // Output exception 2: represent real scalar results as Typst floats so
+    // callers can use them directly in Typst code outside math mode.
     if let Ok(Tensor::Scalar(value)) = &c {
         if value.im == 0.0 {
             return Float::from(value.re).into();

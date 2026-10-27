@@ -4,9 +4,8 @@ use chumsky::input::MapExtra;
 use chumsky::span::{SimpleSpan, Span, Spanned, WrappingSpan};
 use chumsky::{Parser, primitive::choice, span::SimpleSpanned};
 use ndarray::Axis;
-use num::ToPrimitive;
 use sertyp::chumsky::parser::whitespaces;
-use sertyp::{FromString, SYMBOL_eq_not, SYMBOL_in, equation, sequence};
+use sertyp::FromString;
 use sertyp::{
     TypstError,
     chumsky::{
@@ -32,31 +31,42 @@ pub fn cast_negative<'data>(
     interval_open: bool,
 ) -> impl FnOnce(&SimpleSpanned<i64>) -> Expects<'data, usize> {
     move |index: &SimpleSpanned<i64>| {
-        let mut x = **index;
-        if x < 0 {
-            x += len as i64
-        }
-        if x < 0 {
+        let len_i64 = i64::try_from(len).map_err(|_| {
+            TypstError::full(
+                index.span,
+                "Index Dimension Error",
+                format!("dimension ∈ [0, {}]", i64::MAX),
+                len.to_string(),
+            )
+        })?;
+        let value = **index;
+        let normalized = if value < 0 { value + len_i64 } else { value };
+        let in_bounds = normalized >= 0
+            && if interval_open {
+                normalized < len_i64
+            } else {
+                normalized <= len_i64
+            };
+        if !in_bounds {
             return Err(TypstError::full(
                 index.span,
-                "negative index",
-                equation!(sequence!("index", SYMBOL_in, format!("[-{}, -1]", len))),
-                (x - len as i64).to_string(),
+                "Index Range Error",
+                if interval_open {
+                    format!("index ∈ [{}, {})", -len_i64, len_i64)
+                } else {
+                    format!("index ∈ [{}, {}]", -len_i64, len_i64)
+                },
+                value.to_string(),
             ));
         }
-        if (interval_open && x >= len as i64) || (!interval_open && x > len as i64) {
-            return Err(TypstError::full(
+        usize::try_from(normalized).map_err(|_| {
+            TypstError::full(
                 index.span,
-                "index out of bounds",
-                equation!(sequence!(
-                    "index",
-                    SYMBOL_in,
-                    format!("[0, {}{}", len, if interval_open { ")" } else { "]" })
-                )),
-                x.to_string(),
-            ));
-        }
-        Ok(x as usize)
+                "Index Range Error",
+                format!("index ∈ [0, {}]", len),
+                normalized.to_string(),
+            )
+        })
     }
 }
 
@@ -84,23 +94,32 @@ pub fn to_indices<'a>(
 
             if start_v > stop_v {
                 return Err(TypstError::full(
-                    start.as_ref().unwrap().span,
-                    "range start greater than end",
-                    "value smaller than end of range",
-                    equation!(format!("{} > {}", start_v, stop_v)),
+                    start.as_ref().unwrap().span.union(stop.as_ref().unwrap().span),
+                    "Range Bound Error",
+                    "start ≤ stop",
+                    format!("{} > {}", start_v, stop_v),
                 ));
             }
 
             let step_v: isize = step
-                .as_deref()
-                .cloned()
-                .map(|n| n.to_isize().unwrap())
+                .as_ref()
+                .map(|step| {
+                    isize::try_from(**step).map_err(|_| {
+                        TypstError::full(
+                            step.span,
+                            "Range Step Error",
+                            format!("step ∈ [{}, {}]", isize::MIN, isize::MAX),
+                            (**step).to_string(),
+                        )
+                    })
+                })
+                .transpose()?
                 .unwrap_or(1);
             if step_v == 0 {
                 return Err(TypstError::full(
                     step.as_ref().unwrap().span,
-                    "range step is zero",
-                    equation!(sequence!("step", SYMBOL_eq_not, "0")),
+                    "Range Step Error",
+                    "step ≠ 0",
                     "0",
                 ));
             }

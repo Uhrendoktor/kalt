@@ -9,7 +9,7 @@ use crate::{
         atoms::tensor::Tensor,
         ops::{
             self,
-            element_wise::{element_wise2, validate_same_shape},
+            element_wise::{element_wise_binary, validate_same_shape},
             func::{func_parser, subscript_parser},
             word_or_op,
         },
@@ -48,7 +48,7 @@ fn validate_base<'data>(base: &Spanned<num::Complex<f64>>) -> Expects<'data, ()>
 /// (matrix, scalar) -> matrix (element-wise)
 /// (matrix, matrix) -> matrix (element-wise) only if same shape
 pub fn log_t<'data>(base: Spanned<Tensor>, value: Spanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise2(
+    element_wise_binary(
         |base, value| {
             validate_base(&base)?;
             Ok(log_c(&base, &value))
