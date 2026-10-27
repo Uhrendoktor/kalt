@@ -1,13 +1,11 @@
 use sertyp::{SYMBOL_xor, chumsky::parser::character};
 
-use crate::parser::ops::element_wise_binary_operator;
-
 #[kalt_macros::parser]
 pub fn pratt_bitwise_xor_operator() -> char {
     character(SYMBOL_xor)
 }
 
-element_wise_binary_operator!(
+crate::element_wise_binary_operator!(
     bitwise_xor,
     SYMBOL_xor,
     char,

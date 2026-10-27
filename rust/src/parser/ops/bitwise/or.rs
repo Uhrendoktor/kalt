@@ -1,13 +1,11 @@
 use sertyp::{SYMBOL_bar_v, chumsky::parser::character};
 
-use crate::parser::ops::element_wise_binary_operator;
-
 #[kalt_macros::parser]
 pub fn pratt_bitwise_or_operator() -> char {
     character(SYMBOL_bar_v)
 }
 
-element_wise_binary_operator!(
+crate::element_wise_binary_operator!(
     bitwise_or,
     SYMBOL_bar_v,
     char,
