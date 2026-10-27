@@ -1,7 +1,7 @@
 // Numeric comparison operators. Results are encoded as 0 (false) or 1 (true).
 
 #import "../utils.typ": binary_operation, assert-error
-#import "../lib.typ": comp
+#import "../../lib.typ": comp
 
 #binary_operation(
   "Less than",
