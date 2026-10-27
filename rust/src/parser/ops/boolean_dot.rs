@@ -3,7 +3,7 @@ use chumsky::{
     span::{SimpleSpanned, Span, Spanned, WrappingSpan},
 };
 use num::Complex;
-use sertyp::{TypstError, chumsky::parser::character, content};
+use sertyp::{TypstError, chumsky::parser::character};
 
 use crate::{
     Expects, pratt_infix,
