@@ -94,10 +94,10 @@ pub fn to_indices<'a>(
 
             if start_v > stop_v {
                 return Err(TypstError::full(
-                    start.as_ref().unwrap().span,
-                    "range start greater than end",
-                    "value smaller than end of range",
-                    equation!(format!("{} > {}", start_v, stop_v)),
+                    start.as_ref().unwrap().span.union(stop.as_ref().unwrap().span),
+                    "Range Bound Error",
+                    "start ≤ stop",
+                    format!("{} > {}", start_v, stop_v),
                 ));
             }
 
@@ -118,8 +118,8 @@ pub fn to_indices<'a>(
             if step_v == 0 {
                 return Err(TypstError::full(
                     step.as_ref().unwrap().span,
-                    "range step is zero",
-                    equation!(sequence!("step", SYMBOL_eq_not, "0")),
+                    "Range Step Error",
+                    "step ≠ 0",
                     "0",
                 ));
             }
