@@ -363,7 +363,7 @@ pub mod element_wise {
             }
             Err(TypstError::full(
                 m1.span.union(m2.span),
-                "Binomial coefficient can only be applied to matrices of the same shape",
+                "Element-wise operation requires matrices of the same shape",
                 f(
                     content!(
                         matrix_shape!({SYMBOL_CC} ^ ({m1.dim().0.to_string()} x {m1.dim().1.to_string()}))
