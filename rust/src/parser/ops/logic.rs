@@ -17,20 +17,46 @@ use crate::{
     },
 };
 
-/// Parses mathematical comparisons. ASCII <= and >= are accepted as aliases
-/// for the corresponding single-character mathematical operators.
+/// Less-than comparison parser.
 #[kalt_macros::parser]
-pub fn pratt_compare_operator() -> String {
+pub fn pratt_l_operator() -> String {
+    character('<').map(|_| "<".to_string())
+}
+
+/// Less-than-or-equal parser. Parse the two-character alias before the shorter operator.
+#[kalt_macros::parser]
+pub fn pratt_leq_operator() -> String {
     choice((
         character('<').then_ignore(character('=')).map(|_| "<=".to_string()),
-        character('>').then_ignore(character('=')).map(|_| ">=".to_string()),
         character('≤').map(|_| "≤".to_string()),
-        character('≥').map(|_| "≥".to_string()),
-        character('≠').map(|_| "≠".to_string()),
-        character('<').map(|_| "<".to_string()),
-        character('>').map(|_| ">".to_string()),
-        character('=').map(|_| "=".to_string()),
     ))
+}
+
+/// Greater-than comparison parser.
+#[kalt_macros::parser]
+pub fn pratt_g_operator() -> String {
+    character('>').map(|_| ">".to_string())
+}
+
+/// Greater-than-or-equal parser. Parse the two-character alias before the shorter operator.
+#[kalt_macros::parser]
+pub fn pratt_geq_operator() -> String {
+    choice((
+        character('>').then_ignore(character('=')).map(|_| ">=".to_string()),
+        character('≥').map(|_| "≥".to_string()),
+    ))
+}
+
+/// Equality comparison parser.
+#[kalt_macros::parser]
+pub fn pratt_eq_operator() -> String {
+    character('=').map(|_| "=".to_string())
+}
+
+/// Inequality comparison parser.
+#[kalt_macros::parser]
+pub fn pratt_neq_operator() -> String {
+    character('≠').map(|_| "≠".to_string())
 }
 
 fn compare_scalar<'data>(
@@ -82,7 +108,23 @@ pub fn compare<'data>(
     )
 }
 
-pratt_infix!(compare, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+// Keep each comparison's Pratt handler separate, matching the operator modules.
+pratt_infix!(l, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
+});
+pratt_infix!(leq, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
+});
+pratt_infix!(g, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
+});
+pratt_infix!(geq, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
+});
+pratt_infix!(eq, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
+    Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
+});
+pratt_infix!(neq, String => |op: String, lhs: Spanned<_>, rhs: Spanned<_>| {
     Ok(lhs.span.union(rhs.span).make_wrapped(compare(lhs, rhs, op)?))
 });
 
