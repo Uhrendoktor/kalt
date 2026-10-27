@@ -216,23 +216,14 @@ macro_rules! operation_element_wise_same_shape {
         /// (matrix, scalar) -> matrix (element-wise)
         /// (matrix, matrix) -> matrix (element-wise) only if same shape
         pub fn $name<'data>(t1: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>, t2: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-            use $crate::parser::atoms::matrix::Matrix;
-            $crate::match_tensors!((t1, t2) => {
-                (s1, s2) => |s1: Spanned<num::Complex<f64>>, s2: Spanned<num::Complex<f64>>| Ok(*s1 $op *s2),
-                (s, m) => |s: Spanned<num::Complex<f64>>, m: Spanned<Matrix>| Ok(*s $op &*m),
-                (m, s) => |m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| Ok(&*m $op *s),
-                (m1, m2) => |m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
-                    $crate::parser::ops::element_wise::validate_same_shape(|m1, m2| {
-                        sertyp::sequence![
-                            m1,
-                            stringify!($op),
-                            m2,
-                        ]
-                        .into()
-                    })(m1.span.make_wrapped(&m1.inner), m2.span.make_wrapped(&m2.inner))?;
-                    Ok(&*m1 $op &*m2)
-                }
-            })
+            $crate::parser::ops::element_wise::element_wise_binary(
+                |lhs, rhs| Ok(lhs.inner $op rhs.inner),
+                $crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
+                    sertyp::sequence![lhs, stringify!($op), rhs].into()
+                }),
+                t1,
+                t2,
+            )
         }
     };
 }
