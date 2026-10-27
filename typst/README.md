@@ -181,7 +181,7 @@ Kalt stores numeric values as floating-point numbers, so bitwise operands must b
 $comp(6 op("&") 3)$ // 2
 $comp(6 | 3)$ // 7
 $comp(6 ⊕ 3)$ // 5
-$comp(mat(6, 2) & mat(3, 1))$ // mat(2, 0)
+$comp(mat(6, 2) op("&") mat(3, 1))$ // mat(2, 0)
 ```
 
 ### Ordinary dot versus Boolean product

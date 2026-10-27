@@ -70,6 +70,6 @@ macro_rules! bitwise_operation {
     };
 }
 
-bitwise_operation!(bitwise_and, &, '&', pratt_bitwise_and_operator, '&');
+bitwise_operation!(bitwise_and, &, "&", pratt_bitwise_and_operator, '&');
 bitwise_operation!(bitwise_or, |, SYMBOL_bar_v, pratt_bitwise_or_operator, '|');
 bitwise_operation!(bitwise_xor, ^, SYMBOL_xor, pratt_bitwise_xor_operator, SYMBOL_xor);
