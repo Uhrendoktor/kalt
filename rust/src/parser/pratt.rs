@@ -32,9 +32,11 @@ use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::logic::{
-    boolean_literal, pratt_and_operator, pratt_compare_operator, pratt_logical_and,
-    pratt_logical_not, pratt_not_operator, pratt_logical_or, pratt_or_operator,
-    pratt_compare,
+    boolean_literal, pratt_and_operator, pratt_eq, pratt_eq_operator, pratt_g,
+    pratt_g_operator, pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator,
+    pratt_leq, pratt_leq_operator, pratt_logical_and, pratt_logical_not,
+    pratt_logical_or, pratt_neq, pratt_neq_operator, pratt_not_operator,
+    pratt_or_operator,
 };
 use crate::parser::ops::pow::pow;
 use crate::parser::ops::root::root;
@@ -186,8 +188,15 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
                     infix(left(5), pratt_cross_operator(), pratt_cross),
                     infix(left(4), pratt_add_operator(), pratt_add),
                     infix(left(4), pratt_sub_operator(), pratt_sub),
-                    // A chain such as a < b < c is rejected; write (a < b) ∧ (b < c).
-                    infix(none(3), pratt_compare_operator(), pratt_compare),
+                    // Comparisons share precedence and are non-associative. Use
+                    // (a < b) ∧ (b < c), rather than a < b < c.
+                    // Parse <= and >= before the shorter < and > tokens.
+                    infix(none(3), pratt_leq_operator(), pratt_leq),
+                    infix(none(3), pratt_geq_operator(), pratt_geq),
+                    infix(none(3), pratt_l_operator(), pratt_l),
+                    infix(none(3), pratt_g_operator(), pratt_g),
+                    infix(none(3), pratt_eq_operator(), pratt_eq),
+                    infix(none(3), pratt_neq_operator(), pratt_neq),
                     prefix(2, pratt_not_operator(), pratt_logical_not),
                     infix(left(1), pratt_and_operator(), pratt_logical_and),
                     infix(left(0), pratt_or_operator(), pratt_logical_or),
