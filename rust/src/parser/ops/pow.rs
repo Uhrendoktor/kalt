@@ -96,10 +96,26 @@ pub fn pow_m<'data>(span: SimpleSpan, m: &Matrix, c: &num::Complex<f64>) -> Expe
             ),
         ));
     }
-    let n = c.re as u32;
+    if c.re > crate::parser::validator::MAX_EXACT_INTEGER {
+        return Err(TypstError::full(
+            span,
+            "Matrix exponent out of range",
+            format!("integer exponent in [0, {}]", crate::parser::validator::MAX_EXACT_INTEGER),
+            c.re.to_string(),
+        ));
+    }
+
+    let mut exponent = c.re as u64;
+    let mut base = m.clone();
     let mut result = Matrix::eye(m.nrows());
-    for _ in 0..n {
-        result = result.dot(m);
+    while exponent > 0 {
+        if exponent & 1 == 1 {
+            result = result.dot(&base);
+        }
+        exponent >>= 1;
+        if exponent > 0 {
+            base = base.dot(&base);
+        }
     }
     Ok(result)
 }
