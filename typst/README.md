@@ -175,7 +175,7 @@ Because results are numeric, `¬(2 - 1)` is valid and returns `0`, while `¬5` i
 
 Use `&`, `|`, and `⊕` for bitwise AND, OR, and XOR. These are separate from logical `∧` and `∨`: bitwise operators require real integers and operate on their binary representations. For matrices, they apply cell by cell; scalar-to-matrix application is also supported.
 
-Kalt stores numeric values as floating-point numbers, so bitwise operands must be integers in the exactly representable range `-9007199254740991` through `9007199254740991`. Complex, fractional, non-finite, or out-of-range operands produce an error.
+Kalt stores numeric values as floating-point numbers, so bitwise operands must be integers in the safe-integer range `-9007199254740991` through `9007199254740991`. Values outside this range are rejected because floating-point numbers cannot distinguish every integer there. Complex, fractional, non-finite, or out-of-range operands produce an error.
 
 ```typst
 $comp(6 & 3)$ // 2
@@ -411,6 +411,6 @@ A comparison chain is non-associative in Kalt. Use explicit parentheses and logi
 - Use `¬`, `∧`, and `∨` for logic. Use `&`, `|`, and `⊕` for bitwise integer operations; these require integer operands and are not substitutes for logical operators. Vertical bars are also used for absolute values.
 - `⊙` is for Boolean matrix products whose entries are real `0` or `1`; it is not element-wise multiplication or multiplication modulo 2.
 - Kalt can apply a scalar to a matrix, but it does not automatically resize two differently shaped matrices to make them fit.
-- Bitwise operators are defined only for real integers in the exactly representable range of Kalt's floating-point numeric model.
+- Bitwise operators are defined only for real integers in Kalt's floating-point safe-integer range.
 
 
