@@ -1,4 +1,4 @@
-use chumsky::span::{SimpleSpanned, Spanned, WrappingSpan};
+use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
 use num::Complex;
 use sertyp::{
     SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_bar_v, SYMBOL_in, SYMBOL_lt_eq, SYMBOL_xor,

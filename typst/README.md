@@ -126,7 +126,7 @@ Kalt intentionally represents logical results numerically rather than introducin
 | `=` | Exact equality | `0` or `1` |
 | `≠` | Exact inequality | `0` or `1` |
 
-Ordered comparisons require real-valued operands. A complex value with a nonzero imaginary part has no ordering in Kalt and produces a comparison error. Equality and inequality support complex values and compare the evaluated real and imaginary components exactly; they do not apply an implicit tolerance.
+Ordered comparisons require real-valued operands. A complex value with a nonzero imaginary part has no ordering in Kalt and produces a comparison error. Equality and inequality support complex values and compare the evaluated real and imaginary components exactly; they do not apply an implicit tolerance. For matrices, `<`, `>`, `<=`, and `>=` compare corresponding entries element by element; they do not test positive definiteness or Loewner order. Positive-definite ordering is a separate matrix-wide relation (defined for Hermitian matrices) and should have an explicit dedicated API rather than silently changing the meaning of these operators.
 
 ```typst
 $comp(3 > 2)$                     // 1
