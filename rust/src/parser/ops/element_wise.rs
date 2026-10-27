@@ -116,9 +116,9 @@ pub fn matrix_product<T: Copy>(
     if lhs.ncols() != rhs.nrows() {
         return None;
     }
-    let mut output = ndarray::Array2::from_elem((lhs.nrows(), rhs.ncols()), identity);
-    for row in 0..lhs.nrows() {
-        for col in 0..rhs.ncols() {
+    Some(ndarray::Array2::from_shape_fn(
+        (lhs.nrows(), rhs.ncols()),
+        |(row, col)| {
             let mut accumulator = identity;
             for inner in 0..lhs.ncols() {
                 accumulator = reduce(
@@ -126,10 +126,9 @@ pub fn matrix_product<T: Copy>(
                     multiply(lhs[[row, inner]], rhs[[inner, col]]),
                 );
             }
-            output[[row, col]] = accumulator;
-        }
-    }
-    Some(output)
+            accumulator
+        },
+    ))
 }
 
 /// Dispatches a binary tensor operation to a matrix product for matrix-matrix
@@ -172,8 +171,8 @@ where
 /// Validates that two matrices have the same shape and returns a formattable matrix shape error if they do not.
 ///
 /// Args:
-/// - f: A function that is sipposed to format the operation of the two matrices.
-///   It receives two formatted matrix dimensions as input.
+/// - f: A function that formats the operation applied to the two matrices.
+///   It receives two formatted matrix dimensions as arguments.
 pub fn validate_same_shape<'data>(
     f: impl Fn(Content<'data>, Content<'data>) -> Content<'data>,
 ) -> impl Fn(SimpleSpanned<&Matrix>, SimpleSpanned<&Matrix>) -> Expects<'data, ()> {
@@ -207,7 +206,7 @@ pub fn validate_same_shape<'data>(
 /// Validates that a matrix is square and returns a formattable matrix shape error if it is not.
 ///
 /// Args:
-/// - f: A function that is sipposed to format the operation of the matrix.
+/// - f: A function that formats the matrix operation.
 ///   It receives a formatted matrix's dimensions as input.
 pub fn validate_square<'data>(
     f: impl Fn(Content<'data>) -> Content<'data>,
