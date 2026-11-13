@@ -60,7 +60,7 @@ $comp((2 + 3i)^*)$                // 2 - 3i
 $comp(Re(2 + 3i) + i Im(2 + 3i))$ // 2 + 3i
 ```
 
-The superscript star in `x^*` is the conjugation notation supported by Kalt. It is not a `conjugate(...)` function.
+Write complex conjugation with a superscript star: `x^*`.
 
 Kalt also includes:
 
