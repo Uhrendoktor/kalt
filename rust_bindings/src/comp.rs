@@ -5,29 +5,26 @@ use kalt::parser::{
     validator::matrix,
 };
 use sertyp::{
-    Boolean, Content, Float, Integer, Item, LocatingSequence, Or, Sequence, TypedArray,
-    TypedContent, TypedSequence, TypstError, parse, typst_func,
+    Boolean, Content, Float, Integer, Item, LocatingSequence, Panic, Sequence, TypedArray,
+    TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
-type ScalarInput = Or<Boolean, Or<Integer, Float>>;
-type CompInput<'data> = Or<ScalarInput, TypedContent<Sequence<'data>>>;
-
-fn integer_to_f64(value: Integer) -> f64 {
+fn integer_to_float(value: Integer) -> Float {
     match value {
-        Integer::i8(v) => v as f64,
-        Integer::i16(v) => v as f64,
-        Integer::i32(v) => v as f64,
-        Integer::i64(v) => v as f64,
-        Integer::i128(v) => v as f64,
-        Integer::u8(v) => v as f64,
-        Integer::u16(v) => v as f64,
-        Integer::u32(v) => v as f64,
-        Integer::u64(v) => v as f64,
-        Integer::u128(v) => v as f64,
-        Integer::isize(v) => v as f64,
-        Integer::usize(v) => v as f64,
+        Integer::i8(value) => value.into(),
+        Integer::i16(value) => value.into(),
+        Integer::i32(value) => value.into(),
+        Integer::i64(value) => value.into(),
+        Integer::i128(value) => value.into(),
+        Integer::u8(value) => value.into(),
+        Integer::u16(value) => value.into(),
+        Integer::u32(value) => value.into(),
+        Integer::u64(value) => value.into(),
+        Integer::u128(value) => value.into(),
+        Integer::isize(value) => value.into(),
+        Integer::usize(value) => value.into(),
     }
 }
 
@@ -37,17 +34,21 @@ fn scalar_sequence<'data>(value: f64) -> Sequence<'data> {
 }
 
 #[typst_func()]
-pub fn comp<'data>(body: CompInput<'data>) -> Item<'data> {
-    // SerTyp converts the incoming Item into one of the supported scalar types
-    // or math content. Normalize direct numeric values to the same math-content
-    // representation used by expressions, matrices, and vectors.
+pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
     let seq = match body {
-        Or::Left(Or::Left(Boolean(value))) => {
-            scalar_sequence(if value { 1.0 } else { 0.0 })
+        Item::Boolean(Boolean(value)) => scalar_sequence(if value { 1.0 } else { 0.0 }),
+        Item::Integer(value) => scalar_sequence(integer_to_float(value).into()),
+        Item::Float(Float::f64(value)) => scalar_sequence(value),
+        Item::Decimal(value) => scalar_sequence(value.into()),
+        Item::String(value) => Sequence::from(Content::from(value)),
+        Item::Content(content) => Sequence::from(*content),
+        Item::Panic(panic) => return panic.into(),
+        _ => {
+            return Panic::from(sertyp::String::from(
+                "comp expects a Boolean, integer, float, decimal, string, or math content",
+            ))
+            .into();
         }
-        Or::Left(Or::Right(Or::Left(value))) => scalar_sequence(integer_to_f64(value)),
-        Or::Left(Or::Right(Or::Right(Float::f64(value)))) => scalar_sequence(value),
-        Or::Right(TypedContent(seq)) => seq,
     };
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
