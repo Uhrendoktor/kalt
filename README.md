@@ -24,6 +24,7 @@ Real-number results can be used as regular Typst values. For example, a calculat
 ```
 
 Complex numbers, vectors, and matrices remain mathematical content, ready to display in your equations.
+You can also pass Typst Booleans, integers, floats, and Decimals directly. Strings are parsed as mathematical expressions; for example, `comp("0xFF")` evaluates to `255.0`.
 
 ## From expression to evaluated result
 
