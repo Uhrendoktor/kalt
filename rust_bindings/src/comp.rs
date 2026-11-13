@@ -5,20 +5,48 @@ use kalt::parser::{
     validator::matrix,
 };
 use sertyp::{
-    Boolean, Content, Float, Item, LocatingSequence, Or, Sequence, TypedArray, TypedContent,
-    TypedSequence, TypstError, parse, typst_func,
+    Boolean, Content, Float, Integer, Item, LocatingSequence, Or, Sequence, TypedArray,
+    TypedContent, TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
+type ScalarInput = Or<Boolean, Or<Integer, Float>>;
+type CompInput<'data> = Or<ScalarInput, TypedContent<Sequence<'data>>>;
+
+fn integer_to_f64(value: Integer) -> f64 {
+    match value {
+        Integer::i8(v) => v as f64,
+        Integer::i16(v) => v as f64,
+        Integer::i32(v) => v as f64,
+        Integer::i64(v) => v as f64,
+        Integer::i128(v) => v as f64,
+        Integer::u8(v) => v as f64,
+        Integer::u16(v) => v as f64,
+        Integer::u32(v) => v as f64,
+        Integer::u64(v) => v as f64,
+        Integer::u128(v) => v as f64,
+        Integer::isize(v) => v as f64,
+        Integer::usize(v) => v as f64,
+    }
+}
+
+fn scalar_sequence<'data>(value: f64) -> Sequence<'data> {
+    let content: Content<'data> = Complex::new(value, 0.0).into();
+    Sequence::from(content)
+}
+
 #[typst_func()]
-pub fn comp<'data>(body: Or<Boolean, TypedContent<Sequence<'data>>>) -> Item<'data> {
-    // Accept a Typst Boolean or the math content Kalt evaluates. SerTyp's Or
-    // implementation converts the incoming Item to the matching typed input.
+pub fn comp<'data>(body: CompInput<'data>) -> Item<'data> {
+    // SerTyp converts the incoming Item into one of the supported scalar types
+    // or math content. Normalize direct numeric values to the same math-content
+    // representation used by expressions, matrices, and vectors.
     let seq = match body {
-        Or::Left(Boolean(value)) => {
-            return Float::from(if value { 1.0 } else { 0.0 }).into();
+        Or::Left(Or::Left(Boolean(value))) => {
+            scalar_sequence(if value { 1.0 } else { 0.0 })
         }
+        Or::Left(Or::Right(Or::Left(value))) => scalar_sequence(integer_to_f64(value)),
+        Or::Left(Or::Right(Or::Right(Float::f64(value)))) => scalar_sequence(value),
         Or::Right(TypedContent(seq)) => seq,
     };
     let seq = LocatingSequence::from(&seq);
