@@ -12,7 +12,19 @@ use wasm_minimal_protocol::*;
 initiate_protocol!();
 
 #[typst_func()]
-pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Item<'data> {
+pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
+    // Typst booleans are valid direct inputs to comp. Convert them to the
+    // numeric indicators used by Kalt's comparison and logical operations.
+    if let Item::Boolean(value) = body {
+        return Float::from(if value.0 { 1.0 } else { 0.0 }).into();
+    }
+
+    let TypedContent(seq): TypedContent<Sequence<'data>> = match body.try_into() {
+        Ok(content) => content,
+        Err(error) => {
+            return sertyp::Panic::from(sertyp::String::from(error)).into();
+        }
+    };
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
 
