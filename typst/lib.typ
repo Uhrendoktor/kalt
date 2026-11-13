@@ -1,13 +1,13 @@
 #import "@preview/sertyp:0.1.5" as sertyp;
 #let kalt = plugin("./bindings.wasm");
 
-/// Evaluates a scalar number, Boolean, or Typst math content.
+/// Evaluates a Boolean, integer, float, Decimal, string, or Typst math content.
 /// Supports arbitrary expressions with complex numbers, matrices, and vectors.
 ///
 /// Automatically reports formatted errors if the evaluation fails.
 ///
 /// = Arguments
-/// - `body`: A Typst integer, float, Boolean, or math content value.
+/// - `body`: A Typst Boolean, integer, float, Decimal, string, or math content value. Strings are parsed as mathematical expressions.
 ///
 /// = Returns
 /// A Typst float for real scalar results; otherwise the evaluated Typst content.
