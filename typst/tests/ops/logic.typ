@@ -1,6 +1,6 @@
 // Bare Typst math words `true` and `false` are numeric Boolean indicators.
 
-#import "../lib.typ": comp
+#import "../../lib.typ": comp
 #import "../utils.typ": assert-eq, unary_operation
 
 #assert-eq("bare true literal", comp($true$), $1$)
