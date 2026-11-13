@@ -25,6 +25,18 @@ A real-number result is a regular Typst value. It can be used in further calcula
 
 Complex numbers, vectors, and matrices stay in mathematical notation so they can be shown as part of your equations.
 
+## Arithmetic
+
+Kalt supports the usual arithmetic notation: `+`, `-`, `*`, `/`, modulo with `%` or `mod`, powers with `^`, and factorial with `!`.
+
+For matrices, these arithmetic operations work entry by entry. A scalar can be applied to every entry, while two matrices are combined entry by entry when their dimensions match. Use `dot` when you mean matrix multiplication:
+
+```typst
+$comp(2 * mat(1, 2; 3, 4))$              // mat(2, 4; 6, 8)
+$comp(mat(7, -7) mod 4)$                // mat(3, 1)
+$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
+```
+
 ## A complete mathematical expression
 
 Kalt can evaluate a whole expression, even when it combines several kinds of mathematics. This example brings together complex powers, a fraction, a matrix product, and a vector:
@@ -98,7 +110,7 @@ Scalar operations can also be applied to matrix entries. Element-wise operations
 
 ## Indexing and slicing
 
-Select a single matrix entry with its row and column:
+Matrix indices start at zero. Select a single entry with its row and column:
 
 ```typst
 $comp(mat(1, 2; 3, 4)[0, 1])$ // 2
@@ -140,7 +152,20 @@ $comp(true + true)$   // 2
 $comp(3 > 2)$         // 1
 ```
 
-For logical and bitwise expressions, Kalt provides `∧`, `∨`, `⊕`, `¬`, and `~`. The `⊙` operator is available for Boolean matrix products.
+For logical and bitwise expressions:
+
+- `∧`, `∨`, and `⊕` are bitwise AND, OR, and XOR. With `0` and `1`, AND and OR give the familiar Boolean results.
+- `¬` flips a Boolean indicator: `¬0 = 1` and `¬1 = 0`.
+- `~` is bitwise NOT for integers.
+- `⊙` is a Boolean matrix product: an output entry is `1` when at least one matching pair of entries is `1`.
+
+```typst
+$comp(6 ∧ 3)$ // 2
+$comp(6 ∨ 3)$ // 7
+$comp(6 ⊕ 3)$ // 5
+$comp(¬0)$    // 1
+$comp(~2)$    // -3
+```
 
 ## Use matrix values in Typst
 
@@ -155,7 +180,12 @@ Kalt includes helpers for applying Typst callbacks to matrix and vector entries.
 #all(value => comp(value) > 0, values) // true
 ```
 
-- `map` applies a callback to corresponding entries and returns a matrix.
-- `reduce` combines entries into one accumulated result.
+- `map` applies a callback to every entry and returns the transformed matrix. The callback can also use each entry's column (`x`) and row (`y`) position.
+- `reduce` visits the entries and combines them into one accumulated result.
 - `any` checks whether a condition matches at least one entry.
 - `all` checks whether a condition matches every entry.
+
+```typst
+$map((value, x, y) => $#value + #x + #y$, values)$
+#reduce((total, value) => total + comp(value), 0, values) // 10
+```
