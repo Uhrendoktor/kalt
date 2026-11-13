@@ -1,8 +1,11 @@
-use chumsky::span::SimpleSpanned;
+use chumsky::{primitive::choice, span::SimpleSpanned};
 use num::Complex;
-use sertyp::{SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, content};
+use sertyp::{
+    SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, content,
+    chumsky::parser::word,
+};
 
-use crate::Expects;
+use crate::{Expects, parser::atoms::tensor::Tensor};
 
 mod compare;
 mod not;
@@ -13,6 +16,16 @@ pub use compare::{
     pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator, pratt_geq, pratt_geq_operator,
     pratt_l, pratt_l_operator, pratt_leq, pratt_leq_operator, pratt_neq, pratt_neq_operator,
 };
+
+/// Parses bare Typst math words `true` and `false` as numeric indicators.
+/// Deliberately accepts words only, not math operators such as `op("true")`.
+#[kalt_macros::parser]
+pub fn boolean_literal() -> Expects<'data, Tensor> {
+    choice((
+        word("true").map(|_| Ok(Tensor::Scalar(boolean_indicator(true)))),
+        word("false").map(|_| Ok(Tensor::Scalar(boolean_indicator(false)))),
+    ))
+}
 
 pub(crate) fn boolean_value<'data>(
     value: SimpleSpanned<Complex<f64>>,
@@ -44,4 +57,3 @@ pub(crate) fn boolean_value<'data>(
 pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(value as u8 as f64, 0.0)
 }
-
