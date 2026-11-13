@@ -46,7 +46,17 @@ Complex numbers, vectors, and matrices stay in mathematical notation so they can
 
 ## Arithmetic
 
-Kalt supports the usual arithmetic notation: `+`, `-`, `*`, `/`, modulo with `%` or `mod`, powers with `^`, and factorial with `!`.
+Kalt supports the following arithmetic operations:
+
+| Operation | Notation |
+| --- | --- |
+| Addition | `+` |
+| Subtraction | `-` |
+| Multiplication | `*` |
+| Division | `/` |
+| Modulo | `%` or `mod` |
+| Power | `^` |
+| Factorial | `!` |
 
 For matrices, these arithmetic operations work entry by entry. A scalar can be applied to every entry, while two matrices are combined entry by entry when their dimensions match. Use `dot` when you mean matrix multiplication:
 
