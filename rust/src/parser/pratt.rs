@@ -1,5 +1,5 @@
 use chumsky::IterParser;
-use chumsky::pratt::{infix, left, postfix};
+use chumsky::pratt::{infix, left, none, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
@@ -11,6 +11,12 @@ use sertyp::locating::GroupType;
 use sertyp::{TypstError, chumsky::parser::whitespaces};
 
 use crate::parser::ops::abs::abs;
+use crate::parser::ops::boolean_dot::{pratt_boolean_dot, pratt_boolean_dot_operator};
+use crate::parser::ops::bitwise::{
+    pratt_bitwise_and, pratt_bitwise_and_operator, pratt_bitwise_not,
+    pratt_bitwise_not_operator, pratt_bitwise_or, pratt_bitwise_or_operator,
+    pratt_bitwise_xor, pratt_bitwise_xor_operator,
+};
 use crate::parser::ops::add::{pratt_add, pratt_add_operator};
 use crate::parser::ops::binom::binom;
 use crate::parser::ops::ceil::ceil;
@@ -30,6 +36,12 @@ use crate::parser::ops::func::re_im::{im, re};
 use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
+use crate::parser::ops::logic::{
+    boolean_literal, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
+    pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator, pratt_leq,
+    pratt_leq_operator, pratt_logical_not, pratt_neq, pratt_neq_operator,
+    pratt_not_operator,
+};
 use crate::parser::ops::pow::pow;
 use crate::parser::ops::root::root;
 use crate::parser::ops::sub::{pratt_sub, pratt_sub_operator};
@@ -104,6 +116,7 @@ pub fn atom_like(
     // ordered by likelihood to improve performance
     choice((
         group(expr.clone()),
+        boolean_literal(),
         tensor(),
         fraction(),
         pow(),
@@ -170,23 +183,31 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
         unspan(
             span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
                 (
-                    // Multiplication: dot product
-                    infix(left(3), pratt_dot_operator(), pratt_dot),
-                    // Multiplication: element wise
-                    infix(left(3), pratt_mul_operator(), pratt_mul),
-                    infix(left(3), pratt_modulo_operator(), pratt_modulo),
-                    // Multiplication: cross product
-                    infix(left(3), pratt_cross_operator(), pratt_cross),
-                    // Addition
-                    infix(left(2), pratt_add_operator(), pratt_add),
-                    // Subtraction
-                    infix(left(2), pratt_sub_operator(), pratt_sub),
-                    // Sign
-                    prefix(5, pratt_sign_operator(), pratt_sign),
-                    // Factorial,
-                    postfix(6, pratt_factorial_operator(), pratt_factorial),
-                    // Indexing
-                    postfix(4, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
+                    // Tighter to looser: postfix, sign, products, addition, comparisons,
+                    // bitwise NOT, AND, XOR, and OR.
+                    infix(left(8), pratt_dot_operator(), pratt_dot),
+                    infix(left(8), pratt_boolean_dot_operator(), pratt_boolean_dot),
+                    infix(left(8), pratt_mul_operator(), pratt_mul),
+                    infix(left(8), pratt_modulo_operator(), pratt_modulo),
+                    infix(left(8), pratt_cross_operator(), pratt_cross),
+                    infix(left(7), pratt_add_operator(), pratt_add),
+                    infix(left(7), pratt_sub_operator(), pratt_sub),
+                    // Comparisons are non-associative; combine them with explicit logical operators.
+                    // The composed ASCII aliases are parsed as whole operators.
+                    infix(none(6), pratt_leq_operator(), pratt_leq),
+                    infix(none(6), pratt_geq_operator(), pratt_geq),
+                    infix(none(6), pratt_l_operator(), pratt_l),
+                    infix(none(6), pratt_g_operator(), pratt_g),
+                    infix(none(6), pratt_eq_operator(), pratt_eq),
+                    infix(none(6), pratt_neq_operator(), pratt_neq),
+                    infix(left(5), pratt_bitwise_and_operator(), pratt_bitwise_and),
+                    infix(left(4), pratt_bitwise_xor_operator(), pratt_bitwise_xor),
+                    infix(left(3), pratt_bitwise_or_operator(), pratt_bitwise_or),
+                    prefix(9, pratt_bitwise_not_operator(), pratt_bitwise_not),
+                    prefix(9, pratt_not_operator(), pratt_logical_not),
+                    prefix(9, pratt_sign_operator(), pratt_sign),
+                    postfix(11, pratt_factorial_operator(), pratt_factorial),
+                    postfix(10, pratt_axes_index_operator(expr.clone()), pratt_axes_index),
                 ),
             ),
         )

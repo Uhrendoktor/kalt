@@ -5,13 +5,39 @@ use chumsky::{
 };
 use sertyp::{
     Content, TypstError,
-    chumsky::{Token, parser::word},
+    chumsky::{Token, parser::{character, word}},
     math::Op,
 };
 
+/// Generates an element-wise binary tensor operation and its Pratt application.
+#[macro_export]
+macro_rules! element_wise_binary_operator {
+    ($name:ident, $symbol:expr, $operator_type:ty, $operation:expr) => {
+        pub fn $name<'data>(
+            lhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
+            rhs: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>,
+        ) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
+            $crate::parser::ops::element_wise::element_wise_binary(
+                $operation,
+                $crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
+                    sertyp::content!(sertyp::sequence![lhs, $symbol, rhs])
+                }),
+                lhs,
+                rhs,
+            )
+        }
+
+        $crate::pratt_infix!($name, $operator_type => |_op: $operator_type, lhs: chumsky::span::Spanned<_>, rhs: chumsky::span::Spanned<_>| {
+            use chumsky::span::{Span, WrappingSpan};
+            Ok(lhs.span.union(rhs.span).make_wrapped($name(lhs, rhs)?))
+        });
+    };
+}
 pub mod abs;
 pub mod add;
 pub mod binom;
+pub mod bitwise;
+pub mod boolean_dot;
 pub mod ceil;
 pub mod conjugate;
 pub mod cross;
@@ -21,6 +47,7 @@ pub mod factorial;
 pub mod floor;
 pub mod func;
 pub mod index;
+pub mod logic;
 pub mod mul;
 pub mod modulo;
 pub mod pow;
@@ -29,6 +56,12 @@ pub mod round;
 pub mod sign;
 pub mod sub;
 pub mod transpose;
+
+/// Consumes a two-character operator alias, leaving its meaning to the caller.
+#[kalt_macros::parser]
+pub fn composed_operator(first: char, second: char) -> (char, char) {
+    character(first).then(character(second))
+}
 
 /// Generates a pratt infix parser that combines two tensors using the specified operation.
 ///
@@ -207,23 +240,14 @@ macro_rules! operation_element_wise_same_shape {
         /// (matrix, scalar) -> matrix (element-wise)
         /// (matrix, matrix) -> matrix (element-wise) only if same shape
         pub fn $name<'data>(t1: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>, t2: chumsky::span::SimpleSpanned<$crate::parser::atoms::tensor::Tensor>) -> $crate::Expects<'data, $crate::parser::atoms::tensor::Tensor> {
-            use $crate::parser::atoms::matrix::Matrix;
-            $crate::match_tensors!((t1, t2) => {
-                (s1, s2) => |s1: Spanned<num::Complex<f64>>, s2: Spanned<num::Complex<f64>>| Ok(*s1 $op *s2),
-                (s, m) => |s: Spanned<num::Complex<f64>>, m: Spanned<Matrix>| Ok(*s $op &*m),
-                (m, s) => |m: Spanned<Matrix>, s: Spanned<num::Complex<f64>>| Ok(&*m $op *s),
-                (m1, m2) => |m1: Spanned<Matrix>, m2: Spanned<Matrix>| {
-                    $crate::parser::ops::element_wise::validate_same_shape(|m1, m2| {
-                        sertyp::sequence![
-                            m1,
-                            stringify!($op),
-                            m2,
-                        ]
-                        .into()
-                    })(m1.span.make_wrapped(&m1.inner), m2.span.make_wrapped(&m2.inner))?;
-                    Ok(&*m1 $op &*m2)
-                }
-            })
+            $crate::parser::ops::element_wise::element_wise_binary(
+                |lhs, rhs| Ok(lhs.inner $op rhs.inner),
+                $crate::parser::ops::element_wise::validate_same_shape(|lhs, rhs| {
+                    sertyp::sequence![lhs, stringify!($op), rhs].into()
+                }),
+                t1,
+                t2,
+            )
         }
     };
 }
@@ -242,169 +266,7 @@ pub fn transpose<T, E, S: Span + WrappingSpan<T, Spanned = Spanned<T, S>>>(
     }
 }
 
-pub mod element_wise {
-    use chumsky::span::{SimpleSpanned, Span, Spanned, WrappingSpan};
-    use sertyp::{Content, SYMBOL_CC, TypstError, content};
-
-    use crate::{
-        Expects, matrix_shape,
-        parser::atoms::{matrix::Matrix, tensor::Tensor},
-    };
-
-    /// Applies a pure complex-valued function to a tensor's scalar or matrix cells.
-    pub fn unary_tensor<F>(t: Tensor, function: F) -> Tensor
-    where
-        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
-    {
-        match t {
-            Tensor::Scalar(value) => Tensor::Scalar(function(value)),
-            Tensor::Matrix(mut matrix) => {
-                matrix.mapv_inplace(function);
-                Tensor::Matrix(matrix)
-            },
-        }
-    }
-
-    /// Applies a pure complex-valued function to a scalar or element-wise to a matrix.
-    pub fn unary<'data, F>(
-        t: SimpleSpanned<Tensor>,
-        function: F,
-    ) -> Expects<'data, Tensor>
-    where
-        F: Fn(num::Complex<f64>) -> num::Complex<f64> + Copy,
-    {
-        Ok(unary_tensor(t.inner, function))
-    }
-
-    pub fn element_wise<
-        'data,
-        F: Fn(SimpleSpanned<num::Complex<f64>>) -> Expects<'data, num::Complex<f64>>,
-        MC: Fn(SimpleSpanned<&Matrix>) -> Expects<'data, ()>,
-    >(
-        f: F,
-        matrix_condition: MC,
-        t: SimpleSpanned<Tensor>,
-    ) -> Expects<'data, Tensor> {
-        match_tensor!((t) => {
-            s => &f,
-            m => |mut m: Spanned<Matrix>| {
-                let span = m.span;
-                matrix_condition(span.make_wrapped(&m.inner))?;
-                m.iter_mut().try_for_each(|x| {
-                    *x = f(span.make_wrapped(*x))?;
-                    Ok::<_, TypstError>(())
-                })?;
-                Ok(m.inner)
-            }
-        })
-    }
-
-    pub fn element_wise2<
-        'data,
-        F: Fn(
-            SimpleSpanned<num::Complex<f64>>,
-            SimpleSpanned<num::Complex<f64>>,
-        ) -> Expects<'data, num::Complex<f64>>,
-        MC: Fn(SimpleSpanned<&Matrix>, SimpleSpanned<&Matrix>) -> Expects<'data, ()>,
-    >(
-        f: F,
-        matrix_condition: MC,
-        t1: SimpleSpanned<Tensor>,
-        t2: SimpleSpanned<Tensor>,
-    ) -> Expects<'data, Tensor> {
-        fn sm<
-            'data,
-            F: Fn(
-                SimpleSpanned<num::Complex<f64>>,
-                SimpleSpanned<num::Complex<f64>>,
-            ) -> Expects<'data, num::Complex<f64>>,
-        >(
-            s: Spanned<num::Complex<f64>>,
-            mut m: Spanned<Matrix>,
-            f: F,
-        ) -> Expects<'data, Matrix> {
-            let span = m.span;
-            m.iter_mut().try_for_each(|x| {
-                *x = f(s, span.make_wrapped(*x))?;
-                Ok::<_, TypstError>(())
-            })?;
-            Ok(m.inner)
-        }
-        match_tensors!((t1, t2) => {
-            (s1, s2) => &f,
-            (s, m) => |s, m| sm(s, m ,f),
-            (m, s) => |m, s| sm(s, m, |s1, s2| f(s2, s1)),
-            (m1, m2) => |mut m1: Spanned<Matrix>, m2: Spanned<Matrix>|{
-                matrix_condition(m1.span.make_wrapped(&m1), m2.span.make_wrapped(&m2))?;
-                let sp1 = m1.span;
-                let sp2 = m2.span;
-                m1.iter_mut().zip(m2.iter()).try_for_each(|(x, y)| {
-                    *x = f(sp1.make_wrapped(*x), sp2.make_wrapped(*y))?;
-                    Ok::<_, TypstError>(())
-                })?;
-                Ok(m1.inner)
-            }
-        })
-    }
-
-    /// Validates that two matrices have the same shape and returns a formattable matrix shape error if they do not.
-    ///
-    /// Args:
-    /// - f: A function that is sipposed to format the operation of the two matrices.
-    ///   It receives two formatted matrix dimensions as input.
-    pub fn validate_same_shape<'data>(
-        f: impl Fn(Content<'data>, Content<'data>) -> Content<'data>,
-    ) -> impl Fn(SimpleSpanned<&Matrix>, SimpleSpanned<&Matrix>) -> Expects<'data, ()> {
-        move |m1, m2| {
-            if m1.shape() == m2.shape() {
-                return Ok(());
-            }
-            Err(TypstError::full(
-                m1.span.union(m2.span),
-                "Binomial coefficient can only be applied to matrices of the same shape",
-                f(
-                    content!(
-                        matrix_shape!({SYMBOL_CC} ^ ({m1.dim().0.to_string()} x {m1.dim().1.to_string()}))
-                    ),
-                    content!(
-                        matrix_shape!({SYMBOL_CC} ^ ({m1.dim().0.to_string()} x {m1.dim().1.to_string()}))
-                    ),
-                ),
-                f(
-                    content!(
-                        matrix_shape!({SYMBOL_CC} ^ ({m1.dim().0.to_string()} x {m1.dim().1.to_string()}))
-                    ),
-                    content!(
-                        matrix_shape!({SYMBOL_CC} ^ ({m2.dim().0.to_string()} x {m2.dim().1.to_string()}))
-                    ),
-                ),
-            ))
-        }
-    }
-
-    /// Validates that a matrix is square and returns a formattable matrix shape error if it is not.
-    ///
-    /// Args:
-    /// - f: A function that is sipposed to format the operation of the matrix.
-    ///   It receives a formatted matrix's dimensions as input.
-    pub fn validate_square<'data>(
-        f: impl Fn(Content<'data>) -> Content<'data>,
-    ) -> impl Fn(SimpleSpanned<&Matrix>) -> Expects<'data, ()> {
-        move |m| {
-            if m.is_square() {
-                return Ok(());
-            }
-            Err(TypstError::full(
-                m.span,
-                "Matrix must be square",
-                f(content!(matrix_shape!({SYMBOL_CC} ^ ({'N'} x {'N'})))),
-                f(content!(
-                    matrix_shape!({SYMBOL_CC} ^ ({m.dim().0.to_string()} x {m.dim().1.to_string()}))
-                )),
-            ))
-        }
-    }
-}
+pub mod element_wise;
 
 /// Parses a specific keyword as text or math operator.
 ///

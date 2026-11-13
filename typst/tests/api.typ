@@ -4,6 +4,9 @@
 #import "utils.typ": assert-typst-eq, assert-eq
 
 #assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), float)
+#assert-typst-eq("comp 1x1 real matrix returns float", type(comp($mat(7)$)), float)
+#assert-typst-eq("comp 1x1 real matrix unwraps to scalar", comp($mat(7)$), 7.0)
+#assert-typst-eq("comp 1x1 complex matrix returns content", type(comp($mat(7i)$)), content)
 
 #assert-eq(
   "map passes numeric cells to callback as floats",
@@ -25,6 +28,8 @@
   $mat(1, 2)$,
 )
 #assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
+
+
 
 #assert-typst-eq("any finds matching cell", any(value => comp(value) > 3, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("any rejects no matches", any(value => comp(value) > 9, $mat(1, 2; 3, 4)$), false)

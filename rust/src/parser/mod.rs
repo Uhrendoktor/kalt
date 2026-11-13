@@ -61,7 +61,7 @@ pub fn validate<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, T, O
 pub mod validator {
     use chumsky::span::SimpleSpan;
     use num::Complex;
-    use sertyp::{SYMBOL_CC, SYMBOL_NN, SYMBOL_RR, SYMBOL_in, TypstError, equation, sequence};
+    use sertyp::{SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, equation, sequence};
 
     use crate::{
         Expects,
@@ -103,17 +103,35 @@ pub mod validator {
         }
     }
 
-    /// Validator: real -> integer
+    /// Largest magnitude for which every integer is exactly representable by an f64.
+    pub const MAX_EXACT_INTEGER: f64 =
+        ((1_u64 << f64::MANTISSA_DIGITS) - 1) as f64;
+
+    /// Validator: real -> signed 64-bit integer, rejecting values that would saturate on cast.
     pub fn real_int<'data>(float: f64, span: SimpleSpan) -> Expects<'data, i64> {
-        if float.fract() == 0.0 {
-            Ok(float as i64)
-        } else {
-            Err(TypstError::full(
+        if float.fract() != 0.0 {
+            return Err(TypstError::full(
                 span,
                 "Integer Error",
-                sequence!["i", SYMBOL_in, SYMBOL_NN],
+                sequence!["i", SYMBOL_in, SYMBOL_ZZ],
                 sequence![float.to_string(), SYMBOL_in, SYMBOL_RR],
-            ))
+            ));
         }
+
+        // Reject integers that may already have been rounded when parsed as f64.
+        if float.abs() > MAX_EXACT_INTEGER {
+            return Err(TypstError::full(
+                span,
+                "Integer Range Error",
+                sequence![
+                    "i", SYMBOL_in,
+                    format!("[-{}, {}]", MAX_EXACT_INTEGER, MAX_EXACT_INTEGER)
+                ],
+                sequence![float.to_string(), SYMBOL_in, SYMBOL_RR],
+            ));
+        }
+
+        // MAX_EXACT_INTEGER is much smaller than i64::MAX, so this cast is in range.
+        Ok(float as i64)
     }
 }

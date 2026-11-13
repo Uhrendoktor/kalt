@@ -11,7 +11,7 @@ use crate::{
     parser::{
         atoms::tensor::Tensor,
         ops::{
-            element_wise::{element_wise2, validate_same_shape},
+            element_wise::{element_wise_binary, validate_same_shape},
             factorial::factorial_c,
         },
         pratt::pratt,
@@ -29,7 +29,7 @@ pub fn binom_c(n: &num::Complex<f64>, k: &num::Complex<f64>) -> num::Complex<f64
 /// (matrix, scalar) -> matrix (element-wise)
 /// (matrix, matrix) -> matrix (element-wise) only if same shape
 pub fn binom_t<'data>(t1: Spanned<Tensor>, t2: Spanned<Tensor>) -> Expects<'data, Tensor> {
-    element_wise2(
+    element_wise_binary(
         |s1, s2| Ok(binom_c(&s1, &s2)),
         validate_same_shape(|m1, m2| {
             Binom {
