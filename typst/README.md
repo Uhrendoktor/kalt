@@ -23,6 +23,21 @@ A real-number result is a regular Typst value. It can be used in further calcula
 #rect(width: side * 1cm, height: 0.2cm)
 ```
 
+You can also pass scalar values and already-created math content directly from Typst code. Integers, floats, and Booleans are evaluated as scalars; matrices and vectors created with Typst's `math.mat` and `math.vec` are evaluated as math content:
+
+```typst
+#comp(7)       // 7.0
+#comp(2.5)     // 2.5
+#comp(true)    // 1.0
+#comp(false)   // 0.0
+
+#let matrix = math.mat(..((1, 2), (3, 4)))
+#let vector = math.vec(1, 2, 3)
+
+#comp(matrix)
+#comp(vector)
+```
+
 Complex numbers, vectors, and matrices stay in mathematical notation so they can be shown as part of your equations.
 
 ## Arithmetic
