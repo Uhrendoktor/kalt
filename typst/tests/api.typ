@@ -8,7 +8,6 @@
 #assert-typst-eq("comp 1x1 real matrix unwraps to scalar", comp($mat(7)$), 7.0)
 #assert-typst-eq("comp 1x1 complex matrix returns content", type(comp($mat(7i)$)), content)
 
-#let direct-one-by-one = math.mat(..((7,),))
 #let direct-matrix = math.mat(..((1, 2), (3, 4)))
 #let direct-vector = math.vec($1$, $2$, $3$)
 
@@ -17,7 +16,7 @@
 #assert-typst-eq("comp direct string parses radix integer", comp("0xFF"), 255.0)
 #assert-typst-eq("comp direct string parses expression", comp("2 + 3 * 4"), 14.0)
 #assert-typst-eq("comp direct decimal returns float", comp(decimal("2.5")), 2.5)
-#assert-typst-eq("comp direct 1x1 matrix returns float", comp(direct-one-by-one), 7.0)
+#assert-typst-eq("comp direct 1x1 matrix returns float", comp(math.mat(..((7,),))), 7.0)
 #assert-typst-eq("comp direct matrix returns content", type(comp(direct-matrix)), content)
 #assert-typst-eq("comp direct vector returns content", type(comp(direct-vector)), content)
 
