@@ -138,17 +138,6 @@ $comp(mat(1, 4; 5, 2) < mat(2, 3; 5, 8))$ // mat(1, 0; 0, 1)
 
 Comparison chains such as `1 < 2 < 3` are rejected rather than interpreted ambiguously. Write the equivalent logical expression explicitly: `(1 < 2) ∧ (2 < 3)`.
 
-### Numeric Boolean literals
-
-`op("true")` and `op("false")` provide readable aliases for `1` and `0` inside math expressions. They are numeric indicators, not a separate Boolean type.
-
-```typst
-$comp(op("true"))$             // 1
-$comp(op("false"))$            // 0
-$comp(2 ^ op("true"))$         // 2
-$comp(op("true") + op("true"))$ // 2
-```
-
 ### Integer AND, OR, XOR, and NOT
 
 Kalt represents Boolean values numerically: false is `0` and true is `1`. The symbols `∧`, `∨`, and `⊕` perform bitwise AND, OR, and XOR on real integers. For operands restricted to `0` and `1`, AND and OR give the familiar logical results. These operators also work on other integers, including negative values.
@@ -227,7 +216,7 @@ $comp(mat(1, 2; 3, 4)^T)$
 
 ### Absolute value / determinant / vector norm
 
-`abs(x)` and vertical bars `|x|` are supported.
+`|x|` denotes absolute value. Typst lowers its math call `abs(x)` to this delimiter notation before Kalt evaluates the expression.
 
 - Scalar: complex magnitude.
 - Column vector: Euclidean norm.
@@ -264,13 +253,13 @@ All listed functions support complex scalars. Except where noted, unary function
 | `sqrt(x)` | Principal square root | Element-wise for matrices |
 | `root(n, x)` | `n`th root of `x` | Root index must not be zero |
 | `binom(n, k)` | Binomial coefficient | Element-wise; matrix arguments must have the same shape |
-| `ceil(x)` | Ceiling | Applied separately to real/imaginary parts |
-| `floor(x)` | Floor | Applied separately to real/imaginary parts |
+| `⌈x⌉` | Ceiling | Applied separately to real/imaginary parts |
+| `⌊x⌋` | Floor | Applied separately to real/imaginary parts |
 | `⌊x⌉` or `⌈x⌋` | Round | Rounds real/imaginary parts independently |
 | `sign(x)` | Sign operation | Element-wise for matrices |
 | `! ` | Factorial | Element-wise for matrices |
 
-The bracket-style rounding operators use the mixed floor/ceiling symbols as shown, rather than ordinary parentheses.
+Typst likewise lowers its math calls `ceil(x)` and `floor(x)` to the corresponding ceiling and floor delimiters before Kalt evaluates the expression.
 
 ### Trigonometric and hyperbolic functions
 
