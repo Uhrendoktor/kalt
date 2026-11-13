@@ -28,6 +28,28 @@ fn integer_to_float(value: Integer) -> Float {
     }
 }
 
+fn string_sequence<'data>(value: sertyp::String<'data>) -> Sequence<'data> {
+    let mut contents = Vec::new();
+    let mut text = std::string::String::new();
+
+    for character in value.chars() {
+        if character.is_whitespace() {
+            if !text.is_empty() {
+                contents.push(Content::from(std::mem::take(&mut text)));
+            }
+            contents.push(sertyp::Space.into());
+        } else {
+            text.push(character);
+        }
+    }
+
+    if !text.is_empty() {
+        contents.push(Content::from(text));
+    }
+
+    Sequence::from(contents)
+}
+
 fn scalar_sequence<'data>(value: f64) -> Sequence<'data> {
     let content: Content<'data> = Complex::new(value, 0.0).into();
     Sequence::from(content)
@@ -40,7 +62,7 @@ pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
         Item::Integer(value) => scalar_sequence(integer_to_float(value).into()),
         Item::Float(Float::f64(value)) => scalar_sequence(value),
         Item::Decimal(value) => scalar_sequence(value.into()),
-        Item::String(value) => Sequence::from(Content::from(value)),
+        Item::String(value) => string_sequence(value),
         Item::Content(content) => Sequence::from(*content),
         Item::Panic(panic) => return panic.into(),
         _ => {
