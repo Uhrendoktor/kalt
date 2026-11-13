@@ -8,11 +8,15 @@
 #assert-typst-eq("comp 1x1 real matrix unwraps to scalar", comp($mat(7)$), 7.0)
 #assert-typst-eq("comp 1x1 complex matrix returns content", type(comp($mat(7i)$)), content)
 
+#let direct-one-by-one = math.mat(..((7,),))
+#let direct-matrix = math.mat(..((1, 2), (3, 4)))
+#let direct-vector = math.vec(1, 2, 3)
+
 #assert-typst-eq("comp direct integer returns float", comp(7), 7.0)
 #assert-typst-eq("comp direct float returns float", comp(2.5), 2.5)
-#assert-typst-eq("comp direct 1x1 matrix returns float", comp(mat(7)), 7.0)
-#assert-typst-eq("comp direct matrix returns content", type(comp(mat(1, 2; 3, 4))), content)
-#assert-typst-eq("comp direct vector returns content", type(comp(vec(1, 2, 3))), content)
+#assert-typst-eq("comp direct 1x1 matrix returns float", comp(direct-one-by-one), 7.0)
+#assert-typst-eq("comp direct matrix returns content", type(comp(direct-matrix)), content)
+#assert-typst-eq("comp direct vector returns content", type(comp(direct-vector)), content)
 
 #assert-eq(
   "map passes numeric cells to callback as floats",
