@@ -1,8 +1,8 @@
-use chumsky::{primitive::choice, span::SimpleSpanned};
+use chumsky::span::SimpleSpanned;
 use num::Complex;
 use sertyp::{SYMBOL_CC, SYMBOL_RR, SYMBOL_ZZ, SYMBOL_in, TypstError, content};
 
-use crate::{Expects, parser::atoms::tensor::Tensor};
+use crate::Expects;
 
 mod compare;
 mod not;
@@ -45,10 +45,3 @@ pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(value as u8 as f64, 0.0)
 }
 
-#[kalt_macros::parser]
-pub fn boolean_literal() -> Expects<'data, Tensor> {
-    choice((
-        super::word_or_op("true").map(|_| Ok(Tensor::Scalar(boolean_indicator(true)))),
-        super::word_or_op("false").map(|_| Ok(Tensor::Scalar(boolean_indicator(false)))),
-    ))
-}
