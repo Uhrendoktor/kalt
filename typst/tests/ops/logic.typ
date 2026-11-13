@@ -1,11 +1,12 @@
-// Bare Typst math words `true` and `false` are numeric Boolean indicators.
+// Typst booleans can be passed directly to comp as numeric indicators.
 
 #import "../../lib.typ": comp
-#import "../utils.typ": assert-eq, unary_operation
+#import "../utils.typ": assert-eq, assert-typst-eq, unary_operation
 
-#assert-eq("bare true literal", comp($#true$), $1$)
-#assert-eq("bare false literal", comp($#false$), $0$)
-#assert-eq("bare Boolean words in arithmetic", comp($#true + #true$), $2$)
+#assert-typst-eq("Typst true becomes numeric one", comp(true), 1.0)
+#assert-typst-eq("Typst false becomes numeric zero", comp(false), 0.0)
+#assert-eq("true in a math call", $comp(#true)$, $1$)
+#assert-eq("false in a math call", $comp(#false)$, $0$)
 
 #unary_operation(
   "Logical NOT",
