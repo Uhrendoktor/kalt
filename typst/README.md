@@ -23,7 +23,14 @@ A real-number result is a regular Typst value. It can be used in further calcula
 #rect(width: side * 1cm, height: 0.2cm)
 ```
 
-You can also pass scalar values, strings, and already-created math content directly from Typst code. Booleans, integers, floats, and Decimals are evaluated as scalars. Strings are parsed as mathematical expressions, so they can contain the same notation as a math expression, including radix-prefixed numbers:
+You can pass scalar values, strings, and existing math content directly from Typst code. `comp` interprets each input according to its type:
+
+| Input | Interpretation | Result |
+| --- | --- | --- |
+| Boolean | Converts `false` to `0` and `true` to `1`. | Typst float |
+| Integer, float, or Decimal | Evaluates the value as a numeric scalar. | Typst float |
+| String | Parses the text as a mathematical expression, including radix-prefixed numbers. | Typst float for a real scalar; math content otherwise |
+| Math content | Parses the existing mathematical content. | Typst float for a real scalar; math content otherwise |
 
 ```typst
 #comp(7)                      // 7.0
@@ -103,13 +110,19 @@ $comp(Re(2 + 3i) + i Im(2 + 3i))$ // 2 + 3i
 
 Write complex conjugation with a superscript star: `x^*`.
 
-Kalt also includes:
+The supported functions are grouped below:
 
-- **Roots and combinations:** `sqrt(x)`, `root(n, x)`, and `binom(n, k)`.
-- **Trigonometry:** `sin(x)`, `cos(x)`, `tan(x)`, and their inverse functions `arcsin(x)`, `arccos(x)`, and `arctan(x)`.
-- **Hyperbolic functions:** `sinh(x)`, `cosh(x)`, `tanh(x)`, and their inverse functions `arcsinh(x)`, `arccosh(x)`, and `arctanh(x)`.
-- **Logarithms:** `ln(x)` and `log_a(x)`.
-- **Other useful operations:** absolute value `abs(x)`, floor `floor(x)`, ceiling `ceil(x)`, and factorial `x!`.
+| Category | Functions |
+| --- | --- |
+| Roots and combinations | `sqrt(x)`, `root(n, x)`, `binom(n, k)` |
+| Trigonometry | `sin(x)`, `cos(x)`, `tan(x)` |
+| Inverse trigonometry | `arcsin(x)`, `arccos(x)`, `arctan(x)` |
+| Hyperbolic functions | `sinh(x)`, `cosh(x)`, `tanh(x)` |
+| Inverse hyperbolic functions | `arcsinh(x)`, `arccosh(x)`, `arctanh(x)` |
+| Logarithms | `ln(x)`, `log_a(x)` |
+| Scalar utilities | `abs(x)`, `floor(x)`, `ceil(x)` |
+
+Factorial notation `x!` is listed with the arithmetic operators above.
 
 For example, this expression combines a complex factorial, a square root, and a fraction:
 
@@ -130,20 +143,31 @@ $comp(vec(1, 2, 3))$
 
 Matrix and vector operations include:
 
-- `dot` for dot products and matrix multiplication.
-- `×` for the cross product of three-dimensional vectors.
-- `^T` for transpose.
-- `abs(x)` for a scalar's magnitude, a vector's length, or a square matrix's determinant.
+| Notation | Operation |
+| --- | --- |
+| `dot` | Dot products and matrix multiplication. |
+| `×` | Cross product of three-dimensional vectors. |
+| `^T` | Transpose. |
+| `abs(x)` | Absolute value of a scalar, length of a vector, or determinant of a square matrix. |
 
 Scalar operations can also be applied to matrix entries. Element-wise operations can compare or combine matrices of matching dimensions.
 
 ## Indexing and slicing
 
-Matrix indices start at zero. Select a single entry with its row and column:
+Matrix indices start at zero. The main selection forms are:
 
 ```typst
 $comp(mat(1, 2; 3, 4)[0, 1])$ // 2
 ```
+
+| Selection | Syntax |
+| --- | --- |
+| Single entry | `A[row, column]` |
+| Whole row | `A[row, :]` |
+| Whole column | `A[:, column]` |
+| Range | `A[start:stop:step, :]` |
+| Specific indices | `A[[0, 2], :]` |
+| Reverse order | `A[::-1, ::-1]` |
 
 Select a whole row or column with `:`. For example, the first column is:
 
@@ -151,7 +175,7 @@ Select a whole row or column with `:`. For example, the first column is:
 $comp(mat(1, 2; 3, 4)[:, 0])$
 ```
 
-You can also select ranges, choose specific indices, use negative indices to count from the end, and reverse the order with a negative step:
+Negative indices count from the end, and a negative step reverses the selected order:
 
 ```typst
 $comp(mat(1, 2, 3; 4, 5, 6)[1:2, 0:2])$
@@ -170,7 +194,13 @@ $comp(mat(1, 2, 3; 4, 5, 6)[1:3:, [2, 1]])$
 
 ## Comparisons and Boolean operations
 
-Comparisons use familiar mathematical notation: `<`, `>`, `≤`, `≥`, `=`, and `≠`. Their results are numeric indicators, so false is `0` and true is `1`.
+Comparisons use familiar mathematical notation and produce numeric indicators: false is `0` and true is `1`.
+
+| Comparison | Notation |
+| --- | --- |
+| Less than / greater than | `<`, `>` |
+| Less than or equal / greater than or equal | `≤`, `≥` |
+| Equal / not equal | `=`, `≠` |
 
 Pass Typst booleans directly to `comp`. In a math call, use `#` to embed the Boolean value:
 
@@ -185,12 +215,16 @@ $comp(3 > 2)$  // 1
 
 The `#` is Typst's syntax for inserting a code value into a math call; no `op(...)` wrapper is needed.
 
-For logical and bitwise expressions:
+Logical and bitwise operators are summarized here:
 
-- `∧`, `∨`, and `⊕` are bitwise AND, OR, and XOR. With `0` and `1`, AND and OR give the familiar Boolean results.
-- `¬` flips a Boolean indicator: `¬0 = 1` and `¬1 = 0`.
-- `~` is bitwise NOT for integers.
-- `⊙` is a Boolean matrix product: an output entry is `1` when at least one matching pair of entries is `1`.
+| Notation | Meaning |
+| --- | --- |
+| `∧` | Bitwise AND. |
+| `∨` | Bitwise OR. |
+| `⊕` | Bitwise XOR. |
+| `¬` | Boolean NOT; flips `0` and `1`. |
+| `~` | Bitwise NOT for integers. |
+| `⊙` | Boolean matrix product; an output entry is `1` when at least one matching pair of entries is `1`. |
 
 ```typst
 $comp(6 ∧ 3)$ // 2
@@ -213,10 +247,12 @@ Kalt includes helpers for applying Typst callbacks to matrix and vector entries.
 #all(value => comp(value) > 0, values) // true
 ```
 
-- `map` applies a callback to every entry and returns the transformed matrix. The callback can also use each entry's column (`x`) and row (`y`) position.
-- `reduce` visits the entries and combines them into one accumulated result.
-- `any` checks whether a condition matches at least one entry.
-- `all` checks whether a condition matches every entry.
+| Helper | Behavior |
+| --- | --- |
+| `map` | Applies a callback to every entry and returns the transformed matrix. The callback can also use each entry's column (`x`) and row (`y`) position. |
+| `reduce` | Visits the entries and combines them into one accumulated result. |
+| `any` | Checks whether a condition matches at least one entry. |
+| `all` | Checks whether a condition matches every entry. |
 
 ```typst
 $map((value, x, y) => $#value + #x + #y$, values)$
