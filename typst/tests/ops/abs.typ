@@ -1,11 +1,11 @@
-// Absolute value (norm/determinant) tests for kalt bindings
+// Typst lowers abs(...) to absolute-value delimiters before Kalt parses the math.
 
 #import "../utils.typ": unary_operation
 
 #unary_operation(
   "Absolute Value",
   [Unary absolute value (norm/determinant)],
-  c1 => { $ lr(|#c1|) $ },
+  c1 => { $ abs(#c1) $ },
   (v: $3$, e: $3$),
   (v: $-3$, e: $3$),
   (v: $0$, e: $0$),
