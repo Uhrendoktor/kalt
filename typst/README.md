@@ -23,13 +23,17 @@ A real-number result is a regular Typst value. It can be used in further calcula
 #rect(width: side * 1cm, height: 0.2cm)
 ```
 
-You can also pass scalar values and already-created math content directly from Typst code. Integers, floats, and Booleans are evaluated as scalars; matrices and vectors created with Typst's `math.mat` and `math.vec` are evaluated as math content:
+You can also pass scalar values, strings, and already-created math content directly from Typst code. Booleans, integers, floats, and Decimals are evaluated as scalars. Strings are parsed as mathematical expressions, so they can contain the same notation as a math expression, including radix-prefixed numbers:
 
 ```typst
-#comp(7)       // 7.0
-#comp(2.5)     // 2.5
-#comp(true)    // 1.0
-#comp(false)   // 0.0
+#comp(7)                      // 7.0
+#comp(2.5)                    // 2.5
+#comp(true)                   // 1.0
+#comp(false)                  // 0.0
+#comp(decimal("3.14159"))     // 3.14159
+
+#comp("0xFF")                 // 255.0
+#comp("2 + 3 * 4")             // 14.0
 
 #let matrix = math.mat(..((1, 2), (3, 4)))
 #let vector = math.vec($1$, $2$, $3$)
