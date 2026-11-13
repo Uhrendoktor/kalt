@@ -6,7 +6,7 @@ use kalt::parser::{
 };
 use sertyp::{
     Boolean, Content, Float, Integer, Item, LocatingSequence, Panic, Sequence, TypedArray,
-    TypedSequence, TypstError, parse, typst_func,
+    TypedContent, TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
