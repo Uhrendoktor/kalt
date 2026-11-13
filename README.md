@@ -1,47 +1,54 @@
 # Kalt
 
-Kalt evaluates arbitrary nested Typst equations and returns the result as Typst
-content. It is meant for cases where `calc` gets awkward: deeply nested
-expressions, complex numbers, matrices, vectors, and indexing.
+**Make the equations in your Typst document calculate themselves.**
 
-Since the result is still Typst content, you can keep formatting, reusing, and
-combining it in your document instead of ending up with a dead numeric result.
+Kalt evaluates mathematical expressions directly inside Typst. Write a formula once, get its result in the document, and reuse that result elsewhere. It is especially useful when your work goes beyond everyday arithmetic: complex numbers, vectors, matrices, and larger expressions.
 
-The repository is split into a Rust backend, Wasm bindings, and the Typst-side
-package. If you want the user-facing documentation and the complete list of
-supported operations, start with [typst/README.md](typst/README.md).
+## Try it
 
-## What It Covers
+Import Kalt and wrap an expression in `comp(...)`:
 
-- scalars and complex numbers
-- matrices and vectors
-- indexing and slicing
-- arithmetic, matrix, and mathematical functions
+```typst
+#import "@preview/kalt:0.1.1": comp
 
-See the [Typst README](typst/README.md) for the complete supported-operation
-list and examples.
+$comp(sqrt((3 + 4i) (3 - 4i)))$ // 5
+$comp(e^(i pi))$                // -1
 
-## Layout
-
-- [rust](rust) contains the `kalt` crate, which does the actual evaluation.
-- [rust_bindings](rust_bindings) builds the Wasm wrapper used by Typst.
-- [typst](typst) has the package README, examples, tests, and assets.
-
-## Build
-
-From the repo root:
-
-```bash
-cargo build --workspace
+$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
 ```
 
-To build the bindings only:
+You can also use a result as an ordinary Typst value:
 
-```bash
-cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
+```typst
+#let result = comp($sin(pi / 2)$)
+
+The result is #result.
 ```
 
-## Docs
+A real-number result can be reused in other Typst expressions. Complex numbers, vectors, and matrices remain beautifully typeset mathematics.
 
-- [Rust README](rust/README.md)
-- [Typst README](typst/README.md)
+![A complex expression in a Typst document](typst/assets/complex_equation.png)
+
+![The evaluated mathematical result](typst/assets/complex_equation_result.png)
+
+## Why use Kalt?
+
+- **Keep calculations with the explanation.** No switching to a separate calculator and copying numbers back into your document.
+- **Go beyond basic arithmetic.** Work with complex numbers, matrices, vectors, and a broad range of mathematical functions.
+- **Reuse what you calculate.** Feed numeric results into further calculations, text, tables, and other parts of your Typst document.
+- **See problems where they happen.** Invalid expressions are reported directly in the document.
+
+## What can you calculate?
+
+| Area | Examples |
+| --- | --- |
+| Arithmetic | Addition, subtraction, multiplication, division, powers, modulo, factorials |
+| Complex numbers | Complex arithmetic, conjugates, real and imaginary parts |
+| Matrices and vectors | Matrix multiplication, dot and cross products, transpose, determinants, norms |
+| Mathematical functions | Roots, trigonometric and hyperbolic functions, logarithms, rounding |
+| Comparisons and logic | Equality, inequalities, and logical or bitwise operations |
+| Indexing | Select individual matrix entries, rows, columns, or ranges |
+| Typst helpers | Map, reduce, and test values across matrices and vectors |
+
+For more examples and the available operations, see the **[Typst usage guide](typst/README.md)**.
+
