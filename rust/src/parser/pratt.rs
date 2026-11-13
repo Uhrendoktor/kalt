@@ -37,7 +37,7 @@ use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::logic::{
-    pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
+    boolean_literal, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
     pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator, pratt_leq,
     pratt_leq_operator, pratt_logical_not, pratt_neq, pratt_neq_operator,
     pratt_not_operator,
@@ -116,6 +116,7 @@ pub fn atom_like(
     // ordered by likelihood to improve performance
     choice((
         group(expr.clone()),
+        boolean_literal(),
         tensor(),
         fraction(),
         pow(),
