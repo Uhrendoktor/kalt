@@ -1,6 +1,10 @@
-// Logical NOT is strict: it accepts only the numeric Boolean indicators 0 and 1.
+// Bare Typst math words `true` and `false` are numeric Boolean indicators.
 
-#import "../utils.typ": unary_operation
+#import "../lib.typ": comp
+#import "../utils.typ": assert-eq, unary_operation
+
+#assert-eq("bare true literal", comp($true$), $1$)
+#assert-eq("bare false literal", comp($false$), $0$)
 
 #unary_operation(
   "Logical NOT",
