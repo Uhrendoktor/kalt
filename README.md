@@ -67,13 +67,15 @@ Kalt supports the notation you already use in mathematical writing.
 | Power | `^` |
 | Factorial | `!` |
 
-Other supported notation and operations include:
+The supported notation and tools include:
 
-- **Complex numbers:** the imaginary unit `i`, conjugation `x^*`, and the real and imaginary parts `Re(x)` and `Im(x)`.
-- **Matrices and vectors:** `mat(...)`, `vec(...)`, matrix multiplication with `dot`, cross product `×`, and transpose `^T`.
-- **Indexing and slicing:** select an entry with `A[row, column]`, a row or column with `:`, or a range with `start:stop:step`.
-- **Mathematical functions:** roots, binomial coefficients, trigonometric and hyperbolic functions, logarithms, absolute value, floor, and ceiling.
-- **Comparisons and logic:** `<`, `>`, `≤`, `≥`, `=`, `≠`, Typst booleans `true`/`false`, `∧`, `∨`, `⊕`, `¬`, `~`, and Boolean matrix product `⊙`.
-- **Matrix helpers in Typst:** `map`, `reduce`, `any`, and `all`.
+| Area | Notation and capabilities |
+| --- | --- |
+| Complex numbers | Imaginary unit `i`, conjugation `x^*`, and real and imaginary parts `Re(x)` and `Im(x)`. |
+| Matrices and vectors | `mat(...)`, `vec(...)`, matrix multiplication with `dot`, cross product `×`, and transpose `^T`. |
+| Indexing and slicing | `A[row, column]`, whole rows or columns with `:`, and ranges with `start:stop:step`. |
+| Mathematical functions | Roots, binomial coefficients, trigonometric and hyperbolic functions, logarithms, absolute value, floor, and ceiling. |
+| Comparisons and logic | `<`, `>`, `≤`, `≥`, `=`, `≠`, booleans, bitwise operators, and Boolean matrix product `⊙`. |
+| Matrix helpers in Typst | `map`, `reduce`, `any`, and `all`. |
 
-The **[Typst usage guide](typst/README.md)** walks through these operations with their notation and examples, including matrix indexing and slicing.
+The **[Typst usage guide](typst/README.md)** explains these operations with their notation and examples, including matrix indexing and slicing.
