@@ -1,4 +1,4 @@
-// Floor tests for kalt bindings
+// Typst lowers floor(...) to floor delimiters before Kalt parses the math.
 
 #import "../utils.typ": unary_operation
 
