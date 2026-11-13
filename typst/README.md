@@ -143,14 +143,18 @@ $comp(mat(1, 2, 3; 4, 5, 6)[1:3:, [2, 1]])$
 
 Comparisons use familiar mathematical notation: `<`, `>`, `≤`, `≥`, `=`, and `≠`. Their results are numeric indicators, so false is `0` and true is `1`.
 
-Write `true` and `false` directly in a math expression:
+Pass Typst booleans directly to `comp`. In a math call, use `#` to embed the Boolean value:
 
 ```typst
-$comp(true)$          // 1
-$comp(false)$         // 0
-$comp(true + true)$   // 2
-$comp(3 > 2)$         // 1
+#comp(true)    // 1.0
+#comp(false)   // 0.0
+
+$comp(#true)$  // 1
+$comp(#false)$ // 0
+$comp(3 > 2)$  // 1
 ```
+
+The `#` is Typst's syntax for inserting a code value into a math call; no `op(...)` wrapper is needed.
 
 For logical and bitwise expressions:
 
