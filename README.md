@@ -53,9 +53,22 @@ $comp(
 
 ## Mathematical tools in your document
 
-Kalt supports the notation you already use in mathematical writing:
+Kalt supports the notation you already use in mathematical writing.
 
-- **Arithmetic:** `+`, `-`, `*`, `/`, `%` or `mod`, powers `^`, and factorial `!`.
+### Arithmetic
+
+| Operation | Notation |
+| --- | --- |
+| Addition | `+` |
+| Subtraction | `-` |
+| Multiplication | `*` |
+| Division | `/` |
+| Modulo | `%` or `mod` |
+| Power | `^` |
+| Factorial | `!` |
+
+Other supported notation and operations include:
+
 - **Complex numbers:** the imaginary unit `i`, conjugation `x^*`, and the real and imaginary parts `Re(x)` and `Im(x)`.
 - **Matrices and vectors:** `mat(...)`, `vec(...)`, matrix multiplication with `dot`, cross product `×`, and transpose `^T`.
 - **Indexing and slicing:** select an entry with `A[row, column]`, a row or column with `:`, or a range with `start:stop:step`.
