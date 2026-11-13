@@ -5,28 +5,21 @@ use kalt::parser::{
     validator::matrix,
 };
 use sertyp::{
-    Content, Float, Item, LocatingSequence, Sequence, TypedArray, TypedContent, TypedSequence,
-    TypstError, parse, typst_func,
+    Boolean, Content, Float, Item, LocatingSequence, Or, Sequence, TypedArray, TypedContent,
+    TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
 #[typst_func()]
-pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
-    // Typst booleans are valid direct inputs to comp. Convert them to the
-    // numeric indicators used by Kalt's comparison and logical operations.
-    let body = match body {
-        Item::Boolean(value) => {
-            return Float::from(if value.0 { 1.0 } else { 0.0 }).into();
+pub fn comp<'data>(body: Or<Boolean, TypedContent<Sequence<'data>>>) -> Item<'data> {
+    // Accept a Typst Boolean or the math content Kalt evaluates. SerTyp's Or
+    // implementation converts the incoming Item to the matching typed input.
+    let seq = match body {
+        Or::Left(Boolean(value)) => {
+            return Float::from(if value { 1.0 } else { 0.0 }).into();
         }
-        other => other,
-    };
-
-    let TypedContent(seq): TypedContent<Sequence<'data>> = match body.try_into() {
-        Ok(content) => content,
-        Err(error) => {
-            return sertyp::Panic::from(sertyp::String::from(error)).into();
-        }
+        Or::Right(TypedContent(seq)) => seq,
     };
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
