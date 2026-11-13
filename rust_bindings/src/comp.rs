@@ -11,59 +11,33 @@ use sertyp::{
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
-fn integer_to_float(value: Integer) -> Float {
-    match value {
-        Integer::i8(value) => value.into(),
-        Integer::i16(value) => value.into(),
-        Integer::i32(value) => value.into(),
-        Integer::i64(value) => value.into(),
-        Integer::i128(value) => value.into(),
-        Integer::u8(value) => value.into(),
-        Integer::u16(value) => value.into(),
-        Integer::u32(value) => value.into(),
-        Integer::u64(value) => value.into(),
-        Integer::u128(value) => value.into(),
-        Integer::isize(value) => value.into(),
-        Integer::usize(value) => value.into(),
-    }
-}
-
-fn string_sequence<'data>(value: sertyp::String<'data>) -> Sequence<'data> {
-    let mut contents = Vec::new();
-    let mut text = std::string::String::new();
-
-    for character in value.chars() {
-        if character.is_whitespace() {
-            if !text.is_empty() {
-                contents.push(Content::from(std::mem::take(&mut text)));
-            }
-            contents.push(sertyp::Space.into());
-        } else {
-            text.push(character);
-        }
-    }
-
-    if !text.is_empty() {
-        contents.push(Content::from(text));
-    }
-
-    Sequence::from(contents)
-}
-
-fn scalar_sequence<'data>(value: f64) -> Sequence<'data> {
-    let content: Content<'data> = Complex::new(value, 0.0).into();
-    Sequence::from(content)
-}
-
 #[typst_func()]
 pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
-    let seq = match body {
-        Item::Boolean(Boolean(value)) => scalar_sequence(if value { 1.0 } else { 0.0 }),
-        Item::Integer(value) => scalar_sequence(integer_to_float(value).into()),
-        Item::Float(Float::f64(value)) => scalar_sequence(value),
-        Item::Decimal(value) => scalar_sequence(value.into()),
-        Item::String(value) => string_sequence(value),
-        Item::Content(content) => Sequence::from(*content),
+    let content = match body {
+        Item::Boolean(Boolean(value)) => {
+            Complex::new(if value { 1.0 } else { 0.0 }, 0.0).into()
+        }
+        Item::Integer(value) => {
+            let value: Float = match value {
+                Integer::i8(value) => value.into(),
+                Integer::i16(value) => value.into(),
+                Integer::i32(value) => value.into(),
+                Integer::i64(value) => value.into(),
+                Integer::i128(value) => value.into(),
+                Integer::u8(value) => value.into(),
+                Integer::u16(value) => value.into(),
+                Integer::u32(value) => value.into(),
+                Integer::u64(value) => value.into(),
+                Integer::u128(value) => value.into(),
+                Integer::isize(value) => value.into(),
+                Integer::usize(value) => value.into(),
+            };
+            Complex::new(value.into(), 0.0).into()
+        }
+        Item::Float(Float::f64(value)) => Complex::new(value, 0.0).into(),
+        Item::Decimal(value) => Complex::new(value.into(), 0.0).into(),
+        Item::String(value) => Content::from(value),
+        Item::Content(content) => *content,
         Item::Panic(panic) => return panic.into(),
         _ => {
             return Panic::from(sertyp::String::from(
@@ -72,6 +46,7 @@ pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
             .into();
         }
     };
+    let seq = Sequence::from(content);
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
 
