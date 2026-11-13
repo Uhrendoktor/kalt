@@ -68,7 +68,7 @@ Kalt also includes:
 - **Trigonometry:** `sin(x)`, `cos(x)`, `tan(x)`, and their inverse functions `arcsin(x)`, `arccos(x)`, and `arctan(x)`.
 - **Hyperbolic functions:** `sinh(x)`, `cosh(x)`, `tanh(x)`, and their inverse functions `arcsinh(x)`, `arccosh(x)`, and `arctanh(x)`.
 - **Logarithms:** `ln(x)` and `log_a(x)`.
-- **Other useful operations:** `abs(x)`, `floor(x)`, `ceil(x)`, `sign(x)`, and factorial `x!`.
+- **Other useful operations:** absolute value `abs(x)`, floor `floor(x)`, ceiling `ceil(x)`, and factorial `x!`.
 
 For example, this expression combines a complex factorial, a square root, and a fraction:
 
