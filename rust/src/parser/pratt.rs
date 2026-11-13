@@ -3,12 +3,12 @@ use chumsky::pratt::{infix, left, none, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
-use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive};
+use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive, select};
 use sertyp::FromString;
 use sertyp::chumsky::parser::character;
 use sertyp::chumsky::{LocatingSequenceLike, Token};
 use sertyp::locating::GroupType;
-use sertyp::{TypstError, chumsky::parser::whitespaces};
+use sertyp::TypstError;
 
 use crate::parser::ops::abs::abs;
 use crate::parser::ops::boolean_dot::{pratt_boolean_dot, pratt_boolean_dot_operator};
@@ -70,6 +70,17 @@ pub fn unspan<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>, T: 'th
     parser: impl 'this + Parser<'this, I, Expects<'data, SimpleSpanned<T>>, ParserError<'data>>,
 ) -> impl 'this + Parser<'this, I, Expects<'data, T>, ParserError<'data>> {
     parser.map_with(|result, _extra| Ok::<_, TypstError>(result?.inner))
+}
+
+/// Accepts both Typst whitespace content and whitespace characters in text input.
+fn whitespaces<'this, 'data: 'this, I: LocatingSequenceLike<'this, 'data>>(
+) -> impl Parser<'this, I, (), ParserError<'data>> {
+    choice((
+        sertyp::chumsky::parser::whitespace().ignored(),
+        select! { Token::Char(c) if c.is_whitespace() => () },
+    ))
+    .repeated()
+    .ignored()
 }
 
 /// Parses a implicitly or explicitly delimited group as math expression
