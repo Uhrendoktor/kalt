@@ -1,13 +1,13 @@
 #import "@preview/sertyp:0.1.5" as sertyp;
 #let kalt = plugin("./bindings.wasm");
 
-/// Recusrively evaluates the math content and returns the result.
-/// Supports aribtrary expressions with complex numbers, matrices, and vectors.
+/// Evaluates a scalar number, Boolean, or Typst math content.
+/// Supports arbitrary expressions with complex numbers, matrices, and vectors.
 ///
 /// Automatically reports formatted errors if the evaluation fails.
 ///
 /// = Arguments
-/// - `body`: The Typst math content to evaluate.
+/// - `body`: A Typst integer, float, Boolean, or math content value.
 ///
 /// = Returns
 /// A Typst float for real scalar results; otherwise the evaluated Typst content.
