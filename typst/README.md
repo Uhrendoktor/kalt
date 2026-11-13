@@ -1,89 +1,153 @@
 # Kalt
 
-**Mathematics that calculates inside your Typst document.**
+**Evaluate mathematics where you write it—in your Typst document.**
 
-Kalt turns expressions in your Typst math into evaluated results. Use it for calculations that are awkward to do by hand or with basic arithmetic alone—especially when your document includes complex numbers, matrices, or vectors.
+Kalt keeps calculations alongside the equations and explanations in your document. It is useful for more than simple arithmetic: evaluate nested expressions, work with complex numbers, and calculate with vectors and matrices. The results can be reused elsewhere in Typst instead of being copied from a separate calculator.
 
-Write the equation where you want to show it. Kalt calculates it there, and you can reuse the result elsewhere in the document.
+## Start calculating
 
-## Try it
-
-Import `comp` and wrap the expression you want to evaluate:
+Import `comp` and wrap the expression you want evaluated:
 
 ```typst
 #import "@preview/kalt:0.1.1": comp
 
 $comp(sqrt((3 + 4i) (3 - 4i)))$ // 5
 $comp(e^(i pi))$                // -1
-
-$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$ // mat(19, 22; 43, 50)
+$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
 ```
 
-A calculated real number can also be used like any other Typst value:
+A real-number result is a regular Typst value. It can be used in further calculations or to control document content and layout:
 
 ```typst
-#let result = comp($sin(pi / 2)$)
-
-The result is #result.
+#let side = comp($sqrt(3^2 + 4^2)$)
+#rect(width: side * 1cm, height: 0.2cm)
 ```
 
-![A complex equation written in Typst](assets/complex_equation.png)
+Complex numbers, vectors, and matrices stay in mathematical notation so they can be shown as part of your equations.
 
-![The evaluated equation in the document](assets/complex_equation_result.png)
+## A complete mathematical expression
 
-## Why Kalt?
+Kalt can evaluate a whole expression, even when it combines several kinds of mathematics. This example brings together complex powers, a fraction, a matrix product, and a vector:
 
-- **Calculations stay in your document.** Keep formulas, explanations, and results together instead of moving between Typst and a separate calculator.
-- **More than real-number arithmetic.** Calculate with complex numbers, matrices, and vectors.
-- **Results stay useful.** Reuse real-number results in Typst code while keeping complex, vector, and matrix results in mathematical notation.
-- **Errors are visible.** When an expression cannot be evaluated, Kalt reports the problem in the document.
+```typst
+#import "@preview/kalt:0.1.1": comp
 
-## What you can do
+$comp(
+  frac(
+    binom(2, 5) (1 + 3i)^4.3 (2 - 3i)^(2-5) 5!,
+    sqrt((3 + 4i) (3 - 4i))
+  )
+  dot mat(
+    1+i, 2, 0;
+    0, 3-i, 0;
+    0, 5, 7+i;
+  )
+  dot vec(1, 2, 3)
+)$
+```
 
-| Category | Operations and examples |
-| --- | --- |
-| Arithmetic | `+`, `-`, `*`, `/`, `%`, powers, factorials |
-| Complex numbers | `i`, `conjugate(x)`, `Re(x)`, `Im(x)` |
-| Matrices and vectors | `mat(...)`, `vec(...)`, `dot`, cross product, transpose, determinant, vector norm |
-| Mathematical functions | Roots, binomial coefficients, trigonometric and hyperbolic functions, logarithms, absolute value, rounding |
-| Comparisons | Less than, greater than, equality, and inequality |
-| Logical and bitwise operations | AND, OR, XOR, logical NOT, bitwise NOT |
-| Indexing and slicing | Select entries, rows, columns, and ranges from matrices |
-| Matrix helpers | `map`, `reduce`, `any`, and `all` |
+![The expression written in Typst](assets/complex_equation.png)
 
-### A few examples
+![The evaluated vector result](assets/complex_equation_result.png)
 
-**Complex numbers**
+## Complex numbers and functions
+
+Use `i` for the imaginary unit. Kalt supports complex arithmetic and the usual ways of working with the real and imaginary parts of a value:
 
 ```typst
 $comp(e^(i pi))$                  // -1
-$comp(conjugate(2 + 3i))$         // 2 - 3i
+$comp((2 + 3i)^*)$                // 2 - 3i
 $comp(Re(2 + 3i) + i Im(2 + 3i))$ // 2 + 3i
 ```
 
-**Matrices and vectors**
+The superscript star in `x^*` is the conjugation notation supported by Kalt. It is not a `conjugate(...)` function.
+
+Kalt also includes:
+
+- **Roots and combinations:** `sqrt(x)`, `root(n, x)`, and `binom(n, k)`.
+- **Trigonometry:** `sin(x)`, `cos(x)`, `tan(x)`, and their inverse functions `arcsin(x)`, `arccos(x)`, and `arctan(x)`.
+- **Hyperbolic functions:** `sinh(x)`, `cosh(x)`, `tanh(x)`, and their inverse functions `arcsinh(x)`, `arccosh(x)`, and `arctanh(x)`.
+- **Logarithms:** `ln(x)` and `log_a(x)`.
+- **Other useful operations:** `abs(x)`, `floor(x)`, `ceil(x)`, `sign(x)`, and factorial `x!`.
+
+For example, this expression combines a complex factorial, a square root, and a fraction:
 
 ```typst
-$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
-$comp(vec(1, 0, 0) × vec(0, 1, 0))$ // vec(0, 0, 1)
-$comp(mat(1, 2; 3, 4)^T)$
+$comp(sqrt((3 + i)!) dot frac(pi, e + 2.3^2))$
 ```
 
-**Functions**
+![A complex-valued expression and its evaluated result](assets/evaluation.png)
+
+## Matrices and vectors
+
+Create matrices with `mat(...)` and column vectors with `vec(...)`:
 
 ```typst
-$comp(sqrt(81))$       // 9
-$comp(ln(e^2))$        // 2
-$comp(sin(pi / 2))$    // 1
-$comp(abs(3 + 4i))$    // 5
+$comp(mat(1, 2; 3, 4))$
+$comp(vec(1, 2, 3))$
 ```
 
-## Work with matrix values in Typst
+Matrix and vector operations include:
 
-Kalt also provides helpers for using matrix and vector entries in Typst callbacks. Import the helpers you need:
+- `dot` for dot products and matrix multiplication.
+- `×` for the cross product of three-dimensional vectors.
+- `^T` for transpose.
+- `abs(x)` for a scalar's magnitude, a vector's length, or a square matrix's determinant.
+
+Scalar operations can also be applied to matrix entries. Element-wise operations can compare or combine matrices of matching dimensions.
+
+## Indexing and slicing
+
+Select a single matrix entry with its row and column:
 
 ```typst
-#import "@preview/kalt:0.1.1": comp, map, any, all
+$comp(mat(1, 2; 3, 4)[0, 1])$ // 2
+```
+
+Select a whole row or column with `:`. For example, the first column is:
+
+```typst
+$comp(mat(1, 2; 3, 4)[:, 0])$
+```
+
+You can also select ranges, choose specific indices, use negative indices to count from the end, and reverse the order with a negative step:
+
+```typst
+$comp(mat(1, 2, 3; 4, 5, 6)[1:2, 0:2])$
+$comp(mat(1, 2, 3; 4, 5, 6)[::-1, ::-1])$
+```
+
+A range is written as `start:stop:step`. Leave a part empty to use the beginning or end of that dimension. A list such as `[0, 2]` selects specific rows or columns.
+
+An invalid index is shown directly in the document rather than hidden:
+
+```typst
+$comp(mat(1, 2, 3; 4, 5, 6)[1:3:, [2, 1]])$
+```
+
+![An out-of-range slice with its inline error message](assets/error_reporting.png)
+
+## Comparisons and Boolean operations
+
+Comparisons use familiar mathematical notation: `<`, `>`, `≤`, `≥`, `=`, and `≠`. Their results are numeric indicators, so false is `0` and true is `1`.
+
+Write `true` and `false` directly in a math expression:
+
+```typst
+$comp(true)$          // 1
+$comp(false)$         // 0
+$comp(true + true)$   // 2
+$comp(3 > 2)$         // 1
+```
+
+For logical and bitwise expressions, Kalt provides `∧`, `∨`, `⊕`, `¬`, and `~`. The `⊙` operator is available for Boolean matrix products.
+
+## Use matrix values in Typst
+
+Kalt includes helpers for applying Typst callbacks to matrix and vector entries. Import the helpers you need:
+
+```typst
+#import "@preview/kalt:0.1.1": comp, map, reduce, any, all
 
 #let values = $mat(1, 2; 3, 4)$
 
@@ -93,6 +157,5 @@ Kalt also provides helpers for using matrix and vector entries in Typst callback
 
 - `map` applies a callback to corresponding entries and returns a matrix.
 - `reduce` combines entries into one accumulated result.
-- `any` checks whether a condition is true for at least one entry.
-- `all` checks whether a condition is true for every entry.
-
+- `any` checks whether a condition matches at least one entry.
+- `all` checks whether a condition matches every entry.
