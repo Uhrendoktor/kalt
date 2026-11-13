@@ -32,7 +32,7 @@ You can also pass scalar values and already-created math content directly from T
 #comp(false)   // 0.0
 
 #let matrix = math.mat(..((1, 2), (3, 4)))
-#let vector = math.vec(1, 2, 3)
+#let vector = math.vec($1$, $2$, $3$)
 
 #comp(matrix)
 #comp(vector)
