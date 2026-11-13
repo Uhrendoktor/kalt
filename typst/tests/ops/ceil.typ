@@ -1,4 +1,4 @@
-// Ceil tests for kalt bindings
+// Typst lowers ceil(...) to ceiling delimiters before Kalt parses the math.
 
 #import "../utils.typ": unary_operation
 
