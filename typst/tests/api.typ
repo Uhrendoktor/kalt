@@ -10,7 +10,7 @@
 
 #let direct-one-by-one = math.mat(..((7,),))
 #let direct-matrix = math.mat(..((1, 2), (3, 4)))
-#let direct-vector = math.vec(1, 2, 3)
+#let direct-vector = math.vec($1$, $2$, $3$)
 
 #assert-typst-eq("comp direct integer returns float", comp(7), 7.0)
 #assert-typst-eq("comp direct float returns float", comp(2.5), 2.5)
