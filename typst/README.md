@@ -6,50 +6,63 @@ Kalt adds a calculator to Typst's math. Write an equation as you normally would 
 
 ### Let Typst do the calculation
 
-Use familiar math for sums, powers, roots, and more. Kalt fills in the result for you.
+Combine nested calculations, complex numbers, logarithms, factorials, and bitwise operations in expressions that look like ordinary Typst math.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-$ 12 + 3 * 4 = #comp($12 + 3 * 4$) $
-$ 3^5 = #comp($3^5$) $
-$ sqrt(81) = #comp($sqrt(81)$) $
-$ abs(-7) = #comp($abs(-7)$) $
+$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) = #calc.round(comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$), digits: 2) $
+$ abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3) $
+$ log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$) $
+$ floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$) $
+$ (3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2) $
+$ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
 
-<img src="assets/readme/scalar-operations.svg" alt="Everyday arithmetic, powers, roots, and absolute values calculated inside Typst equations." width="25%">
+<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex functions, logarithms, factorial, and bitwise operations calculated in Typst math." width="25%">
 
 ### Add and multiply matrices
 
-Add matrices cell by cell or calculate their matrix product.
+See matrix addition, subtraction, cell-by-cell multiplication and division, matrix multiplication, transpose, and matrix powers.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
 #let a = $mat(1, 2; 3, 4)$
-#let b = $mat(5, 6; 7, 8)$
+#let b = $mat(5, 8; 9, 12)$
 
-$ "Element-wise" quad A * B = #comp($#a * #b$) $
-$ "Matrix product" quad A dot B = #comp($#a dot #b$) $
+$ A = #a quad B = #b $
+$ A + B = #comp($#a + #b$) $
+$ A - B = #comp($#a - #b$) $
+$ A * B = #comp($#a * #b$) $
+$ B / A = #comp($#b / #a$) $
+$ A dot B = #comp($#a dot #b$) $
+$ A^T = #comp($#a^T$) $
+$ A^2 = #comp($#a^2$) $
 ````
 
-<img src="assets/readme/matrix-operations.svg" alt="Two matrices added and multiplied directly in Typst math." width="25%">
+<img src="assets/readme/matrix-operations.svg" alt="Matrix addition, subtraction, element-wise multiplication and division, matrix product, transpose, and powers." width="25%">
 
 ### Work with vectors
 
-Calculate dot and cross products with familiar vector notation.
+Calculate dot and cross products, then find the lengths of a vector and its cross product.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
+#let cross-product = comp($#a times #b$)
 
-$ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
-$ "Cross product" quad a times b = #comp($#a times #b$) $
+$ a = #a $
+$ b = #b $
+$ a^T dot b = #comp($#a^T dot #b$) $
+$ a times b = #cross-product $
+$ abs(a) = #calc.round(comp($abs(#a)$), digits: 3) $
+$ abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3) $
 ````
 
-<img src="assets/readme/vector-operations.svg" alt="Vector dot and cross products calculated inside Typst equations." width="25%">
+<img src="assets/readme/vector-operations.svg" alt="Vector values, dot and cross products, and the lengths of a vector and its cross product." width="25%">
 
 ### Use complex numbers
 
