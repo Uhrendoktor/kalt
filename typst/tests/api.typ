@@ -18,6 +18,11 @@
 
 #let vector-result = comp(math.vec($1$, $2$, $3$))
 #assert-typst-eq("comp returns vector content directly", vector-result.func(), math.vec)
+#assert-typst-eq(
+  "comp evaluates a transposed column-vector dot product",
+  comp($vec(1, 2, 3)^T dot vec(4, 5, 6)$),
+  32.0,
+)
 
 #assert-eq(
   "map passes numeric cells to callback as floats",
