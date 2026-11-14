@@ -54,7 +54,7 @@
 )
 #v(6pt)
 #panel("REDUCE · MEAN CORRECTION", [
-  #align(center)[$mean(C) = #mean %$]
+  #align(center)[$C_"mean" = #mean %$]
   #text(size: 7pt, fill: muted)[Nine cells folded into one scalar]
 ])
 #v(5pt)

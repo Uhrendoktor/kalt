@@ -36,11 +36,10 @@
 #v(5pt)
 #panel("INPUT POINT · HOMOGENEOUS COORDINATES", $ p = #point $)
 #v(5pt)
-#align(center)[
-  #text(size: 7pt, fill: muted)[ONE MATRIX PRODUCT]
-  #text(size: 9pt, weight: "bold", fill: ink)[$p' = T dot p$]
-  #text(size: 7pt, fill: muted)[ROTATE COUNTER-CLOCKWISE, THEN SHIFT BY (5, −2)]
-]
+#panel("ONE MATRIX PRODUCT", [
+  #align(center)[$p' = T dot p$]
+  #text(size: 7pt, fill: muted)[Rotate counter-clockwise, then translate by (5, −2)]
+])
 #v(5pt)
 #panel("TRANSFORMED POINT", $ p' = #moved $)
 #v(5pt)

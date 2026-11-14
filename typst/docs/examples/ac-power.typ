@@ -8,9 +8,9 @@
 #let current = comp($#voltage / #impedance$)
 #let current_conjugate = comp($#current^*$)
 #let apparent = comp($#voltage * #current_conjugate$)
-#let active = comp($Re(#apparent)$)
-#let reactive = comp($Im(#apparent)$)
-#let apparent_magnitude = comp($abs(#apparent)$)
+#let active = calc.round(comp($Re(#apparent)$), digits: 1)
+#let reactive = calc.round(comp($Im(#apparent)$), digits: 1)
+#let apparent_magnitude = calc.round(comp($abs(#apparent)$), digits: 1)
 #let power_factor = active / apparent_magnitude
 
 #let ink = rgb("#182230")
@@ -44,7 +44,7 @@
 ])
 #v(5pt)
 #panel("COMPLEX POWER · S = V I*", [
-  #align(center)[$S = #apparent " VA"$]
+  #align(center)[$S = #active + #reactive i " VA"$]
   #grid(
     columns: (1fr, 1fr),
     gutter: 4pt,

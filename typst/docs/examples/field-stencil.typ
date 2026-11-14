@@ -47,16 +47,16 @@
 )
 
 #v(6pt)
-#panel("THE FIVE ALIGNED 3 × 3 SLICES", [
+#panel("FIVE ALIGNED 3 × 3 SLICES", [
   #grid(
     columns: (1fr, 1fr, 1fr),
     gutter: 4pt,
-    $N = #north$,
-    $S = #south$,
-    $W = #west$,
-    $E = #east$,
-    $C = #middle$,
-    align(center)[$K = mat(0, 1, 0; 1, -4, 1; 0, 1, 0)$],
+    panel("NORTH · N", $N = #north$),
+    panel("SOUTH · S", $S = #south$),
+    panel("WEST · W", $W = #west$),
+    panel("EAST · E", $E = #east$),
+    panel("CENTER · C", $C = #middle$),
+    panel("STENCIL · K", $K = mat(0, 1, 0; 1, -4, 1; 0, 1, 0)$),
   )
 ])
 #v(5pt)
