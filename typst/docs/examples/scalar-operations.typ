@@ -10,7 +10,7 @@
   $12 - 3 = #comp($12 - 3$)$,
   $12 * 3 = #comp($12 * 3$)$,
   $12 / 3 = #comp($12 / 3$)$,
-  $3^4 = #comp($3^4$)$,
+  $3^4 = #calc.round(comp($3^4$), digits: 0)$,
   $ln(8) = #calc.round(comp($ln(8)$), digits: 3)$,
   $log_2(8) = #calc.round(comp($log_2(8)$), digits: 3)$,
   $abs(-3 - 4i) = #comp($abs(-3 - 4i)$)$,
