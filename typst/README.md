@@ -44,7 +44,14 @@ $ vec(1, 2, 3) dot vec(4, 5, 6)
   &= comp(vec(1, 0, 0) × vec(0, 1, 0)) $
 ```
 
-Matrix arithmetic with `+`, `-`, `*`, `/`, and `mod` is element-wise when the dimensions match. Use `dot` for matrix multiplication and vector dot products. The cross product `×` is defined for three-dimensional vectors, and `^T` transposes a matrix.
+| Operation | Notation |
+| --- | --- |
+| Addition and subtraction | `+`, `-` |
+| Multiplication and division | `*`, `/` |
+| Modulo | `%` or `mod` |
+| Power and factorial | `^`, `!` |
+
+For matrices, the arithmetic operators work element by element when dimensions match. Use `dot` for matrix multiplication and vector dot products. The cross product `×` is defined for three-dimensional vectors, and `^T` transposes a matrix. `abs(x)` gives the absolute value of a scalar, the length of a vector, or the determinant of a square matrix.
 
 ## Complex numbers and functions
 
@@ -179,7 +186,7 @@ The Typst table in the example renders those same intermediate values in your do
 | `all(fn, ..mats)` | Returns `true` only when the predicate matches every set of aligned cells. |
 | `tensor-variant(value)` | Returns `"scalar"` or `"matrix"` for mathematical content. |
 
-The helpers can take more than one matrix or vector and pass corresponding cells to the callback. When shapes differ, missing cells are passed as `none`.
+When you pass more than one matrix or vector, the helpers give the callback the values at corresponding positions. If the shapes differ, missing cells are passed as `none`.
 
 ## More examples
 
