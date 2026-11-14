@@ -18,6 +18,7 @@ cp -a typst/. "$package_root/"
 export TYPST_PACKAGE_PATH="$package_path"
 
 for example in scalar-operations matrix-operations vector-operations complex-arithmetic; do
+  echo "Rendering $example"
   typst compile \
     --package-path "$package_path" \
     --root . \
@@ -27,6 +28,7 @@ for example in scalar-operations matrix-operations vector-operations complex-ari
 done
 
 # Compile the non-visual collection-helper example as a documentation check.
+echo "Checking collection-helpers"
 typst compile \
   --package-path "$package_path" \
   --root . \
