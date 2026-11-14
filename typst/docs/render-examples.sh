@@ -7,8 +7,7 @@ mkdir -p "$output_dir"
 for example in scalar-operations matrix-operations vector-operations complex-arithmetic; do
   typst compile \
     --root . \
-    --input "example=$example" \
     --format svg \
-    typst/docs/paired-preview.typ \
+    "typst/docs/examples/$example.typ" \
     "$output_dir/$example.svg"
 done
