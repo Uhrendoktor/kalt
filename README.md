@@ -21,7 +21,7 @@ $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2
 ````
 
 
-<img src="typst/assets/readme/scalar-operations.svg" alt="Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence." width="100%">
+<img src="typst/assets/readme/scalar-operations.svg" alt="Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence." width="25%">
 
 
 ## Matrix operations
@@ -40,7 +40,7 @@ $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
 
-<img src="typst/assets/readme/matrix-operations.svg" alt="Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence." width="100%">
+<img src="typst/assets/readme/matrix-operations.svg" alt="Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence." width="25%">
 
 
 ## Vector products
@@ -59,7 +59,7 @@ $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
 
-<img src="typst/assets/readme/vector-operations.svg" alt="Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence." width="100%">
+<img src="typst/assets/readme/vector-operations.svg" alt="Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence." width="25%">
 
 
 ## Complex arithmetic
@@ -89,7 +89,7 @@ $ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
 
-<img src="typst/assets/readme/complex-arithmetic.svg" alt="Titleless Typst rendering of complex current and power calculations in a single vertical sequence." width="100%">
+<img src="typst/assets/readme/complex-arithmetic.svg" alt="Titleless Typst rendering of complex current and power calculations in a single vertical sequence." width="25%">
 
 
 ## Documentation
