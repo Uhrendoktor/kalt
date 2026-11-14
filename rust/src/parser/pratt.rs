@@ -179,7 +179,8 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
         select! { Token::Char(c) if c.is_whitespace() => () },
     ))
     .repeated()
-    .ignored();
+    .ignored()
+    .boxed();
     let outer_whitespace = whitespace.clone();
 
     recursive(move |expr| {
