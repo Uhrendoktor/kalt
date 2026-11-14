@@ -1,6 +1,6 @@
 # Kalt
 
-**Evaluate real, complex, vector, and matrix expressions directly in Typst.**
+**Calculate directly inside your Typst equations.**
 
 Kalt adds a calculator to Typst math. Write an equation as usual and put `#comp(...)` around the part you want calculated. The answer appears right inside your document. The examples below show what to write and what Typst renders.
 
@@ -87,7 +87,9 @@ For example, these two matrices do not fit together for this multiplication:
 #comp($mat(1, 2) dot mat(1, 2)$)
 ````
 
-Kalt reports: `dot product can only be applied to matrices with compatible shapes`. It also highlights the two dimensions that need to match, making it easier to see what needs fixing.
+The red highlight marks the part that caused the problem. The note above it shows what Kalt expected and what it found, giving you a useful clue about what to change.
+
+<img src="typst/assets/readme/error-hints.svg" alt="A red highlighted matrix expression with an error note showing the expected and found dimensions." width="50%">
 
 ## Documentation
 
