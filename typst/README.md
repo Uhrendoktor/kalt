@@ -1,49 +1,185 @@
-# Kalt for Typst
+**Keep the equation. Get the answer.**
 
-Kalt evaluates Typst math expressions containing real and complex scalars, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Compatible matrix arithmetic is element-wise by default; use `dot` for matrix multiplication. The collection helpers `map`, `reduce`, `any`, and `all` provide callbacks and aggregation when a calculation needs them.
+Kalt evaluates native Typst math content in place. Write an expression once and use its computed value in the same equation or elsewhere in your document. It works with real and complex numbers, vectors, matrices, nested operators, and slices—without translating your math into a second expression language.
 
-The [repository README](../README.md) pairs Markdown-fenced Typst source code with the titleless SVG output compiled directly from each matching `.typ` example file.
+## Get started
 
-## Operation reference
-
-### Evaluate an expression with `comp`
-
-`comp(body)` evaluates Typst math content and returns the computed value. Real scalar results can be used as Typst numbers; complex, vector, and matrix results remain mathematical content.
+Import `comp`, then pass it the math content you want evaluated:
 
 ```typst
 #import "@preview/kalt:0.1.1": comp
 
-#let value = comp($sqrt(2)^2 + 3$)
+$ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 ```
 
-Use `comp` around the complete expression you want evaluated. It also evaluates expressions containing matrix indexing, slices, and nested operations.
+A real scalar result becomes a Typst number. Complex, vector, and matrix results remain native mathematical content, ready to typeset.
 
-### Matrices and vectors
+## See it in action
 
-Write matrices and vectors using Typst's native math notation:
+The examples below are complete Typst documents. The page settings only size the source and its matching preview; remove or adjust them when placing the expressions in an existing document.
+
+### Nested expressions and operator precedence
+
+Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operators in one expression. Kalt parses the nested expression according to operator precedence.
+
+<table width="100%" cellspacing="0" cellpadding="0">
+<tr>
+<td width="50%" valign="middle">
+
+````typst
+#import "@preview/kalt:0.1.1": comp
+
+#set page(width: 72mm, height: 30mm, margin: 1mm)
+#set text(size: 8pt)
+#set par(spacing: 1mm)
+
+$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2)$) $
+
+$ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
+````
+
+</td>
+<td width="50%" valign="middle">
+<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, logarithms, powers, comparisons, and bitwise operators evaluated from Typst math." width="100%">
+</td>
+</tr>
+</table>
+
+### Matrix algebra
+
+Compatible matrices support element-wise arithmetic. Use `dot` when you want matrix multiplication.
+
+<table width="100%" cellspacing="0" cellpadding="0">
+<tr>
+<td width="50%" valign="middle">
+
+````typst
+#import "@preview/kalt:0.1.1": comp
+
+#set page(width: 50mm, height: 24mm, margin: 1mm)
+#set text(size: 8pt)
+#set par(spacing: 1mm)
+
+#let a = $mat(1, 2; 3, 4)$
+#let b = $mat(5, 6; 7, 8)$
+
+$ "Element-wise" quad A * B = #comp($#a * #b$) $
+
+$ "Matrix product" quad A dot B = #comp($#a dot #b$) $
+````
+
+</td>
+<td width="50%" valign="middle">
+<img src="assets/readme/matrix-operations.svg" alt="Element-wise matrix multiplication and matrix dot product, rendered from Typst math." width="100%">
+</td>
+</tr>
+</table>
+
+### Vector products
+
+Vectors are column vectors. Transpose the left operand for a dot product; use `times` for the three-dimensional cross product.
+
+<table width="100%" cellspacing="0" cellpadding="0">
+<tr>
+<td width="50%" valign="middle">
+
+````typst
+#import "@preview/kalt:0.1.1": comp
+
+#set page(width: 45mm, height: 22mm, margin: 1mm)
+#set text(size: 8pt)
+#set par(spacing: 1mm)
+
+#let a = $vec(1, 2, 3)$
+#let b = $vec(4, 5, 6)$
+
+$ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
+
+$ "Cross product" quad a times b = #comp($#a times #b$) $
+````
+
+</td>
+<td width="50%" valign="middle">
+<img src="assets/readme/vector-operations.svg" alt="Vector dot product and three-dimensional cross product, rendered from Typst math." width="100%">
+</td>
+</tr>
+</table>
+
+### Complex arithmetic
+
+Complex values work throughout expressions, including division, powers, conjugation, and magnitude.
+
+<table width="100%" cellspacing="0" cellpadding="0">
+<tr>
+<td width="50%" valign="middle">
+
+````typst
+#import "@preview/kalt:0.1.1": comp
+
+#set page(width: 50mm, height: 30mm, margin: 1mm)
+#set text(size: 8pt)
+#set par(spacing: 1mm)
+
+#let voltage = $100 + 0i$
+#let impedance = $3 + 4i$
+#let current = comp($#voltage / #impedance$)
+#let conjugate = comp($#current^*$)
+#let power = comp($#voltage * #conjugate$)
+
+$ V = #voltage " V" $
+
+$ Z = #impedance Ω $
+
+$ I = V / Z = #current " A" $
+
+$ I^* = #conjugate " A" $
+
+$ S = V I^* = #power " VA" $
+
+$ abs(S) = #comp($abs(#power)$) " VA" $
+````
+
+</td>
+<td width="50%" valign="middle">
+<img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="100%">
+</td>
+</tr>
+</table>
+
+## What Kalt evaluates
+
+### Scalars and complex numbers
+
+Use Typst's native math syntax for real and complex expressions. Kalt supports nested arithmetic, implicit multiplication, powers, factorials, roots, binomial coefficients, and comparison and bitwise operators.
+
+| Group | Syntax |
+| --- | --- |
+| Arithmetic | `+`, `-`, `*`, `/`, implicit multiplication, `%` |
+| Powers and products | `^`, `dot`, `times`, factorial `!` |
+| Roots and combinations | `sqrt(x)`, `root(n, x)`, `binom(n, k)` |
+| Logarithms | `ln(x)`, `log_a(x)` |
+| Trigonometry | `sin`, `cos`, `tan`, and inverse functions |
+| Hyperbolic | `sinh`, `cosh`, `tanh`, and inverse functions |
+| Other functions | `abs(x)`, `floor(x)`, `ceil(x)`, `re(x)`, `im(x)` |
+| Comparisons | `=`, `≠`, `<`, `≤`, `>`, `≥` |
+| Bitwise | `∧` AND, `∨` OR, `⊕` XOR, `~` NOT |
+
+Comparisons evaluate to numeric indicators: false is `0` and true is `1`. Bitwise operations require integer values. Boolean NOT is written `¬`; `⊙` is the boolean matrix product.
+
+### Matrices, vectors, and indexing
+
+Create matrices with `mat(...)` and column vectors with `vec(...)`:
 
 ```typst
-$mat(1, 2, 3; 4, 5, 6)$
-$vec(1, 2, 3)$
+#import "@preview/kalt:0.1.1": comp
+
+$ comp(mat(1, 2; 3, 4)^T) $
+$ comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
 ```
 
-A semicolon separates matrix rows. Commas separate entries within a row. Kalt represents `vec(...)` as a column vector.
+For compatible matrices, `+`, `-`, `*`, and `/` operate element-wise. Use `dot` for matrix multiplication. Transpose is `^T`; complex conjugation is `^*`. The `abs` function returns the vector length for vectors and the determinant for square matrices.
 
-### Indexing and slicing
-
-Matrix indices are zero-based. An index pair selects a row and column:
-
-```typst
-#let entry = comp($mat(10, 20, 30; 40, 50, 60)[1, 2]$)
-```
-
-A range selects multiple entries. The stop index is excluded:
-
-```typst
-#let interior = comp($mat(1, 2, 3, 4; 5, 6, 7, 8; 9, 10, 11, 12; 13, 14, 15, 16)[1:3, 1:3]$)
-```
-
-The two axes can be sliced independently:
+Matrix indices are zero-based. The stop index in a slice is excluded, and negative indices count from the end.
 
 | Expression | Selection |
 | --- | --- |
@@ -55,98 +191,40 @@ The two axes can be sliced independently:
 | `M[::-1, ::-1]` | Reverse both axes |
 | `M[[0, -1], :]` | First and last rows |
 
-Ranges use `start:stop:step`. Omit a boundary to use the beginning or end of the axis. Negative indices count from the end; a negative step reverses the selected order. A slice may also select an explicit list of indices, such as `[0, -1]`.
+Slices support `start:stop:step`, omitted boundaries, negative steps, and explicit index lists.
 
-### Matrix and vector operations
+### Transform and inspect matrix data
 
-Kalt supports arithmetic on scalars and compatible matrices/vectors. Matrix addition and subtraction are element-wise, as is `*` when both operands are matrices of compatible shape. Scalar multiplication and division are also supported.
+Kalt also provides helpers for cell-wise transformations and aggregation.
 
-Use `dot` for matrix multiplication. Because vectors are column vectors, transpose the left operand for a vector dot product:
+| Function | Purpose |
+| --- | --- |
+| `map(fn, ..mats)` | Transform aligned cells and return a matrix. The callback receives each cell followed by its zero-based column `x` and row `y`. |
+| `reduce(fn, initial, ..mats)` | Fold aligned cells into an accumulator. Use `comp(value)` when the callback needs a number from a math-content cell. |
+| `any(fn, ..mats)` | Return true when at least one aligned cell satisfies the predicate. |
+| `all(fn, ..mats)` | Return true only when every aligned cell satisfies the predicate. |
+| `tensor-variant(value)` | Return `"scalar"` or `"matrix"` for mathematical content. |
+| `to-float-if-possible(value)` | Evaluate numeric math content to a float; otherwise return the original value. |
 
-```typst
-#import "@preview/kalt:0.1.1": comp
-
-$ vec(1, 2, 3)^T dot vec(4, 5, 6)
-  &= comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
-```
-
-Use `×` for the three-dimensional vector cross product. Transpose uses `^T`; complex conjugation uses `^*`.
-
-### Transform matrix data with `map`
-
-`map(fn, ..mats)` applies a callback to corresponding cells and returns a matrix. The callback receives one cell from each input, followed by the zero-based column and row coordinates `x` and `y`.
+Example: convert a matrix of measurements to percentage deviations.
 
 ```typst
 #import "@preview/kalt:0.1.1": map
 
-#let raw = $mat(1.02, 1.05; 0.98, 1.01)$
-#let corrected = map(
-  (value, x, y) => (value - 1) * 100,
-  raw,
-)
+#let measurements = $mat(1.02, 1.05; 0.98, 1.01)$
+#let deviations = map((value, x, y) => (value - 1) * 100, measurements)
 ```
 
-For real numeric cells, `map` supplies the evaluated number to the callback. Non-numeric content is passed through unchanged.
+The aggregation helpers accept multiple matrices or vectors. Inputs are aligned by coordinate; a missing cell from a smaller input is passed as `none`.
 
-### Aggregate cells with `reduce`
+## Errors and compatibility
 
-`reduce(fn, initial, ..mats)` visits corresponding cells and updates an accumulator. Its callback receives the current accumulator followed by one cell from each input matrix. Use `comp(value)` when a callback needs a numeric value from a math-content cell.
+Kalt reports evaluation and shape errors as formatted Typst errors, so an invalid operation is visible at the expression that caused it. Matrix and vector operations check compatible dimensions instead of silently discarding mismatched data.
 
-```typst
-#import "@preview/kalt:0.1.1": comp, reduce
+## Documentation and source
 
-#let total = reduce(
-  (sum, value) => sum + comp(value),
-  0,
-  $mat(1, 2; 3, 4)$,
-)
-```
+- [Source code and issue tracker](https://github.com/Uhrendoktor/kalt)
+- [Development examples](https://github.com/Uhrendoktor/kalt/tree/main/typst/docs/examples)
+- [Typst package documentation guidelines](https://github.com/typst/packages/blob/main/docs/documentation.md)
 
-### Test cells with `any` and `all`
-
-`any(fn, ..mats)` returns `true` when at least one set of corresponding cells satisfies the predicate. `all(fn, ..mats)` returns `true` only when every set satisfies it.
-
-```typst
-#import "@preview/kalt:0.1.1": all, any, comp
-
-#let samples = $mat(12, 18; 24, 31)$
-#let over_limit = any(value => comp(value) > 30, samples)
-#let all_positive = all(value => comp(value) > 0, samples)
-```
-
-These callbacks receive math-content cells; call `comp(value)` to compare their numeric values. All four helpers can accept multiple matrices or vectors. Inputs are aligned by coordinate; a missing cell from a smaller input is passed as `none`.
-
-### Complex numbers and mathematical functions
-
-Kalt supports complex arithmetic using Typst's `i` notation, including conjugation, real and imaginary parts, powers, roots, logarithms, and trigonometric and hyperbolic functions.
-
-| Category | Functions and notation |
-| --- | --- |
-| Roots and combinations | `sqrt(x)`, `root(n, x)`, `binom(n, k)` |
-| Trigonometry | `sin(x)`, `cos(x)`, `tan(x)` |
-| Inverse trigonometry | `arcsin(x)`, `arccos(x)`, `arctan(x)` |
-| Hyperbolic | `sinh(x)`, `cosh(x)`, `tanh(x)` |
-| Inverse hyperbolic | `arcsinh(x)`, `arccosh(x)`, `arctanh(x)` |
-| Logarithms | `ln(x)`, `log_a(x)` |
-| Other | `abs(x)`, `floor(x)`, `ceil(x)`, factorial `!` |
-
-`abs(x)` returns the absolute value of a scalar, the length of a vector, or the determinant of a square matrix.
-
-### Comparisons and bitwise operations
-
-Comparisons evaluate to numeric indicators: false is `0`, true is `1`. Bitwise operations require integer values.
-
-| Operator | Meaning |
-| --- | --- |
-| `=`, `≠`, `<`, `≤`, `>`, `≥` | Comparisons |
-| `∧`, `∨`, `⊕`, `~` | Bitwise AND, OR, XOR, and NOT |
-| `¬` | Boolean NOT |
-| `⊙` | Boolean matrix product |
-
-### Tensor type
-
-`tensor-variant(value)` returns `"scalar"` or `"matrix"` for mathematical content.
-
-## Reproducible example renders
-
-The four titleless SVG outputs in the repository README are compiled directly from the matching Typst documents in [`docs/examples/`](docs/examples/). The Markdown code blocks are the readable source listing; the SVGs contain only the rendered output from those source files. Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate the images.
+Kalt is released under the [MIT License](LICENSE).

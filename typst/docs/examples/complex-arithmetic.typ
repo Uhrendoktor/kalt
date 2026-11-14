@@ -1,6 +1,6 @@
-#import "../../lib.typ": comp
+#import "@preview/kalt:0.1.1": comp
 
-#set page(width: 100mm, height: auto, margin: 3mm)
+#set page(width: 50mm, height: 30mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 

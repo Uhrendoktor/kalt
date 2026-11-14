@@ -13,21 +13,13 @@ Nested arithmetic, powers, logarithms, complex magnitude, rounding, factorial, a
 <td width="60%" valign="top">
 
 ````typst
-#import "../../lib.typ": comp
+#import "@preview/kalt:0.1.1": comp
 
-#set page(width: 100mm, height: auto, margin: 3mm)
+#set page(width: 72mm, height: 30mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
-$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) = #calc.round(comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$), digits: 2) $
-
-$ abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3) $
-
-$ log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$) $
-
-$ floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$) $
-
-$ (3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2) $
+$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2)$) $
 
 $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
@@ -50,30 +42,18 @@ Element-wise addition, subtraction, multiplication and division, matrix multipli
 <td width="60%" valign="top">
 
 ````typst
-#import "../../lib.typ": comp
+#import "@preview/kalt:0.1.1": comp
 
-#set page(width: 100mm, height: auto, margin: 3mm)
+#set page(width: 50mm, height: 24mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
 #let a = $mat(1, 2; 3, 4)$
-#let b = $mat(5, 8; 9, 12)$
+#let b = $mat(5, 6; 7, 8)$
 
-$ A = #a quad B = #b $
+$ "Element-wise" quad A * B = #comp($#a * #b$) $
 
-$ A + B = #comp($#a + #b$) $
-
-$ A - B = #comp($#a - #b$) $
-
-$ A * B = #comp($#a * #b$) $
-
-$ B / A = #comp($#b / #a$) $
-
-$ A dot B = #comp($#a dot #b$) $
-
-$ A^T = #comp($#a^T$) $
-
-$ A^2 = #comp($#a^2$) $
+$ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
 </td>
@@ -94,27 +74,18 @@ Column-vector transpose, dot product, cross product, and vector norms.
 <td width="60%" valign="top">
 
 ````typst
-#import "../../lib.typ": comp
+#import "@preview/kalt:0.1.1": comp
 
-#set page(width: 100mm, height: auto, margin: 3mm)
+#set page(width: 45mm, height: 22mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
-#let cross-product = comp($#a times #b$)
 
-$ a = #a $
+$ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
 
-$ b = #b $
-
-$ a^T dot b = #comp($#a^T dot #b$) $
-
-$ a times b = #cross-product $
-
-$ abs(a) = #calc.round(comp($abs(#a)$), digits: 3) $
-
-$ abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3) $
+$ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
 </td>
@@ -135,9 +106,9 @@ Complex division, conjugation, complex power, and magnitude.
 <td width="60%" valign="top">
 
 ````typst
-#import "../../lib.typ": comp
+#import "@preview/kalt:0.1.1": comp
 
-#set page(width: 100mm, height: auto, margin: 3mm)
+#set page(width: 50mm, height: 30mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
