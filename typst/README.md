@@ -2,7 +2,7 @@
 
 Kalt evaluates Typst math expressions containing real and complex scalars, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Compatible matrix arithmetic is element-wise by default; use `dot` for matrix multiplication. The collection helpers `map`, `reduce`, `any`, and `all` provide callbacks and aggregation when a calculation needs them.
 
-The [repository README](../README.md) shows four compact side-by-side examples generated entirely by Typst: scalar arithmetic and functions, matrix operations, vector products, and complex arithmetic.
+The [repository README](../README.md) pairs Markdown-fenced Typst source code with the titleless SVG output compiled directly from each matching `.typ` example file.
 
 ## Operation reference
 
@@ -149,4 +149,4 @@ Comparisons evaluate to numeric indicators: false is `0`, true is `1`. Bitwise o
 
 ## Reproducible example renders
 
-The four paired SVG previews in the repository README are compiled by Typst from the matching documents in [`docs/examples/`](docs/examples/). [`paired-preview.typ`](docs/paired-preview.typ) reads each source file for the left pane and includes that same file for the rendered pane. Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate the previews.
+The four titleless SVG outputs in the repository README are compiled directly from the matching Typst documents in [`docs/examples/`](docs/examples/). The Markdown code blocks are the readable source listing; the SVGs contain only the rendered output from those source files. Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate the images.
