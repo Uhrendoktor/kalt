@@ -6,7 +6,6 @@
   margin: (left: 15mm, right: 3mm, top: 3mm, bottom: 3mm),
 )
 #set text(size: 9pt)
-#set par(leading: 1.3em)
-#set par(spacing: 1mm)
+#set par(leading: 1.3em, spacing: 1mm)
 
 #comp($5 % 0$)
