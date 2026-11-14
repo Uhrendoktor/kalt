@@ -17,13 +17,15 @@ Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 72mm, height: 37.5mm, margin: 1mm)
+#set page(width: 56mm, height: 26mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
 $ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
-$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2)$) $
+$ (2 + 3 * (4^2 - 5)) / 4 = #calc.round(comp($(2 + 3 * (4^2 - 5)) / 4$), digits: 2) $
+
+$ log_2(2^3 + 8) - ln(e^2) = #calc.round(comp($log_2(2^3 + 8) - ln(e^2)$), digits: 2) $
 
 $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
@@ -46,7 +48,7 @@ Compatible matrices support element-wise arithmetic. Use `dot` when you want mat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 50mm, height: 24mm, margin: 1mm)
+#set page(width: 46mm, height: 19mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -76,7 +78,7 @@ Vectors are column vectors. Transpose the left operand for a dot product; use `t
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 45mm, height: 22mm, margin: 1mm)
+#set page(width: 40mm, height: 18mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -106,7 +108,7 @@ Complex values work throughout expressions, including division, powers, conjugat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 50mm, height: 30mm, margin: 1mm)
+#set page(width: 40mm, height: 33mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
