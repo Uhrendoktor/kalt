@@ -41,6 +41,6 @@ pub(crate) fn boolean_value<'data>(
     }
 }
 
-pub(crate) fn boolean_indicator(value: bool) -> Complex<f64> {
+pub fn boolean_indicator(value: bool) -> Complex<f64> {
     Complex::new(value as u8 as f64, 0.0)
 }
