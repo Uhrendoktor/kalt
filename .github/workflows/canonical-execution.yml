@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: kalt-typst-tests-${{ github.ref }}
   cancel-in-progress: true
@@ -14,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref || github.sha }}
       - uses: actions/checkout@v7
         with:
           repository: Uhrendoktor/sertyp
@@ -46,13 +51,27 @@ jobs:
           if report['failed']:
               raise SystemExit(1)
           PY
-      - name: Render README worked examples
-        run: bash typst/docs/render-examples.sh /tmp/kalt-doc-figures
+      - name: Render titleless Typst README outputs
+        run: bash typst/docs/render-examples.sh
+      - name: Commit generated README previews
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f typst/assets/readme/*.svg
+          if git diff --cached --quiet; then
+            echo "Generated Typst previews are up to date."
+            exit 0
+          fi
+          git commit -m "Regenerate Typst README SVGs"
+          git push origin "HEAD:$TARGET_BRANCH"
       - if: always()
         uses: actions/upload-artifact@v7
         with:
           name: kalt-readme-examples
-          path: /tmp/kalt-doc-figures/*.svg
+          path: typst/assets/readme/*.svg
           if-no-files-found: error
       - if: always()
         uses: actions/upload-artifact@v7

@@ -2,7 +2,7 @@
 
 Kalt evaluates Typst math expressions containing real and complex scalars, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Compatible matrix arithmetic is element-wise by default; use `dot` for matrix multiplication. The collection helpers `map`, `reduce`, `any`, and `all` provide callbacks and aggregation when a calculation needs them.
 
-The [repository README](../README.md) contains five complete worked examples in a side-by-side source/output layout: a sliced matrix stencil, a homogeneous transform, coordinate-aware sensor calibration, 3D force/moment analysis, and complex AC power.
+The [repository README](../README.md) pairs Markdown-fenced Typst source code with the titleless SVG output compiled directly from each matching `.typ` example file.
 
 ## Operation reference
 
@@ -149,4 +149,4 @@ Comparisons evaluate to numeric indicators: false is `0`, true is `1`. Bitwise o
 
 ## Reproducible example renders
 
-The five SVGs in the repository README are compiled from the matching Typst documents in [`docs/examples/`](docs/examples/). Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate them.
+The four titleless SVG outputs in the repository README are compiled directly from the matching Typst documents in [`docs/examples/`](docs/examples/). The Markdown code blocks are the readable source listing; the SVGs contain only the rendered output from those source files. Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate the images.

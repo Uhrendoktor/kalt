@@ -2,258 +2,185 @@
 
 **Evaluate real, complex, vector, and matrix expressions directly in Typst.**
 
-Kalt evaluates Typst math with indexing, slicing, element-wise tensor arithmetic, matrix products, complex numbers, and collection helpers. The examples below are complete calculations: executable Typst source on the left, its rendered result on the right.
+Kalt evaluates Typst math with scalar and complex arithmetic, vectors, matrices, indexing, and mathematical functions. Each example below keeps its source as a real Markdown fenced Typst code block; the adjacent image is the plain, titleless SVG output compiled directly from that same `.typ` file by Typst.
 
-## 01 · Slice and combine a field
+## Scalar arithmetic and functions
 
-A five-point discrete Laplacian over a sampled 5×5 field. Five aligned 3×3 slices are evaluated, then combined with Kalt’s element-wise matrix arithmetic. There is no per-cell callback: compatible matrix operators already work cell by cell.
-
-<table>
-  <thead>
-    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top">
-        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
-
-#let field = $mat(
-  10, 12, 15, 14, 11;
-  13, 20, 25, 22, 15;
-  14, 24, 35, 28, 16;
-  12, 19, 27, 23, 14;
-  9, 11, 16, 15, 10
-)$
-
-#let north = comp($#field [0:3, 1:4]$)
-#let south = comp($#field [2:5, 1:4]$)
-#let west = comp($#field [1:4, 0:3]$)
-#let east = comp($#field [1:4, 2:5]$)
-#let middle = comp($#field [1:4, 1:4]$)
-
-#let laplacian = comp($4 * (
-  #north + #south + #west + #east
-  - 4 * #middle
-)$)
-
-$ nabla_h^2 T = #laplacian $</code></pre>
-      </td>
-      <td valign="top">
-        <img src="typst/assets/readme/field-stencil.svg" alt="Rendered sampled field, five aligned 3 by 3 slices, stencil weights, and the resulting 3 by 3 Laplacian." width="100%">
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## 02 · Transform a point in homogeneous coordinates
-
-A 3×3 transform rotates a 2D point by 90° counter-clockwise and translates it by (5, −2). The dot operator performs matrix multiplication; slices extract the transformed coordinates.
+Binary arithmetic, powers, logarithms, magnitude, rounding, and bitwise binary operators.
 
 <table>
-  <thead>
-    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top">
-        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
+<tr>
+<td width="60%" valign="top">
 
-#let transform = $mat(
-  0, -1, 5;
-  1, 0, -2;
-  0, 0, 1
-)$
-#let point = $vec(3, 2, 1)$
-#let moved = comp($#transform dot #point$)
+````typst
+#import "../../lib.typ": comp
 
-#let x = comp($#moved [0, 0]$)
-#let y = comp($#moved [1, 0]$)
-#let homogeneous = comp($#moved [2, 0]$)
-
-$ p' = #moved $
-$ (x', y', w') = (#x, #y, #homogeneous) $</code></pre>
-      </td>
-      <td valign="top">
-        <img src="typst/assets/readme/rigid-transform.svg" alt="Rendered homogeneous transform matrix, input vector, matrix product, and extracted output coordinates." width="100%">
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## 03 · Calibrate a sensor array and gate its quality
-
-The map callback applies a value correction and a coordinate-dependent offset. Reduce folds the corrected field into a mean; any and all check outlier and operating-range conditions.
-
-<table>
-  <thead>
-    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top">
-        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": all, any, comp, map, reduce
-
-#let raw = $mat(
-  1.02, 1.05, 0.98;
-  0.99, 1.01, 1.04;
-  1.03, 0.97, 1.00
-)$
-
-#let calibrated = map(
-  (reading, x, y) =&gt; calc.round((reading - 1) * 100 - (x - y) * 0.5, digits: 1),
-  raw,
-)
-#let total = reduce(
-  (sum, value) =&gt; sum + comp(value),
-  0,
-  calibrated,
-)
-#let mean = total / 9
-#let has_outlier = any(
-  value =&gt; comp(value) &gt; 4 or comp(value) &lt; -4,
-  calibrated,
-)
-#let all_in_range = all(
-  value =&gt; comp(value) &gt;= -5 and comp(value) &lt;= 5,
-  calibrated,
-)
-
-#let outlier_label = if has_outlier { "YES" } else { "NO" }
-#let range_label = if all_in_range { "YES" } else { "NO" }
-
-#align(center)[
-  Mean correction: #mean %
-  #linebreak()
-  Outlier detected: #outlier_label
-  #linebreak()
-  All sensors in range: #range_label
-]</code></pre>
-      </td>
-      <td valign="top">
-        <img src="typst/assets/readme/sensor-calibration.svg" alt="Rendered raw sensor matrix, coordinate-calibrated values, mean correction, and any/all quality checks." width="100%">
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## 04 · Compute complex power in an AC circuit
-
-A series R–L load turns a real source voltage and complex impedance into a current phasor. Conjugation gives complex power; Re, Im, and abs extract active power, reactive power, and apparent magnitude.
-
-<table>
-  <thead>
-    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top">
-        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
-
-#let voltage = $120 + 0i$
-#let impedance = $30 + 40i$
-#let current = comp($#voltage / #impedance$)
-#let current_conjugate = comp($#current^*$)
-#let apparent = comp($#voltage * #current_conjugate$)
-
-#let active = comp($Re(#apparent)$)
-#let reactive = comp($Im(#apparent)$)
-#let apparent_magnitude = comp($abs(#apparent)$)
-#let power_factor = calc.round(active / apparent_magnitude, digits: 2)
-
-$I = #current " A"$
-$S = #apparent " VA"$
-$P = #active " W"$
-$Q = #reactive " var"$
-$"PF" = #power_factor$</code></pre>
-      </td>
-      <td valign="top">
-        <img src="typst/assets/readme/ac-power.svg" alt="Rendered AC source voltage, complex impedance, current phasor, apparent power, active power, reactive power, and power factor." width="100%">
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## 05 · Resolve a 3D force and its moment
-
-A force applied away from the origin produces a torque. Kalt's cross product computes the moment vector; a transposed-vector dot product finds the axial force component, and `abs` returns the moment magnitude.
-
-<table>
-  <thead>
-    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top">
-        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
-
-#set page(width: 104mm, height: auto, margin: 6mm)
-#set text(size: 8.5pt)
-
-#let position = $vec(0.4, 0.2, 0.1)$
-#let force = $vec(100, -40, 25)$
-#let axis = $vec(0, 0, 1)$
-#let moment = comp($#position times #force$)
-#let axial-force = comp($#axis^T dot #force$)
-#let moment-size = calc.round(comp($abs(#moment)$), digits: 2)
-
-#let ink = rgb("#182230")
-#let muted = rgb("#667085")
-#let panel(title, body) = block(
-  width: 100%,
-  inset: 8pt,
-  radius: 5pt,
-  fill: rgb("#f5f7fa"),
-  stroke: 0.6pt + rgb("#e1e7ef"),
-)[
-  #text(size: 7pt, weight: "bold", fill: muted)[#title]
-  #v(3pt)
-  #align(center)[#body]
-]
-
-#align(center)[#text(size: 15pt, weight: "bold", fill: ink)[FORCE &amp; MOMENT]]
-#align(center)[#text(size: 7pt, fill: muted)[3D STATICS · CROSS PRODUCT · DOT PRODUCT · VECTOR NORM]]
-#v(7pt)
+#set page(width: 100mm, height: auto, margin: 3mm)
+#set text(size: 8pt)
 
 #grid(
   columns: (1fr, 1fr, 1fr),
-  gutter: 5pt,
-  panel("POSITION · m", $r = #position$),
-  panel("FORCE · N", $F = #force$),
-  panel("AXIS", $e_z = #axis$),
+  gutter: 4mm,
+  $12 + 3 = #comp($12 + 3$)$,
+  $12 - 3 = #comp($12 - 3$)$,
+  $12 * 3 = #comp($12 * 3$)$,
+  $12 / 3 = #comp($12 / 3$)$,
+  $3^4 = #calc.round(comp($3^4$), digits: 0)$,
+  $ln(8) = #calc.round(comp($ln(8)$), digits: 3)$,
+  $log_2(8) = #calc.round(comp($log_2(8)$), digits: 3)$,
+  $abs(-3 - 4i) = #comp($abs(-3 - 4i)$)$,
+  $ceil(2.2) = #comp($ceil(2.2)$)$,
+  $floor(2.8) = #comp($floor(2.8)$)$,
+  $6 ∧ 3 = #comp($6 ∧ 3$)$,
+  $6 ∨ 3 = #comp($6 ∨ 3$)$,
+  $6 ⊕ 3 = #comp($6 ⊕ 3$)$,
 )
-#v(6pt)
-#panel("MOMENT ABOUT THE ORIGIN", [
-  #align(center)[$M = r times F = #moment " N" dot "m"$]
-  #text(size: 7pt, fill: muted)[The cross product returns a three-component torque vector]
-])
-#v(5pt)
+````
+
+</td>
+<td width="40%" valign="top">
+
+![Titleless Typst rendering of scalar arithmetic, logarithms, powers, rounding, magnitude, and bitwise operations.](typst/assets/readme/scalar-operations.svg)
+
+</td>
+</tr>
+</table>
+
+## Matrix operations
+
+Element-wise addition, subtraction, multiplication and division, matrix multiplication, transpose, and matrix powers.
+
+<table>
+<tr>
+<td width="60%" valign="top">
+
+````typst
+#import "../../lib.typ": comp
+
+#set page(width: 100mm, height: auto, margin: 3mm)
+#set text(size: 8pt)
+
+#let a = $mat(1, 2; 3, 4)$
+#let b = $mat(5, 8; 9, 12)$
+
 #grid(
   columns: (1fr, 1fr),
-  gutter: 6pt,
-  panel("AXIAL FORCE", [
-    #text(size: 15pt, weight: "bold")[$e_z^T dot F = #axial-force " N"$]
-    #text(size: 7pt, fill: muted)[Transpose and dot product]
-  ]),
-  panel("MOMENT MAGNITUDE", [
-    #text(size: 15pt, weight: "bold")[$abs(M) = #moment-size " N" dot "m"$]
-    #text(size: 7pt, fill: muted)[Vector norm]
-  ]),
-)</code></pre>
-      </td>
-      <td valign="top">
-        <img src="typst/assets/readme/force-moment.svg" alt="Rendered three-dimensional position and force, cross-product moment, axial component, and moment magnitude." width="100%">
-      </td>
-    </tr>
-  </tbody>
+  gutter: 4mm,
+  $A = #a quad B = #b$,
+  $A + B = #comp($#a + #b$)$,
+  $A - B = #comp($#a - #b$)$,
+  $A * B = #comp($#a * #b$)$,
+  $B / A = #comp($#b / #a$)$,
+  $A dot B = #comp($#a dot #b$)$,
+  $A^T = #comp($#a^T$)$,
+  $A^2 = #comp($#a^2$)$,
+)
+````
+
+</td>
+<td width="40%" valign="top">
+
+![Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication.](typst/assets/readme/matrix-operations.svg)
+
+</td>
+</tr>
+</table>
+
+## Vector products
+
+Column-vector transpose, dot product, cross product, and vector norms.
+
+<table>
+<tr>
+<td width="60%" valign="top">
+
+````typst
+#import "../../lib.typ": comp
+
+#set page(width: 100mm, height: auto, margin: 3mm)
+#set text(size: 8pt)
+
+#let a = $vec(1, 2, 3)$
+#let b = $vec(4, 5, 6)$
+#let cross-product = comp($#a times #b$)
+
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 4mm,
+  $a = #a$,
+  $b = #b$,
+  $a^T dot b = #comp($#a^T dot #b$)$,
+  $a times b = #cross-product$,
+  $abs(a) = #calc.round(comp($abs(#a)$), digits: 3)$,
+  $abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3)$,
+)
+````
+
+</td>
+<td width="40%" valign="top">
+
+![Titleless Typst rendering of vector dot and cross products and their lengths.](typst/assets/readme/vector-operations.svg)
+
+</td>
+</tr>
+</table>
+
+## Complex arithmetic
+
+Complex division, conjugation, complex power, and magnitude.
+
+<table>
+<tr>
+<td width="60%" valign="top">
+
+````typst
+#import "../../lib.typ": comp
+
+#set page(width: 100mm, height: auto, margin: 3mm)
+#set text(size: 8pt)
+
+#let voltage = $100 + 0i$
+#let impedance = $3 + 4i$
+#let current = comp($#voltage / #impedance$)
+#let conjugate = comp($#current^*$)
+#let power = comp($#voltage * #conjugate$)
+
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 4mm,
+  $V = #voltage " V"$,
+  $Z = #impedance Ω$,
+  $I = V / Z = #current " A"$,
+  $I^* = #conjugate " A"$,
+  $S = V I^* = #power " VA"$,
+  $abs(S) = #comp($abs(#power)$) " VA"$,
+)
+````
+
+</td>
+<td width="40%" valign="top">
+
+![Titleless Typst rendering of complex current and power calculations.](typst/assets/readme/complex-arithmetic.svg)
+
+</td>
+</tr>
 </table>
 
 ## Documentation
 
-The [Typst operation reference](typst/README.md) covers expression evaluation, matrix and vector notation, indexing and slicing, element-wise arithmetic versus matrix products, callbacks and aggregation, complex functions, comparisons, and bitwise operators.
+The [Typst operation reference](typst/README.md) documents the full supported syntax, including comparison and bitwise operators. The source files shown here are in [`typst/docs/examples/`](typst/docs/examples/).
 
-## Continue
+## Build
 
-- [Kalt on Typst Universe](https://typst.app/universe/package/kalt/)
-- [Report a bug or request a feature](https://github.com/Uhrendoktor/kalt/issues)
+```bash
+cargo build --workspace
+cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
+```
+
+Regenerate the titleless SVGs directly from those Typst files with Typst 0.15.1:
+
+```bash
+bash typst/docs/render-examples.sh
+```
 
 Kalt is released under the [MIT License](LICENSE).
