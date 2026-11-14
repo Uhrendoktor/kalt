@@ -10,7 +10,7 @@
 )$
 
 #let calibrated = map(
-  (reading, x, y) => (reading - 1) * 100 - (x - y) * 0.5,
+  (reading, x, y) => calc.round((reading - 1) * 100 - (x - y) * 0.5, digits: 1),
   raw,
 )
 #let total = reduce(

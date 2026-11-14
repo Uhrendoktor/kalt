@@ -87,7 +87,7 @@
 
 #let sensor-raw = $mat(1.02, 1.05, 0.98; 0.99, 1.01, 1.04; 1.03, 0.97, 1.00)$
 #let sensor-calibrated = map(
-  (reading, x, y) => (reading - 1) * 100 - (x - y) * 0.5,
+  (reading, x, y) => calc.round((reading - 1) * 100 - (x - y) * 0.5, digits: 1),
   sensor-raw,
 )
 #assert-eq(

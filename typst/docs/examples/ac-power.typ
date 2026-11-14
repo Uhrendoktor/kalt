@@ -57,5 +57,5 @@
   columns: (1fr, 1fr),
   gutter: 6pt,
   panel("APPARENT POWER", $|S| = #apparent_magnitude " VA"$),
-  panel("POWER FACTOR", $PF = #power_factor$),
+  panel("POWER FACTOR", $"PF" = #power_factor$),
 )

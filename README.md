@@ -164,7 +164,7 @@ $I = #current " A"$
 $S = #apparent " VA"$
 $P = #active " W"$
 $Q = #reactive " var"$
-$PF = #power_factor$</code></pre>
+$"PF" = #power_factor$</code></pre>
       </td>
       <td valign="top">
         <img src="typst/assets/readme/ac-power.svg" alt="Rendered AC source voltage, complex impedance, current phasor, apparent power, active power, reactive power, and power factor." width="100%">
