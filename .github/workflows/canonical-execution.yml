@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: kalt-typst-tests-\${{ github.ref }}
+  group: kalt-typst-tests-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

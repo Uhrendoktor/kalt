@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-output_dir="\${1:-typst/assets/guide}"
+output_dir="${1:-typst/assets/guide}"
 mkdir -p "$output_dir"
 
 figures=(
@@ -16,7 +16,7 @@ figures=(
   temperature-predicates
 )
 
-for figure in "\${figures[@]}"; do
+for figure in "${figures[@]}"; do
   typst compile \
     --root . \
     --format svg \
