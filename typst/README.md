@@ -9,7 +9,8 @@ Start with an ordinary expression in Typst math. Kalt evaluates the same express
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
-$ sqrt(3^2 + 4^2) &= comp(sqrt(3^2 + 4^2)) \\
+$ sqrt(3^2 + 4^2) &= comp(sqrt(3^2 + 4^2)) \
+
   e^(i pi)         &= comp(e^(i pi)) $
 ~~~
 
@@ -33,9 +34,12 @@ $ A = mat(1, 2; 3, 4) quad B = mat(5, 6; 7, 8) $
 The entry in row $i$, column $j$ of the product is the dot product of row $i$ of the first matrix and column $j$ of the second. The four entries can be worked out explicitly:
 
 ~~~typst
-$ (A B)_(1, 1) &= 1 dot 5 + 2 dot 7 = 19 \\
-  (A B)_(1, 2) &= 1 dot 6 + 2 dot 8 = 22 \\
-  (A B)_(2, 1) &= 3 dot 5 + 4 dot 7 = 43 \\
+$ (A B)_(1, 1) &= 1 dot 5 + 2 dot 7 = 19 \
+
+  (A B)_(1, 2) &= 1 dot 6 + 2 dot 8 = 22 \
+
+  (A B)_(2, 1) &= 3 dot 5 + 4 dot 7 = 43 \
+
   (A B)_(2, 2) &= 3 dot 6 + 4 dot 8 = 50 $
 ~~~
 
@@ -62,8 +66,10 @@ Kalt's <code>vec(...)</code> notation represents a column vector. For the inner 
 #import "@preview/kalt:0.1.1": comp
 
 $ vec(1, 2, 3)^T dot vec(4, 5, 6)
-  &= 1 dot 4 + 2 dot 5 + 3 dot 6 \\
-  &= 4 + 10 + 18 \\
+  &= 1 dot 4 + 2 dot 5 + 3 dot 6 \
+
+  &= 4 + 10 + 18 \
+
   &= comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
 ~~~
 
@@ -79,7 +85,8 @@ $ vec(1, 2, 3) × vec(4, 5, 6)
     2 dot 6 - 3 dot 5,
     3 dot 4 - 1 dot 6,
     1 dot 5 - 2 dot 4
-  ) \\
+  ) \
+
   &= comp(vec(1, 2, 3) × vec(4, 5, 6)) $
 ~~~
 
@@ -93,8 +100,10 @@ Complex expressions use the same notation as Typst math. Expand by distributivit
 #import "@preview/kalt:0.1.1": comp
 
 $ (2 + 3i)(4 - i)
-  &= 8 - 2i + 12i - 3i^2 \\
-  &= (8 + 3) + (-2i + 12i) \\
+  &= 8 - 2i + 12i - 3i^2 \
+
+  &= (8 + 3) + (-2i + 12i) \
+
   &= comp((2 + 3i)(4 - i)) $
 ~~~
 
@@ -103,8 +112,10 @@ $ (2 + 3i)(4 - i)
 The same approach works with conjugation, real and imaginary parts, roots, logarithms, and trigonometric or hyperbolic functions. For example:
 
 ~~~typst
-$ (2 + 3i)^* &= comp((2 + 3i)^*) \\
-  Re(2 + 3i) &= comp(Re(2 + 3i)) \\
+$ (2 + 3i)^* &= comp((2 + 3i)^*) \
+
+  Re(2 + 3i) &= comp(Re(2 + 3i)) \
+
   Im(2 + 3i) &= comp(Im(2 + 3i)) $
 ~~~
 
@@ -179,8 +190,10 @@ Comparisons evaluate to numeric indicators: false is <code>0</code>, true is <co
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
-$ 3 > 2 &= comp(3 > 2) \\
-  6 ∧ 3 &= comp(6 ∧ 3) \\
+$ 3 > 2 &= comp(3 > 2) \
+
+  6 ∧ 3 &= comp(6 ∧ 3) \
+
   6 ⊕ 3 &= comp(6 ⊕ 3) $
 ~~~
 
