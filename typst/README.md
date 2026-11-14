@@ -133,7 +133,6 @@ Kalt also includes helpers for changing and checking many matrix cells at once:
 | `any(fn, ..mats)` | Return true when at least one aligned cell satisfies the test. |
 | `all(fn, ..mats)` | Return true only when every aligned cell satisfies the test. |
 | `tensor-variant(value)` | Return `"scalar"` or `"matrix"` for mathematical content. |
-| `to-float-if-possible(value)` | Evaluate numeric math content to a float; otherwise return the original value. |
 
 For example, convert a matrix of measurements to percentage deviations and check its values:
 
