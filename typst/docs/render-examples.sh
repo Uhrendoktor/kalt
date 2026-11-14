@@ -25,3 +25,10 @@ for example in scalar-operations matrix-operations vector-operations complex-ari
     "typst/docs/examples/$example.typ" \
     "$output_dir/$example.svg"
 done
+
+# Compile the non-visual collection-helper example as a documentation check.
+typst compile \
+  --package-path "$package_path" \
+  --root . \
+  "typst/docs/examples/collection-helpers.typ" \
+  "$package_path/collection-helpers.pdf"

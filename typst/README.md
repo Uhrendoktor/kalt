@@ -2,25 +2,13 @@
 
 Kalt evaluates native Typst math content in place. Write an expression once and use its computed value in the same equation or elsewhere in your document. It works with real and complex numbers, vectors, matrices, nested operators, and slices—without translating your math into a second expression language.
 
-## Get started
+## Evaluate your first expression
 
-Import `comp`, then pass it the math content you want evaluated:
-
-```typst
-#import "@preview/kalt:0.1.1": comp
-
-$ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
-```
-
-A real scalar result becomes a Typst number. Complex, vector, and matrix results remain native mathematical content, ready to typeset.
-
-## See it in action
-
-The examples below are complete Typst documents. The page settings only size the source and its matching preview; remove or adjust them when placing the expressions in an existing document.
+Import `comp` and wrap the math content you want evaluated. A real result becomes a Typst number; complex, vector, and matrix results remain native mathematical content.
 
 ### Nested expressions and operator precedence
 
-Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operators in one expression. Kalt parses the nested expression according to operator precedence.
+Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operators in one expression.
 
 <table width="100%" cellspacing="0" cellpadding="0">
 <tr>
@@ -29,9 +17,11 @@ Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 72mm, height: 30mm, margin: 1mm)
+#set page(width: 72mm, height: 37.5mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
+
+$ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
 $ ((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2)) + log_2(2^3 + 8) - ln(e^2)$) $
 
@@ -40,7 +30,7 @@ $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2
 
 </td>
 <td width="50%" valign="middle">
-<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, logarithms, powers, comparisons, and bitwise operators evaluated from Typst math." width="100%">
+<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex powers, logarithms, comparisons, and bitwise operators evaluated from Typst math." width="100%">
 </td>
 </tr>
 </table>
@@ -150,7 +140,7 @@ $ abs(S) = #comp($abs(#power)$) " VA" $
 
 ### Scalars and complex numbers
 
-Use Typst's native math syntax for real and complex expressions. Kalt supports nested arithmetic, implicit multiplication, powers, factorials, roots, binomial coefficients, and comparison and bitwise operators.
+Use Typst's native math syntax for real and complex expressions. Kalt supports nested arithmetic, implicit multiplication, powers, factorials, roots, binomial coefficients, comparisons, and bitwise operations.
 
 | Group | Syntax |
 | --- | --- |
@@ -158,8 +148,8 @@ Use Typst's native math syntax for real and complex expressions. Kalt supports n
 | Powers and products | `^`, `dot`, `times`, factorial `!` |
 | Roots and combinations | `sqrt(x)`, `root(n, x)`, `binom(n, k)` |
 | Logarithms | `ln(x)`, `log_a(x)` |
-| Trigonometry | `sin`, `cos`, `tan`, and inverse functions |
-| Hyperbolic | `sinh`, `cosh`, `tanh`, and inverse functions |
+| Trigonometry | `sin`, `cos`, `tan`, `arcsin`, `arccos`, `arctan` |
+| Hyperbolic | `sinh`, `cosh`, `tanh`, `arcsinh`, `arccosh`, `arctanh` |
 | Other functions | `abs(x)`, `floor(x)`, `ceil(x)`, `re(x)`, `im(x)` |
 | Comparisons | `=`, `≠`, `<`, `≤`, `>`, `≥` |
 | Bitwise | `∧` AND, `∨` OR, `⊕` XOR, `~` NOT |
@@ -168,16 +158,7 @@ Comparisons evaluate to numeric indicators: false is `0` and true is `1`. Bitwis
 
 ### Matrices, vectors, and indexing
 
-Create matrices with `mat(...)` and column vectors with `vec(...)`:
-
-```typst
-#import "@preview/kalt:0.1.1": comp
-
-$ comp(mat(1, 2; 3, 4)^T) $
-$ comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
-```
-
-For compatible matrices, `+`, `-`, `*`, and `/` operate element-wise. Use `dot` for matrix multiplication. Transpose is `^T`; complex conjugation is `^*`. The `abs` function returns the vector length for vectors and the determinant for square matrices.
+Create matrices with `mat(...)` and column vectors with `vec(...)`. Commas separate entries, and semicolons start new matrix rows. Matrix `+`, `-`, `*`, and `/` are element-wise for compatible shapes. Use `dot` for matrix multiplication. Transpose is `^T`; complex conjugation is `^*`.
 
 Matrix indices are zero-based. The stop index in a slice is excluded, and negative indices count from the end.
 
@@ -191,29 +172,32 @@ Matrix indices are zero-based. The stop index in a slice is excluded, and negati
 | `M[::-1, ::-1]` | Reverse both axes |
 | `M[[0, -1], :]` | First and last rows |
 
-Slices support `start:stop:step`, omitted boundaries, negative steps, and explicit index lists.
+Slices support `start:stop:step`, omitted boundaries, negative steps, and explicit index lists. For vectors, `abs(v)` is the vector length; for square matrices, `abs(M)` is the determinant.
 
 ### Transform and inspect matrix data
 
-Kalt also provides helpers for cell-wise transformations and aggregation.
+Kalt includes helpers for cell-wise transformations and aggregation:
 
 | Function | Purpose |
 | --- | --- |
 | `map(fn, ..mats)` | Transform aligned cells and return a matrix. The callback receives each cell followed by its zero-based column `x` and row `y`. |
-| `reduce(fn, initial, ..mats)` | Fold aligned cells into an accumulator. Use `comp(value)` when the callback needs a number from a math-content cell. |
+| `reduce(fn, initial, ..mats)` | Fold aligned cells into an accumulator. Use `comp(value)` when the callback needs a number from math-content cells. |
 | `any(fn, ..mats)` | Return true when at least one aligned cell satisfies the predicate. |
 | `all(fn, ..mats)` | Return true only when every aligned cell satisfies the predicate. |
 | `tensor-variant(value)` | Return `"scalar"` or `"matrix"` for mathematical content. |
 | `to-float-if-possible(value)` | Evaluate numeric math content to a float; otherwise return the original value. |
 
-Example: convert a matrix of measurements to percentage deviations.
+For example, convert a matrix of measurements to percentage deviations and inspect the cells:
 
-```typst
-#import "@preview/kalt:0.1.1": map
+````typst
+#import "@preview/kalt:0.1.1": all, any, comp, map, reduce
 
-#let measurements = $mat(1.02, 1.05; 0.98, 1.01)$
-#let deviations = map((value, x, y) => (value - 1) * 100, measurements)
-```
+#let samples = $mat(12, 18; 24, 31)$
+#let corrected = map((value, x, y) => (value - 20) * 100, samples)
+#let total = reduce((sum, value) => sum + comp(value), 0, samples)
+#let has-over-limit = any(value => comp(value) > 30, samples)
+#let all-positive = all(value => comp(value) > 0, samples)
+````
 
 The aggregation helpers accept multiple matrices or vectors. Inputs are aligned by coordinate; a missing cell from a smaller input is passed as `none`.
 
