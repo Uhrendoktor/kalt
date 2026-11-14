@@ -1,4 +1,4 @@
-// Modulo tests for kalt bindings
+// Tests real and complex modulo for scalars and matrices, including the `mod` alias.
 
 #import "../utils.typ": binary_operation
 

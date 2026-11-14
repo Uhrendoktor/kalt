@@ -1,4 +1,4 @@
-// Factorial tests for kalt bindings
+// Tests factorials of real and complex values and matrix entries.
 
 #import "../utils.typ": unary_operation
 
@@ -6,7 +6,6 @@
   "Factorial",
   [Unary factorial],
   c1 => { $ #c1! $ },
-  // factorial
   (v: $3$, e: $6$),
   (v: $0$, e: $1$),
   (v: $1$, e: $1$),

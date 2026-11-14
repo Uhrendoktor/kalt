@@ -1,4 +1,4 @@
-// Binomial coefficient tests for kalt bindings
+// Tests binomial coefficients for real, complex, and matrix inputs.
 
 #import "../utils.typ": binary_operation
 
@@ -6,7 +6,6 @@
   "Binomial Coefficient",
   [Binary binomial coefficient],
   (c1, c2) => { $ binom(#c1, #c2) $ },
-  // binomial coefficient
   (v1: $3$, v2: $1+2i$, e: $12.783877012273047+12.783877012273047i$),
   (v1: $3$, v2: $2+1i$, e: $4.411293492449991-2.205646746224995i$),
   (v1: $2 - 3.2i$, v2: $-2 + 0.5i$, e: $0.035137193905676184+0.022513773816639663i$),

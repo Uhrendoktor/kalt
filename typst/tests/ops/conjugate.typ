@@ -1,4 +1,4 @@
-// Conjugate tests for kalt bindings
+// Tests complex conjugation and Hermitian transpose for matrices.
 
 #import "../utils.typ": unary_operation
 
@@ -6,7 +6,6 @@
   "Conjugate",
   [Unary conjugate $x^*$],
   c1 => { $ #c1^* $ },
-  // conjugate
   (v: $3$, e: $3$),
   (v: $(2-1i)$, e: $2+1i$),
   (v: $-3.5i$, e: $3.5i$),

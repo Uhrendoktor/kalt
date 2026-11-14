@@ -1,4 +1,4 @@
-// Hyperbolic cosine tests for kalt bindings
+// Tests hyperbolic cosine and inverse-hyperbolic-cosine aliases.
 
 #import "../utils.typ": unary_operation
 

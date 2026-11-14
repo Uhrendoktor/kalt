@@ -1,4 +1,4 @@
-// Division tests for kalt bindings
+// Tests division of real and complex scalars and matrix entries.
 
 #import "../utils.typ": binary_operation
 

@@ -1,4 +1,4 @@
-// Visual and CI test suite for kalt
+// Includes all operation, public API, and error tests in the visual and CI suite.
 
 #import "utils.typ": emit-test-report
 

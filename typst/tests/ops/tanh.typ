@@ -1,4 +1,4 @@
-// Hyperbolic tangent tests for kalt bindings
+// Tests hyperbolic tangent and inverse-hyperbolic-tangent aliases.
 
 #import "../utils.typ": unary_operation
 

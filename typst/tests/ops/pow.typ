@@ -1,4 +1,4 @@
-// Power tests for kalt bindings
+// Tests scalar and matrix exponentiation, integer range checks, and transpose.
 
 #import "../utils.typ": binary_operation, unary_operation
 

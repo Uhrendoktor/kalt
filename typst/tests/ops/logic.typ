@@ -1,4 +1,4 @@
-// Typst booleans can be passed directly to comp as numeric indicators.
+// Tests direct Typst Boolean inputs and logical NOT behavior.
 
 #import "../../lib.typ": comp
 #import "../utils.typ": assert-eq, assert-typst-eq, unary_operation

@@ -1,4 +1,4 @@
-// Public Typst API behavior tests.
+// Tests the public Typst API, including scalar conversions, direct math results, and matrix helpers.
 
 #import "../lib.typ": all, any, comp, map
 #import "utils.typ": assert-typst-eq, assert-eq
@@ -13,16 +13,11 @@
 #assert-typst-eq("comp direct string parses radix integer", comp("0xFF"), 255.0)
 #assert-typst-eq("comp direct decimal returns float", comp(decimal("2.5")), 2.5)
 #assert-typst-eq("comp direct 1x1 matrix returns float", comp(math.mat(..((7,),))), 7.0)
-#assert-typst-eq(
-  "comp direct matrix returns content",
-  type(comp(math.mat(..((1, 2), (3, 4))))),
-  content,
-)
-#assert-typst-eq(
-  "comp direct vector returns content",
-  type(comp(math.vec($1$, $2$, $3$))),
-  content,
-)
+#let matrix-result = comp(math.mat(..((1, 2), (3, 4))))
+#assert-typst-eq("comp returns matrix content directly", matrix-result.func(), math.mat)
+
+#let vector-result = comp(math.vec($1$, $2$, $3$))
+#assert-typst-eq("comp returns vector content directly", vector-result.func(), math.vec)
 
 #assert-eq(
   "map passes numeric cells to callback as floats",

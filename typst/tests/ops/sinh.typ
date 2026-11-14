@@ -1,4 +1,4 @@
-// Hyperbolic sine tests for kalt bindings
+// Tests hyperbolic sine and inverse-hyperbolic-sine aliases.
 
 #import "../utils.typ": unary_operation
 

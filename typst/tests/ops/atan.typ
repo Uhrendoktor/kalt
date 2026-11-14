@@ -1,4 +1,4 @@
-// Principal inverse tangent tests for kalt bindings
+// Tests principal inverse tangent notation and its arctan and atan aliases.
 
 #import "../utils.typ": unary_operation
 

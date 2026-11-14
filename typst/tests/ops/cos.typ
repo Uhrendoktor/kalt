@@ -1,4 +1,4 @@
-// Cosine tests for kalt bindings
+// Tests complex cosine for scalars and matrix entries.
 
 #import "../utils.typ": unary_operation
 

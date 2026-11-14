@@ -1,4 +1,4 @@
-// Addition tests for kalt bindings
+// Tests scalar addition and element-wise addition of matrices.
 
 #import "../utils.typ": binary_operation
 

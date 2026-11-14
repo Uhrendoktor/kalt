@@ -1,4 +1,4 @@
-// Multiplication tests for kalt bindings
+// Tests scalar and element-wise multiplication for complex and matrix values.
 
 #import "../utils.typ": binary_operation
 

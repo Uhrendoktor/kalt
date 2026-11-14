@@ -1,4 +1,4 @@
-// Principal inverse cosine tests for kalt bindings
+// Tests principal inverse cosine notation and its arccos and acos aliases.
 
 #import "../utils.typ": unary_operation
 

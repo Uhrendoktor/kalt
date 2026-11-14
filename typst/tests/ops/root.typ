@@ -1,4 +1,4 @@
-// Root tests for kalt bindings
+// Tests nth roots and principal square roots for scalars and matrices.
 
 #import "../utils.typ": binary_operation, unary_operation
 

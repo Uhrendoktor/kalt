@@ -1,4 +1,4 @@
-// Expected-failure tests for the test library itself.
+// Tests the inline error diagnostics returned for invalid expressions.
 
 #import "../lib.typ": comp
 #import "utils.typ": assert-error

@@ -1,4 +1,4 @@
-// Tangent tests for kalt bindings
+// Tests complex tangent for scalar values.
 
 #import "../utils.typ": unary_operation
 

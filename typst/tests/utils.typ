@@ -1,4 +1,4 @@
-#import "../lib.typ": comp, reduce, tensor-variant
+// Provides shared assertions, result validation, and table-driven test helpers.
 
 #let test-state = state("kalt-test-results", ())
 #let ci-mode = sys.inputs.at("ci", default: "false") == "true"
