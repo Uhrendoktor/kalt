@@ -18,20 +18,19 @@ pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
             Complex::new(if value { 1.0 } else { 0.0 }, 0.0).into()
         }
         Item::Integer(value) => {
-            // SerTyp converts each primitive integer payload into its Float type.
-            let value = match value {
-                Integer::i8(value) => Float::from(value),
-                Integer::i16(value) => Float::from(value),
-                Integer::i32(value) => Float::from(value),
-                Integer::i64(value) => Float::from(value),
-                Integer::i128(value) => Float::from(value),
-                Integer::u8(value) => Float::from(value),
-                Integer::u16(value) => Float::from(value),
-                Integer::u32(value) => Float::from(value),
-                Integer::u64(value) => Float::from(value),
-                Integer::u128(value) => Float::from(value),
-                Integer::isize(value) => Float::from(value),
-                Integer::usize(value) => Float::from(value),
+            let value: Float = match value {
+                Integer::i8(value) => value.into(),
+                Integer::i16(value) => value.into(),
+                Integer::i32(value) => value.into(),
+                Integer::i64(value) => value.into(),
+                Integer::i128(value) => value.into(),
+                Integer::u8(value) => value.into(),
+                Integer::u16(value) => value.into(),
+                Integer::u32(value) => value.into(),
+                Integer::u64(value) => value.into(),
+                Integer::u128(value) => value.into(),
+                Integer::isize(value) => value.into(),
+                Integer::usize(value) => value.into(),
             };
             Complex::new(value.into(), 0.0).into()
         }
