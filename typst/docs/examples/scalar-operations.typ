@@ -8,8 +8,8 @@
 #let natural-log = comp($ln(8)$)
 #let logarithm = comp($log_2(8)$)
 #let magnitude = comp($abs(-3 - 4i)$)
-#let ceiling = comp($ceil(2.2)$)
-#let floor = comp($floor(2.8)$)
+#let rounded-up = comp($ceil(2.2)$)
+#let rounded-down = comp($floor(2.8)$)
 
 #grid(
   columns: (1fr, 1fr, 1fr),
@@ -22,6 +22,6 @@
   $ln(8) = #natural-log$,
   $log_2(8) = #logarithm$,
   $abs(-3 - 4i) = #magnitude$,
-  $ceil(2.2) = #ceiling$,
-  $floor(2.8) = #floor$,
+  $ceil(2.2) = #rounded-up$,
+  $floor(2.8) = #rounded-down$,
 )
