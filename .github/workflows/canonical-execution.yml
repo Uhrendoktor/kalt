@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref || github.sha }}
       - uses: actions/checkout@v7
         with:
           repository: Uhrendoktor/sertyp
@@ -52,7 +54,9 @@ jobs:
       - name: Render README worked examples
         run: bash typst/docs/render-examples.sh
       - name: Commit generated README previews
-        if: github.event_name == 'push'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -62,7 +66,7 @@ jobs:
             exit 0
           fi
           git commit -m "Regenerate paired Typst README previews"
-          git push
+          git push origin "HEAD:$TARGET_BRANCH"
       - if: always()
         uses: actions/upload-artifact@v7
         with:
