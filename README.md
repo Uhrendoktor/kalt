@@ -1,41 +1,52 @@
 # Kalt
 
-**Evaluate mathematics where you write it.**
+**Evaluate sliced matrix expressions directly in Typst.**
 
-Kalt brings numerical evaluation to Typst's math notation. Write a formula, wrap it with <code>comp(...)</code>, and keep its computed result beside the original expression. Work with complex arithmetic, vectors, matrices, and mathematical functions without leaving your document.
+Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing and slicing let you build calculations over matching regions of a matrix, then evaluate the complete expression with `comp(...)`.
 
-## Try it in a document
+## First use: a 2D discrete Laplacian
 
-Import <code>comp</code> from Typst Universe and evaluate expressions directly in an equation:
+Given a sampled 5×5 scalar field, compute the five-point discrete Laplacian at all nine interior cells. Each slice selects one aligned 3×3 window: north, south, west, east, and center.
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
-$ sqrt(3^2 + 4^2) &= comp(sqrt(3^2 + 4^2)) \\
-  e^(i pi)         &= comp(e^(i pi)) $
+#let field = $mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+   9, 11, 16, 15, 10
+)$
+#let h2 = 0.25
+
+// Matching 3×3 windows around every interior cell.
+#let north = $[0:3, 1:4]$
+#let south = $[2:5, 1:4]$
+#let west  = $[1:4, 0:3]$
+#let east  = $[1:4, 2:5]$
+#let center = $[1:4, 1:4]$
+
+#let laplacian = comp($(
+  #field#north + #field#south + #field#west + #field#east
+  - 4 * #field#center
+) / #h2$)
+
+$ nabla_h^2 T = #laplacian $
 ~~~
 
-Kalt evaluates the two expressions to <code>5</code> and <code>-1</code>.
+![Typst output of the sliced 2D Laplacian calculation](typst/assets/guide/laplacian-slices.svg)
 
-A computed value can also drive Typst layout:
+The result is a 3×3 matrix. Kalt applies the matrix slices and element-wise arithmetic as one expression; the stop indices are exclusive, so each window has matching dimensions.
 
-~~~typst
-#let length = comp($sqrt(3^2 + 4^2)$)
-#rect(width: length * 1cm, height: 2mm)
-~~~
+## Documentation
 
-## More than arithmetic
+The [Typst guide and operation reference](typst/README.md) explains:
 
-- **Complex numbers:** conjugation, real and imaginary parts, complex powers, trigonometric and hyperbolic functions, and logarithms.
-- **Vectors and matrices:** element-wise arithmetic, matrix multiplication, dot and cross products, transpose, indexing, and slicing.
-- **Mathematical functions:** roots, factorials, binomial coefficients, absolute value, floor, and ceiling.
-- **Typst integration:** use computed values in document layout, and transform or inspect matrix and vector data with <code>map</code>, <code>reduce</code>, <code>any</code>, and <code>all</code>.
-
-## Worked calculations
-
-The first guide develops matrix multiplication, vector products, complex arithmetic, and matrix transformations as step-by-step calculations, with equations rendered directly from Typst source.
-
-[Read the guide and API reference](typst/README.md).
+- matrix and vector notation, arithmetic, dot and cross products
+- indexing, ranges, negative indices, and multidimensional slicing
+- `comp`, `map`, `reduce`, `any`, and `all`
+- complex numbers, mathematical functions, comparisons, and bitwise operators
 
 ## Continue
 
