@@ -51,7 +51,7 @@ jobs:
           if report['failed']:
               raise SystemExit(1)
           PY
-      - name: Render README worked examples
+      - name: Render titleless Typst README outputs
         run: bash typst/docs/render-examples.sh
       - name: Commit generated README previews
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
