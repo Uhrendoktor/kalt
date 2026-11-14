@@ -23,7 +23,7 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
 #let south = comp($#field [2:5, 1:4]$)
 #let west = comp($#field [1:4, 0:3]$)
 #let east = comp($#field [1:4, 2:5]$)
-#let center = comp($#field [1:4, 1:4]$)
+#let middle = comp($#field [1:4, 1:4]$)
 
 #let laplacian = comp($4 * (
   #north + #south + #west + #east
