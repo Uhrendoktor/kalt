@@ -65,7 +65,7 @@ jobs:
             echo "Generated Typst previews are up to date."
             exit 0
           fi
-          git commit -m "Regenerate paired Typst README previews"
+          git commit -m "Regenerate Typst README SVGs"
           git push origin "HEAD:$TARGET_BRANCH"
       - if: always()
         uses: actions/upload-artifact@v7
