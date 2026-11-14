@@ -1,6 +1,6 @@
 # Kalt
 
-**Evaluate mathematical expressions directly in Typst—and use the results in the rest of your document.**
+**Evaluate mathematical expressions directly in Typst and use the results in the rest of your document.**
 
 Kalt is for mathematical writing that goes beyond a few arithmetic operations. It evaluates nested expressions with complex numbers, vectors, and matrices while keeping the equations and their results in your Typst document.
 
