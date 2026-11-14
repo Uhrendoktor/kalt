@@ -4,7 +4,7 @@ set -euo pipefail
 output_dir="${1:-typst/assets/readme}"
 mkdir -p "$output_dir"
 
-for example in field-stencil rigid-transform sensor-calibration ac-power; do
+for example in field-stencil rigid-transform sensor-calibration force-moment ac-power; do
   typst compile \
     --root . \
     --format svg \

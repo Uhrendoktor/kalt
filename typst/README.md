@@ -2,7 +2,7 @@
 
 Kalt evaluates Typst math expressions containing real and complex scalars, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Compatible matrix arithmetic is element-wise by default; use `dot` for matrix multiplication. The collection helpers `map`, `reduce`, `any`, and `all` provide callbacks and aggregation when a calculation needs them.
 
-The [repository README](../README.md) contains four complete worked examples in a side-by-side source/output layout: a sliced matrix stencil, a homogeneous transform, coordinate-aware sensor calibration, and complex AC power.
+The [repository README](../README.md) contains five complete worked examples in a side-by-side source/output layout: a sliced matrix stencil, a homogeneous transform, coordinate-aware sensor calibration, 3D force/moment analysis, and complex AC power.
 
 ## Operation reference
 
