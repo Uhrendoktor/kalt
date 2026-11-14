@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: kalt-typst-tests-${{ github.ref }}
+  group: kalt-typst-tests-\${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,6 +46,14 @@ jobs:
           if report['failed']:
               raise SystemExit(1)
           PY
+      - name: Render guide equations
+        run: bash typst/docs/render-figures.sh /tmp/kalt-doc-figures
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: kalt-guide-equations
+          path: /tmp/kalt-doc-figures/*.svg
+          if-no-files-found: error
       - if: always()
         uses: actions/upload-artifact@v7
         with:
