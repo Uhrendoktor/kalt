@@ -55,8 +55,8 @@
   north, south, west, east, center,
 )
 
-#align(center)[
-  $ T = #field $
-  #v(3mm)
-  $ nabla_h^2 T = #laplacian $
-]
+#set align(center)
+
+$ T = #field $
+#v(3mm)
+$ nabla_h^2 T = #laplacian $
