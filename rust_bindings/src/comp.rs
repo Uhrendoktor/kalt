@@ -16,7 +16,7 @@ initiate_protocol!();
 pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
     let content = match body {
         Item::Boolean(Boolean(value)) => Complex::from(boolean_indicator(value)).into(),
-        Item::Integer(value) => Content::from(value.to_string()),
+        Item::Integer(value) => Complex::new(Float::from(value).into(), 0.0).into(),
         Item::Float(Float::f64(value)) => Complex::new(value, 0.0).into(),
         Item::Decimal(value) => Complex::new(value.into(), 0.0).into(),
         Item::String(value) => Content::from(value),
