@@ -8,4 +8,4 @@
 #set text(size: 9pt)
 #set par(leading: 1.3em, spacing: 1mm)
 
-#comp($5 % 0$)
+#comp($12 + 8 - 5 % 0 + 3 + 4$)
