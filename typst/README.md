@@ -145,10 +145,10 @@ For example, these two matrices do not fit together for this multiplication:
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#comp($mat(1, 2) dot mat(1, 2)$)
+#comp($5 % 0$)
 ````
 
-The red highlight marks the part that caused the problem. The note above it shows what Kalt expected and what it found, giving you a useful clue about what to change.
+Here, the remainder is calculated using zero as the second number. That is not possible, so Kalt marks the expression in red and explains that the second number must not be zero.
 
 <img src="assets/readme/error-hints.svg" alt="A red highlighted matrix expression with an error note showing the expected and found dimensions." width="50%">
 
