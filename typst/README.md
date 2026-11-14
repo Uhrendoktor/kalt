@@ -10,14 +10,9 @@ Import `comp` and wrap the math content you want evaluated. A real result become
 
 Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operators in one expression.
 
-<table width="100%" cellspacing="0" cellpadding="0">
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 $ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
 $ (2 + 3 * (4^2 - 5)) / 4 = #calc.round(comp($(2 + 3 * (4^2 - 5)) / 4$), digits: 2) $
@@ -27,25 +22,15 @@ $ log_2(2^3 + 8) - ln(e^2) = #calc.round(comp($log_2(2^3 + 8) - ln(e^2)$), digit
 $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 <img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex powers, logarithms, comparisons, and bitwise operators evaluated from Typst math." width="100%">
-</td>
-</tr>
-</table>
 
 ### Matrix algebra
 
 Compatible matrices support element-wise arithmetic. Use `dot` when you want matrix multiplication.
 
-<table width="100%" cellspacing="0" cellpadding="0">
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 6; 7, 8)$
 
@@ -54,25 +39,15 @@ $ "Element-wise" quad A * B = #comp($#a * #b$) $
 $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 <img src="assets/readme/matrix-operations.svg" alt="Element-wise matrix multiplication and matrix dot product, rendered from Typst math." width="100%">
-</td>
-</tr>
-</table>
 
 ### Vector products
 
 Vectors are column vectors. Transpose the left operand for a dot product; use `times` for the three-dimensional cross product.
 
-<table width="100%" cellspacing="0" cellpadding="0">
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
 
@@ -81,25 +56,15 @@ $ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
 $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 <img src="assets/readme/vector-operations.svg" alt="Vector dot product and three-dimensional cross product, rendered from Typst math." width="100%">
-</td>
-</tr>
-</table>
 
 ### Complex arithmetic
 
 Complex values work throughout expressions, including division, powers, conjugation, and magnitude.
 
-<table width="100%" cellspacing="0" cellpadding="0">
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
 #let current = comp($#voltage / #impedance$)
@@ -119,12 +84,7 @@ $ S = V I^* = #power " VA" $
 $ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
-</td>
-<td width="50%" valign="middle">
 <img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="100%">
-</td>
-</tr>
-</table>
 
 ## What Kalt evaluates
 
@@ -181,7 +141,6 @@ For example, convert a matrix of measurements to percentage deviations and inspe
 
 ````typst
 #import "@preview/kalt:0.1.1": all, any, comp, map, reduce
-
 #let samples = $mat(12, 18; 24, 31)$
 #let corrected = map((value, x, y) => (value - 20) * 100, samples)
 #let total = reduce((sum, value) => sum + comp(value), 0, samples)
