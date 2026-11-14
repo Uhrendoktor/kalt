@@ -5,10 +5,10 @@ resolver = "3"
 [workspace.package]
 edition = "2024"
 authors = ["Uhrendoktor"]
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 
 [workspace.dependencies]
-sertyp = { path = "../sertyp/rust", features = ["content"], version = "0.1.5" }
-kalt = { path = "./rust", version = "0.1.1" }
+sertyp = { version = "0.1.5", features = ["content"], git = "https://github.com/Uhrendoktor/sertyp", branch = "dev0.1.6" }
+kalt = { path = "./rust", version = "0.1.2" }
 chumsky = { version = "0.13.0", features = ["pratt"] }

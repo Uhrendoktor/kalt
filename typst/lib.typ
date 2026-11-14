@@ -41,9 +41,11 @@
     value
   }
 
-  let elements = mats.pos().map(mat => {
-    sertyp.call(kalt.to_elements, mat).map(row => row.map(evaluate-cell))
-  })
+  let elements = mats
+    .pos()
+    .map(mat => {
+      sertyp.call(kalt.to_elements, mat).map(row => row.map(evaluate-cell))
+    })
   let max_rows = calc.max(..elements.map(element => element.len()))
   let max_cols = calc.max(..elements.map(element => calc.max(..element.map(row => row.len()))))
 
@@ -103,7 +105,7 @@
 ///
 /// = Example
 /// ```typst
-/// #import "@preview/kalt:0.1.1": any, comp
+/// #import "@preview/kalt:0.1.2": any, comp
 /// #let m = $mat(1, 2; 3, 4)$
 /// #any(value => comp(value) > 3, m) // true
 /// ```
@@ -123,7 +125,7 @@
 ///
 /// = Example
 /// ```typst
-/// #import "@preview/kalt:0.1.1": all, comp
+/// #import "@preview/kalt:0.1.2": all, comp
 /// #let m = $mat(1, 2; 3, 4)$
 /// #all(value => comp(value) > 0, m) // true
 /// ```

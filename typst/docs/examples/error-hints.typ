@@ -1,4 +1,4 @@
-#import "@preview/kalt:0.1.1": comp
+#import "@preview/kalt:0.1.2": comp
 
 #set page(
   width: 100mm,

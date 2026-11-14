@@ -1,4 +1,4 @@
-#import "@preview/kalt:0.1.1": all, any, comp, map, reduce
+#import "@preview/kalt:0.1.2": all, any, comp, map, reduce
 
 #let samples = $mat(12, 18; 24, 31)$
 #let corrected = map((value, x, y) => (value - 20) * 100, samples)
