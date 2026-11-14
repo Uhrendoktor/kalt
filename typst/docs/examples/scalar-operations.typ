@@ -1,6 +1,6 @@
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 56mm, height: 26mm, margin: 1mm)
+#set page(width: 56mm, height: 23mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 

@@ -10,12 +10,12 @@ Nested arithmetic, powers, logarithms, complex magnitude, rounding, factorial, a
 
 <table>
 <tr>
-<td width="60%" valign="top">
+<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 56mm, height: 26mm, margin: 1mm)
+#set page(width: 56mm, height: 23mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -29,9 +29,9 @@ $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2
 ````
 
 </td>
-<td width="40%" valign="top">
+<td width="50%" valign="middle">
 
-![Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence.](typst/assets/readme/scalar-operations.svg)
+<img src="typst/assets/readme/scalar-operations.svg" alt="Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence." width="100%">
 
 </td>
 </tr>
@@ -43,12 +43,12 @@ Element-wise addition, subtraction, multiplication and division, matrix multipli
 
 <table>
 <tr>
-<td width="60%" valign="top">
+<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 46mm, height: 19mm, margin: 1mm)
+#set page(width: 46mm, height: 18mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -61,9 +61,9 @@ $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
 </td>
-<td width="40%" valign="top">
+<td width="50%" valign="middle">
 
-![Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence.](typst/assets/readme/matrix-operations.svg)
+<img src="typst/assets/readme/matrix-operations.svg" alt="Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence." width="100%">
 
 </td>
 </tr>
@@ -75,12 +75,12 @@ Column-vector transpose, dot product, cross product, and vector norms.
 
 <table>
 <tr>
-<td width="60%" valign="top">
+<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 18mm, margin: 1mm)
+#set page(width: 40mm, height: 15mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -93,9 +93,9 @@ $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
 </td>
-<td width="40%" valign="top">
+<td width="50%" valign="middle">
 
-![Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence.](typst/assets/readme/vector-operations.svg)
+<img src="typst/assets/readme/vector-operations.svg" alt="Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence." width="100%">
 
 </td>
 </tr>
@@ -107,12 +107,12 @@ Complex division, conjugation, complex power, and magnitude.
 
 <table>
 <tr>
-<td width="60%" valign="top">
+<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 33mm, margin: 1mm)
+#set page(width: 40mm, height: 25mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -136,9 +136,9 @@ $ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
 </td>
-<td width="40%" valign="top">
+<td width="50%" valign="middle">
 
-![Titleless Typst rendering of complex current and power calculations in a single vertical sequence.](typst/assets/readme/complex-arithmetic.svg)
+<img src="typst/assets/readme/complex-arithmetic.svg" alt="Titleless Typst rendering of complex current and power calculations in a single vertical sequence." width="100%">
 
 </td>
 </tr>

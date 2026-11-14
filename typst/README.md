@@ -17,7 +17,7 @@ Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 56mm, height: 26mm, margin: 1mm)
+#set page(width: 56mm, height: 23mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -48,7 +48,7 @@ Compatible matrices support element-wise arithmetic. Use `dot` when you want mat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 46mm, height: 19mm, margin: 1mm)
+#set page(width: 46mm, height: 18mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -78,7 +78,7 @@ Vectors are column vectors. Transpose the left operand for a dot product; use `t
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 18mm, margin: 1mm)
+#set page(width: 40mm, height: 15mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
@@ -108,7 +108,7 @@ Complex values work throughout expressions, including division, powers, conjugat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 33mm, margin: 1mm)
+#set page(width: 40mm, height: 25mm, margin: 1mm)
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
