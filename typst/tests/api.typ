@@ -50,29 +50,6 @@
 #assert-typst-eq("all accepts every matching cell", all(value => comp(value) > 0, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("all rejects a failing cell", all(value => comp(value) > 1, $mat(1, 2; 3, 4)$), false)
 
-#let stencil-field = $mat(
-  10, 12, 15, 14, 11;
-  13, 20, 25, 22, 15;
-  14, 24, 35, 28, 16;
-  12, 19, 27, 23, 14;
-  9, 11, 16, 15, 10
-)$
-#let stencil-north = $[0:3, 1:4]$
-#let stencil-south = $[2:5, 1:4]$
-#let stencil-west = $[1:4, 0:3]$
-#let stencil-east = $[1:4, 2:5]$
-#let stencil-center = $[1:4, 1:4]$
-#let stencil-laplacian = comp($(
-  #stencil-field#stencil-north + #stencil-field#stencil-south
-  + #stencil-field#stencil-west + #stencil-field#stencil-east
-  - 4 * #stencil-field#stencil-center
-) / 0.25$)
-#assert-eq(
-  "comp evaluates a 2D finite-difference stencil using matrix slices",
-  stencil-laplacian,
-  $mat(-24, -32, -24; -32, -144, -64; -8, -60, -32)$,
-)
-
 #let stencil-north = comp($mat(
   10, 12, 15, 14, 11;
   13, 20, 25, 22, 15;
