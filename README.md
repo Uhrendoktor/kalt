@@ -11,12 +11,19 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
 ~~~typst
 #import "@preview/kalt:0.1.1": comp, map
 
-#let field = $${mat}$
-#let north = comp($${mat}[0:3, 1:4]$)
-#let south = comp($${mat}[2:5, 1:4]$)
-#let west = comp($${mat}[1:4, 0:3]$)
-#let east = comp($${mat}[1:4, 2:5]$)
-#let center = comp($${mat}[1:4, 1:4]$)
+#let field = $mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)$
+
+#let north = comp($#field[0:3, 1:4]$)
+#let south = comp($#field[2:5, 1:4]$)
+#let west = comp($#field[1:4, 0:3]$)
+#let east = comp($#field[1:4, 2:5]$)
+#let center = comp($#field[1:4, 1:4]$)
 
 #let laplacian = map(
   (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
