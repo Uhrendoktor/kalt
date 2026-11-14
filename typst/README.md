@@ -22,7 +22,7 @@ $ log_2(2^3 + 8) - ln(e^2) = #calc.round(comp($log_2(2^3 + 8) - ln(e^2)$), digit
 $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
 
-<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex powers, logarithms, comparisons, and bitwise operators evaluated from Typst math." width="100%">
+<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex powers, logarithms, comparisons, and bitwise operators evaluated from Typst math." width="25%">
 
 ### Matrix algebra
 
@@ -39,7 +39,7 @@ $ "Element-wise" quad A * B = #comp($#a * #b$) $
 $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
-<img src="assets/readme/matrix-operations.svg" alt="Element-wise matrix multiplication and matrix dot product, rendered from Typst math." width="100%">
+<img src="assets/readme/matrix-operations.svg" alt="Element-wise matrix multiplication and matrix dot product, rendered from Typst math." width="25%">
 
 ### Vector products
 
@@ -56,7 +56,7 @@ $ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
 $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
-<img src="assets/readme/vector-operations.svg" alt="Vector dot product and three-dimensional cross product, rendered from Typst math." width="100%">
+<img src="assets/readme/vector-operations.svg" alt="Vector dot product and three-dimensional cross product, rendered from Typst math." width="25%">
 
 ### Complex arithmetic
 
@@ -84,7 +84,7 @@ $ S = V I^* = #power " VA" $
 $ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
-<img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="100%">
+<img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="25%">
 
 ## What Kalt evaluates
 
