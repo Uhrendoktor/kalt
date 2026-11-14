@@ -1,10 +1,16 @@
 #import "../lib.typ": comp, map, reduce, any, all
 
-#set page(width: 190mm, height: 50mm, margin: 6mm)
+#let figure = sys.inputs.at("figure", default: "matrix-input")
+
+#set page(
+  width: 190mm,
+  height: if figure == "matrix-expansion" { 66mm }
+    else if figure == "vector-dot" or figure == "vector-cross" or figure == "complex-product" { 58mm }
+    else { 50mm },
+  margin: 6mm,
+)
 #set text(size: 17pt)
 #set par(leading: 0.9em)
-
-#let figure = sys.inputs.at("figure", default: "matrix-input")
 
 #let fahrenheit = $mat(68, 77; 86, 95)$
 #let celsius = map((value, x, y) => (value - 32) * 5 / 9, fahrenheit)
@@ -16,17 +22,17 @@
   #if figure == "matrix-input" {
     $ A = mat(1, 2; 3, 4) quad B = mat(5, 6; 7, 8) $
   } else if figure == "matrix-expansion" {
-    $ (A B)_(1, 1) &= 1 dot 5 + 2 dot 7 = 19 \\
-      (A B)_(1, 2) &= 1 dot 6 + 2 dot 8 = 22 \\
-      (A B)_(2, 1) &= 3 dot 5 + 4 dot 7 = 43 \\
+    $ (A B)_(1, 1) &= 1 dot 5 + 2 dot 7 = 19 \
+      (A B)_(1, 2) &= 1 dot 6 + 2 dot 8 = 22 \
+      (A B)_(2, 1) &= 3 dot 5 + 4 dot 7 = 43 \
       (A B)_(2, 2) &= 3 dot 6 + 4 dot 8 = 50 $
   } else if figure == "matrix-result" {
     $ A dot B
       &= comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)) $
   } else if figure == "vector-dot" {
     $ vec(1, 2, 3)^T dot vec(4, 5, 6)
-      &= 1 dot 4 + 2 dot 5 + 3 dot 6 \\
-      &= 4 + 10 + 18 \\
+      &= 1 dot 4 + 2 dot 5 + 3 dot 6 \
+      &= 4 + 10 + 18 \
       &= comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
   } else if figure == "vector-cross" {
     $ vec(1, 2, 3) × vec(4, 5, 6)
@@ -34,11 +40,12 @@
         2 dot 6 - 3 dot 5,
         3 dot 4 - 1 dot 6,
         1 dot 5 - 2 dot 4
-      ) \\
+      ) \
       &= comp(vec(1, 2, 3) × vec(4, 5, 6)) $
   } else if figure == "complex-product" {
     $ (2 + 3i)(4 - i)
-      &= 8 - 2i + 12i - 3i^2 \\
+      &= 8 - 2i + 12i - 3i^2 \
+      &= (8 + 3) + (-2i + 12i) \
       &= comp((2 + 3i)(4 - i)) $
   } else if figure == "temperature-map" {
     $ F = mat(68, 77; 86, 95) quad
