@@ -159,7 +159,17 @@ The helper functions let you transform a matrix, combine its values, and ask que
 )
 ```
 
-For these values, `map` produces `mat(20, 25; 30, 35)`. The table shows both matrices, the average (`27.5 °C`), and the two checks (`true` and `true`).
+The example produces these results:
+
+| Stage | Result |
+| --- | --- |
+| Fahrenheit readings | `mat(68, 77; 86, 95)` |
+| After `map` | `mat(20, 25; 30, 35)` |
+| Average from `reduce` | `27.5 °C` |
+| Any reading at least 30 °C? | `true` |
+| All readings above 0 °C? | `true` |
+
+The Typst table in the example renders those same intermediate values in your document.
 
 | Helper | What it does |
 | --- | --- |

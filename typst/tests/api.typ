@@ -1,6 +1,6 @@
 // Tests the public Typst API, including scalar conversions, direct math results, and matrix helpers.
 
-#import "../lib.typ": all, any, comp, map
+#import "../lib.typ": all, any, comp, map, reduce
 #import "utils.typ": assert-typst-eq, assert-eq
 
 #assert-typst-eq("comp real scalar returns float", type(comp($2 + 3$)), float)
@@ -40,9 +40,27 @@
 )
 #assert-typst-eq("map preserves highlighted content", "highlight" in repr(highlighted), true)
 
-
-
 #assert-typst-eq("any finds matching cell", any(value => comp(value) > 3, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("any rejects no matches", any(value => comp(value) > 9, $mat(1, 2; 3, 4)$), false)
 #assert-typst-eq("all accepts every matching cell", all(value => comp(value) > 0, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("all rejects a failing cell", all(value => comp(value) > 1, $mat(1, 2; 3, 4)$), false)
+
+// Keep the README's temperature-conversion example executable in the API suite.
+#let fahrenheit = $mat(68, 77; 86, 95)$
+#let celsius = map(value => (value - 32) * 5 / 9, fahrenheit)
+#assert-eq("map converts Fahrenheit readings to Celsius", celsius, $mat(20, 25; 30, 35)$)
+
+#let average = reduce((sum, value) => sum + comp(value), 0, celsius) / 4
+#assert-typst-eq("reduce calculates the average temperature", average, 27.5)
+#assert-typst-eq("any finds a reading at least 30 Celsius", any(value => comp(value) >= 30, celsius), true)
+#assert-typst-eq("all readings are above freezing", all(value => comp(value) > 0, celsius), true)
+
+#table(
+  columns: 2,
+  [*Measurement*], [*Values*],
+  [Fahrenheit], fahrenheit,
+  [Celsius], celsius,
+  [Average], [#average °C],
+  [Any reading at least 30 °C?], [#any(value => comp(value) >= 30, celsius)],
+  [All readings above 0 °C?], [#all(value => comp(value) > 0, celsius)],
+)
