@@ -118,9 +118,16 @@ The map callback applies a value correction and a coordinate-dependent offset. R
   calibrated,
 )
 
-#mean
-#has_outlier
-#all_in_range</code></pre>
+#let outlier_label = if has_outlier { "YES" } else { "NO" }
+#let range_label = if all_in_range { "YES" } else { "NO" }
+
+#align(center)[
+  Mean correction: #mean %
+  #linebreak()
+  Outlier detected: #outlier_label
+  #linebreak()
+  All sensors in range: #range_label
+]</code></pre>
       </td>
       <td valign="top">
         <img src="typst/assets/readme/sensor-calibration.svg" alt="Rendered raw sensor matrix, coordinate-calibrated values, mean correction, and any/all quality checks." width="100%">

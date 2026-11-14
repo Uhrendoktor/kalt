@@ -42,10 +42,8 @@
   #align(center)[#body]
 ]
 
-#align(center)[
-  #text(size: 15pt, weight: "bold", fill: ink)[SENSOR CALIBRATION]
-  #text(size: 7pt, fill: muted)[COORDINATE-AWARE CORRECTION · QUALITY GATES]
-]
+#align(center)[#text(size: 15pt, weight: "bold", fill: ink)[SENSOR CALIBRATION]]
+#align(center)[#text(size: 7pt, fill: muted)[COORDINATE-AWARE CORRECTION · QUALITY GATES]]
 #v(7pt)
 
 #grid(
@@ -64,11 +62,11 @@
   columns: (1fr, 1fr),
   gutter: 6pt,
   panel("ANY · OUTSIDE ±4%", [
-    #text(size: 13pt, weight: "bold", fill: ink)[#str(has_outlier)]
+    #text(size: 13pt, weight: "bold", fill: ink)[#if has_outlier { "TRUE" } else { "FALSE" }]
     #text(size: 7pt, fill: muted)[At least one outlier]
   ]),
   panel("ALL · INSIDE ±5%", [
-    #text(size: 13pt, weight: "bold", fill: ink)[#str(all_in_range)]
+    #text(size: 13pt, weight: "bold", fill: ink)[#if all_in_range { "TRUE" } else { "FALSE" }]
     #text(size: 7pt, fill: muted)[Every sensor is in range]
   ]),
 )

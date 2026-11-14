@@ -28,10 +28,8 @@
   #align(center)[#body]
 ]
 
-#align(center)[
-  #text(size: 15pt, weight: "bold", fill: ink)[HOMOGENEOUS TRANSFORM]
-  #text(size: 7pt, fill: muted)[2D POINT · 90° ROTATION · TRANSLATION]
-]
+#align(center)[#text(size: 15pt, weight: "bold", fill: ink)[HOMOGENEOUS TRANSFORM]]
+#align(center)[#text(size: 7pt, fill: muted)[2D POINT · 90° ROTATION · TRANSLATION]]
 #v(7pt)
 
 #panel("TRANSFORM MATRIX", $ T = #transform $)

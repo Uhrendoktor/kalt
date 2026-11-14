@@ -27,10 +27,8 @@
   #align(center)[#body]
 ]
 
-#align(center)[
-  #text(size: 15pt, weight: "bold", fill: ink)[AC POWER ANALYSIS]
-  #text(size: 7pt, fill: muted)[SERIES R–L LOAD · COMPLEX ARITHMETIC]
-]
+#align(center)[#text(size: 15pt, weight: "bold", fill: ink)[AC POWER ANALYSIS]]
+#align(center)[#text(size: 7pt, fill: muted)[SERIES R–L LOAD · COMPLEX ARITHMETIC]]
 #v(7pt)
 
 #grid(

@@ -35,10 +35,8 @@
   #align(center)[#body]
 ]
 
-#align(center)[
-  #text(size: 15pt, weight: "bold", fill: ink)[FIELD DIFFERENCES]
-  #text(size: 7pt, fill: muted)[INDEXED WINDOWS · FIVE-POINT LAPLACIAN]
-]
+#align(center)[#text(size: 15pt, weight: "bold", fill: ink)[FIELD DIFFERENCES]]
+#align(center)[#text(size: 7pt, fill: muted)[INDEXED WINDOWS · FIVE-POINT LAPLACIAN]]
 #v(7pt)
 
 #grid(

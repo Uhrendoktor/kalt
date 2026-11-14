@@ -147,6 +147,6 @@ Comparisons evaluate to numeric indicators: false is `0`, true is `1`. Bitwise o
 
 `tensor-variant(value)` returns `"scalar"` or `"matrix"` for mathematical content.
 
-## Reproducible figure
+## Reproducible example renders
 
-The opening example's SVG is generated from Typst source in [`typst/docs/figures.typ`](docs/figures.typ). Run [`typst/docs/render-figures.sh`](docs/render-figures.sh) with Typst 0.15.1 to regenerate it.
+The four SVGs in the repository README are compiled from the matching Typst documents in [`docs/examples/`](docs/examples/). Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate them.
