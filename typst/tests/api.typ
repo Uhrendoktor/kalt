@@ -57,15 +57,17 @@
   12, 19, 27, 23, 14;
   9, 11, 16, 15, 10
 )$
+#let stencil-north = comp($#stencil-field [0:3, 1:4]$)
+#let stencil-south = comp($#stencil-field [2:5, 1:4]$)
+#let stencil-west = comp($#stencil-field [1:4, 0:3]$)
+#let stencil-east = comp($#stencil-field [1:4, 2:5]$)
+#let stencil-center = comp($#stencil-field [1:4, 1:4]$)
 #let stencil-laplacian = comp($4 * (
-  #stencil-field [0:3, 1:4]
-  + #stencil-field [2:5, 1:4]
-  + #stencil-field [1:4, 0:3]
-  + #stencil-field [1:4, 2:5]
-  - 4 * #stencil-field [1:4, 1:4]
+  #stencil-north + #stencil-south + #stencil-west + #stencil-east
+  - 4 * #stencil-center
 )$)
 #assert-eq(
-  "comp combines matrix slices with element-wise arithmetic",
+  "comp combines separately evaluated matrix slices element-wise",
   stencil-laplacian,
   $mat(-24, -32, -24; -32, -144, -64; -8, -60, -32)$,
 )
