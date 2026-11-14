@@ -60,7 +60,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add typst/assets/readme/*.svg
+          git add -f typst/assets/readme/*.svg
           if git diff --cached --quiet; then
             echo "Generated Typst previews are up to date."
             exit 0
