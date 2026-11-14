@@ -1,41 +1,32 @@
 # Kalt for Typst
 
-Kalt evaluates Typst math expressions containing scalars, complex numbers, vectors, and matrices. The main entry point is `comp(...)`. Matrix indexing and slicing make it possible to express calculations over selected regions without manually unpacking every cell.
+Kalt evaluates Typst math expressions containing scalars, complex numbers, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing; `map`, `reduce`, `any`, and `all` operate over aligned matrix cells.
 
 ## First use: evaluate a matrix stencil
 
-This example computes the five-point discrete Laplacian of a sampled 2D field. It extracts four neighbor windows and the matching center window, combines them element-wise, then scales by the squared grid spacing.
+This example computes the five-point discrete Laplacian of a sampled 2D field. It extracts four neighbor windows and the matching center window, then combines corresponding cells to evaluate the stencil.
 
 ~~~typst
-#import "@preview/kalt:0.1.1": comp
+#import "@preview/kalt:0.1.1": comp, map
 
-#let field = $mat(
-  10, 12, 15, 14, 11;
-  13, 20, 25, 22, 15;
-  14, 24, 35, 28, 16;
-  12, 19, 27, 23, 14;
-   9, 11, 16, 15, 10
-)$
-#let h2 = 0.25
+#let field = $${mat}$
+#let north = comp($${mat}[0:3, 1:4]$)
+#let south = comp($${mat}[2:5, 1:4]$)
+#let west = comp($${mat}[1:4, 0:3]$)
+#let east = comp($${mat}[1:4, 2:5]$)
+#let center = comp($${mat}[1:4, 1:4]$)
 
-// Matching 3×3 windows around every interior cell.
-#let north = $[0:3, 1:4]$
-#let south = $[2:5, 1:4]$
-#let west  = $[1:4, 0:3]$
-#let east  = $[1:4, 2:5]$
-#let center = $[1:4, 1:4]$
-
-#let laplacian = comp($(
-  #field#north + #field#south + #field#west + #field#east
-  - 4 * #field#center
-) / #h2$)
+#let laplacian = map(
+  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
+  north, south, west, east, center,
+)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
 
 ![Typst output of the sliced 2D Laplacian calculation](assets/guide/laplacian-slices.svg)
 
-The input is a 5×5 matrix. Every slice is 3×3, so the four neighbor matrices align with the center matrix. The result contains the discrete Laplacian at the nine interior points:
+The input is a 5×5 matrix. Each slice is 3×3, so the five regions align cell by cell. The resulting Laplacian is:
 
 ```text
 mat(-24, -32, -24;
@@ -43,13 +34,13 @@ mat(-24, -32, -24;
      -8, -60, -32)
 ```
 
-The calculation is:
+Mathematically, the operation is:
 
 ```text
 ΔₕT = (Tnorth + Tsouth + Twest + Teast − 4 Tcenter) / h²
 ```
 
-Here `h² = 0.25`. The slices use half-open ranges: `0:3` selects indices 0, 1, and 2, while `2:5` selects 2, 3, and 4.
+Here `h² = 0.25`. The index ranges are half-open: `0:3` selects indices 0, 1, and 2; `2:5` selects 2, 3, and 4.
 
 ## Operation reference
 

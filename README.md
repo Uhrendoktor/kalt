@@ -2,51 +2,37 @@
 
 **Evaluate sliced matrix expressions directly in Typst.**
 
-Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing and slicing let you build calculations over matching regions of a matrix, then evaluate the complete expression with `comp(...)`.
+Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing and slicing let you compute over selected regions of a matrix, then combine aligned results with Kalt's collection helpers.
 
 ## First use: a 2D discrete Laplacian
 
-Given a sampled 5×5 scalar field, compute the five-point discrete Laplacian at all nine interior cells. Each slice selects one aligned 3×3 window: north, south, west, east, and center.
+Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects one 3×3 window: north, south, west, east, or center. `map` combines the corresponding cells and evaluates the stencil.
 
 ~~~typst
-#import "@preview/kalt:0.1.1": comp
+#import "@preview/kalt:0.1.1": comp, map
 
-#let field = $mat(
-  10, 12, 15, 14, 11;
-  13, 20, 25, 22, 15;
-  14, 24, 35, 28, 16;
-  12, 19, 27, 23, 14;
-   9, 11, 16, 15, 10
-)$
-#let h2 = 0.25
+#let field = $${mat}$
+#let north = comp($${mat}[0:3, 1:4]$)
+#let south = comp($${mat}[2:5, 1:4]$)
+#let west = comp($${mat}[1:4, 0:3]$)
+#let east = comp($${mat}[1:4, 2:5]$)
+#let center = comp($${mat}[1:4, 1:4]$)
 
-// Matching 3×3 windows around every interior cell.
-#let north = $[0:3, 1:4]$
-#let south = $[2:5, 1:4]$
-#let west  = $[1:4, 0:3]$
-#let east  = $[1:4, 2:5]$
-#let center = $[1:4, 1:4]$
-
-#let laplacian = comp($(
-  #field#north + #field#south + #field#west + #field#east
-  - 4 * #field#center
-) / #h2$)
+#let laplacian = map(
+  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
+  north, south, west, east, center,
+)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
 
 ![Typst output of the sliced 2D Laplacian calculation](typst/assets/guide/laplacian-slices.svg)
 
-The result is a 3×3 matrix. Kalt applies the matrix slices and element-wise arithmetic as one expression; the stop indices are exclusive, so each window has matching dimensions.
+The result is a 3×3 matrix of second-order spatial differences. Slice stop indices are exclusive, so all five windows have matching dimensions.
 
 ## Documentation
 
-The [Typst guide and operation reference](typst/README.md) explains:
-
-- matrix and vector notation, arithmetic, dot and cross products
-- indexing, ranges, negative indices, and multidimensional slicing
-- `comp`, `map`, `reduce`, `any`, and `all`
-- complex numbers, mathematical functions, comparisons, and bitwise operators
+The [Typst guide and operation reference](typst/README.md) explains matrix and vector notation, arithmetic, indexing and slicing, the collection helpers, complex functions, comparisons, and bitwise operators.
 
 ## Continue
 

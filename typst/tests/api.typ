@@ -72,3 +72,48 @@
   stencil-laplacian,
   $mat(-24, -32, -24; -32, -144, -64; -8, -60, -32)$,
 )
+
+#let stencil-north = comp($mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)[0:3, 1:4]$)
+#let stencil-south = comp($mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)[2:5, 1:4]$)
+#let stencil-west = comp($mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)[1:4, 0:3]$)
+#let stencil-east = comp($mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)[1:4, 2:5]$)
+#let stencil-center = comp($mat(
+  10, 12, 15, 14, 11;
+  13, 20, 25, 22, 15;
+  14, 24, 35, 28, 16;
+  12, 19, 27, 23, 14;
+  9, 11, 16, 15, 10
+)[1:4, 1:4]$)
+#let stencil-laplacian = map(
+  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
+  stencil-north, stencil-south, stencil-west, stencil-east, stencil-center,
+)
+#assert-eq(
+  "map combines indexed matrix slices into a 2D finite-difference stencil",
+  stencil-laplacian,
+  $mat(-24, -32, -24; -32, -144, -64; -8, -60, -32)$,
+)
