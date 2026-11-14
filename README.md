@@ -8,14 +8,9 @@ Kalt evaluates Typst math with scalar and complex arithmetic, vectors, matrices,
 
 Nested arithmetic, powers, logarithms, complex magnitude, rounding, factorial, and mixed bitwise operations. The expressions deliberately combine operators so precedence and grouping are visible.
 
-<table>
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 $ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
 $ (2 + 3 * (4^2 - 5)) / 4 = #calc.round(comp($(2 + 3 * (4^2 - 5)) / 4$), digits: 2) $
@@ -25,27 +20,17 @@ $ log_2(2^3 + 8) - ln(e^2) = #calc.round(comp($log_2(2^3 + 8) - ln(e^2)$), digit
 $ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 
 <img src="typst/assets/readme/scalar-operations.svg" alt="Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence." width="100%">
 
-</td>
-</tr>
-</table>
 
 ## Matrix operations
 
 Element-wise addition, subtraction, multiplication and division, matrix multiplication, transpose, and matrix powers.
 
-<table>
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 6; 7, 8)$
 
@@ -54,27 +39,17 @@ $ "Element-wise" quad A * B = #comp($#a * #b$) $
 $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 
 <img src="typst/assets/readme/matrix-operations.svg" alt="Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence." width="100%">
 
-</td>
-</tr>
-</table>
 
 ## Vector products
 
 Column-vector transpose, dot product, cross product, and vector norms.
 
-<table>
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
 
@@ -83,27 +58,17 @@ $ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
 $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
-</td>
-<td width="50%" valign="middle">
 
 <img src="typst/assets/readme/vector-operations.svg" alt="Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence." width="100%">
 
-</td>
-</tr>
-</table>
 
 ## Complex arithmetic
 
 Complex division, conjugation, complex power, and magnitude.
 
-<table>
-<tr>
-<td width="50%" valign="middle">
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-
-
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
 #let current = comp($#voltage / #impedance$)
@@ -123,14 +88,9 @@ $ S = V I^* = #power " VA" $
 $ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
-</td>
-<td width="50%" valign="middle">
 
 <img src="typst/assets/readme/complex-arithmetic.svg" alt="Titleless Typst rendering of complex current and power calculations in a single vertical sequence." width="100%">
 
-</td>
-</tr>
-</table>
 
 ## Documentation
 
