@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: kalt-typst-tests-${{ github.ref }}
   cancel-in-progress: true
@@ -48,6 +51,19 @@ jobs:
           PY
       - name: Render guide equations
         run: bash typst/docs/render-figures.sh /tmp/kalt-doc-figures
+      - name: Commit generated guide figures
+        if: github.event_name == 'push' && github.ref == 'refs/heads/cleanup/native-typst-math-syntax'
+        run: |
+          cp /tmp/kalt-doc-figures/*.svg typst/assets/guide/
+          if git diff --quiet -- typst/assets/guide; then
+            echo "Guide figures are already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add typst/assets/guide/*.svg
+          git commit -m "Regenerate guide figures with content-sized pages"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
       - if: always()
         uses: actions/upload-artifact@v7
         with:
