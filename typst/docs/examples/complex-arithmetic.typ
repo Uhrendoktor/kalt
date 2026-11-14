@@ -7,6 +7,7 @@
 #let impedance = $3 + 4i$
 #let current = comp($#voltage / #impedance$)
 #let conjugate = comp($#current^*$)
+#let power = comp($#voltage * #conjugate$)
 
 #grid(
   columns: (1fr, 1fr),
@@ -15,6 +16,6 @@
   $Z = #impedance Ω$,
   $I = V / Z = #current " A"$,
   $I^* = #conjugate " A"$,
-  $S = V I^* = #comp($#voltage * #conjugate$) " VA"$,
-  $abs(S) = #comp($abs(#comp($#voltage * #conjugate$))$) " VA"$,
+  $S = V I^* = #power " VA"$,
+  $abs(S) = #comp($abs(#power)$) " VA"$,
 )
