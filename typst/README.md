@@ -1,69 +1,62 @@
-**Evaluate complex, vector, and matrix expressions.**
+**Evaluate the mathematics in your Typst document.**
 
-Kalt adds numerical evaluation to mathematical writing in Typst. Wrap an expression in `comp(...)` to calculate it where it appears. Real scalar results become Typst floats that you can reuse in code and layout; complex numbers, vectors, and matrices remain math content that can be typeset directly.
+Kalt is a calculator for the notation you already write in Typst. Put `comp(...)` around an expression to evaluate it where it appears: in a derivation, beside a matrix product, or in a calculation that drives your document. Work with real and complex numbers, vectors, and matrices without leaving your document or rewriting your formulas in another syntax.
 
-## Your first calculation
+## Start with an expression
 
-Import `comp` from Typst Universe, then wrap the expression you want evaluated:
+Import `comp` from Typst Universe. Then write the expression as ordinary Typst math:
 
 ```typst
 #import "@preview/kalt:0.1.1": comp
 
-$comp(e^(i pi))$ // -1
-$comp(sqrt((3 + 4i) (3 - 4i)))$ // 5
-
-#let hypotenuse = comp($sqrt(3^2 + 4^2)$)
-The hypotenuse is #hypotenuse.
-#rect(width: hypotenuse * 1cm, height: 2mm)
+$ sqrt(3^2 + 4^2) &= comp(sqrt(3^2 + 4^2)) \
+  e^(i pi)         &= comp(e^(i pi)) $
 ```
 
-The first two expressions are evaluated and displayed as mathematics. The last expression returns a regular Typst float, so it can be used in further calculations, text, or layout.
+Kalt evaluates the expression on the right, so the equation shows both the mathematics and its result.
 
-## What `comp` accepts
-
-The `comp(body)` function accepts existing math content as well as common Typst values:
-
-| Input | Interpretation |
-| --- | --- |
-| Boolean | Converts `false` to `0` and `true` to `1`. |
-| Integer, float, or Decimal | Evaluates the value as a numeric scalar. |
-| String | Parses the string as a mathematical expression. Radix prefixes such as `0xFF` are supported. |
-| Math content | Evaluates the existing mathematical expression, including matrices and vectors. |
+You can also use a result in the rest of your document. Here, the radius is a Typst variable and Kalt calculates the area:
 
 ```typst
-#comp(7)                          // 7.0
-#comp(2.5)                        // 2.5
-#comp(decimal("3.14159"))         // 3.14159
-#comp(true)                       // 1.0
-#comp("0xFF")                     // 255.0
-#comp("2 + 3 * 4")                // 14.0
+#let radius = 3
+#let area = comp($pi #radius^2$)
 
-#let matrix = math.mat(..((1, 2), (3, 4)))
-#let vector = math.vec($1$, $2$, $3$)
-
-#comp(matrix)
-#comp(vector)
+A circle with radius #radius has area #area square units.
 ```
 
-A real scalar result is returned as a Typst `float`. Complex scalars and matrix or vector results are returned as math content. A real `1 × 1` matrix is unwrapped to its scalar value.
+## Matrices and vectors
 
-## Arithmetic and functions
+Use Typst's native `mat(...)` and `vec(...)` math notation. Kalt evaluates the operation, not just the matrix or vector by itself.
 
-The basic arithmetic operators are:
+For example, this is a matrix product:
 
-| Operation | Notation |
-| --- | --- |
-| Addition | `+` |
-| Subtraction | `-` |
-| Multiplication | `*` |
-| Division | `/` |
-| Modulo | `%` or `mod` |
-| Power | `^` |
-| Factorial | `!` |
+```typst
+$ mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)
+  &= comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)) $
+```
 
-For matrices, these arithmetic operations work element by element. Use `dot` when you need matrix multiplication.
+And these are vector operations:
 
-Kalt also supports these mathematical functions:
+```typst
+$ vec(1, 2, 3) dot vec(4, 5, 6)
+  &= comp(vec(1, 2, 3) dot vec(4, 5, 6)) \
+  vec(1, 0, 0) × vec(0, 1, 0)
+  &= comp(vec(1, 0, 0) × vec(0, 1, 0)) $
+```
+
+Matrix arithmetic with `+`, `-`, `*`, `/`, and `mod` is element-wise when the dimensions match. Use `dot` for matrix multiplication and vector dot products. The cross product `×` is defined for three-dimensional vectors, and `^T` transposes a matrix.
+
+## Complex numbers and functions
+
+Use `i` for the imaginary unit. Write conjugation as a superscript star, and use `Re` and `Im` for the real and imaginary parts:
+
+```typst
+$ (2 + 3i)^*       &= comp((2 + 3i)^*) \
+  Re(2 + 3i)       &= comp(Re(2 + 3i)) \
+  Im(2 + 3i)       &= comp(Im(2 + 3i)) $
+```
+
+The supported functions include:
 
 | Category | Functions |
 | --- | --- |
@@ -73,52 +66,21 @@ Kalt also supports these mathematical functions:
 | Hyperbolic functions | `sinh(x)`, `cosh(x)`, `tanh(x)` |
 | Inverse hyperbolic functions | `arcsinh(x)`, `arccosh(x)`, `arctanh(x)` |
 | Logarithms | `ln(x)`, `log_a(x)` |
-| Scalar and tensor utilities | `abs(x)`, `floor(x)`, `ceil(x)` |
+| Other functions | `abs(x)`, `floor(x)`, `ceil(x)` |
 
-## Complex numbers
-
-Use `i` for the imaginary unit. Complex conjugation uses a superscript star, `x^*`. The real and imaginary parts are available through `Re(x)` and `Im(x)`:
-
-```typst
-$comp(e^(i pi))$                  // -1
-$comp((2 + 3i)^*)$                // 2 - 3i
-$comp(Re(2 + 3i))$                // 2
-$comp(Im(2 + 3i))$                // 3
-```
+Factorials use `!`; powers use `^`.
 
 ![A complex-valued expression and its evaluated result](assets/evaluation.png)
 
-## Matrices and vectors
-
-Create a matrix with `mat(...)` and a column vector with `vec(...)`:
-
-```typst
-$comp(mat(1, 2; 3, 4))$
-$comp(vec(1, 2, 3))$
-```
-
-| Notation | Operation |
-| --- | --- |
-| `dot` | Matrix multiplication or a vector dot product. |
-| `×` | Cross product of three-dimensional vectors. |
-| `^T` | Transpose. |
-| `abs(x)` | Absolute value of a scalar, vector magnitude, or determinant of a square matrix. |
-
-Matrix arithmetic is element-wise when dimensions match. A scalar can also be applied to every matrix entry.
-
-```typst
-$comp(2 * mat(1, 2; 3, 4))$ // mat(2, 4; 6, 8)
-$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
-$comp(vec(1, 0, 0) × vec(0, 1, 0))$
-```
-
 ## Indexing and slicing
 
-Matrix indices start at zero. Select a single entry, a complete row or column, or a range:
+Matrix indices start at zero. Select one entry, a full row or column, or a range:
 
 ```typst
-$comp(mat(1, 2; 3, 4)[0, 1])$ // 2
-$comp(mat(1, 2; 3, 4)[:, 0])$ // first column
+$ mat(10, 20, 30; 40, 50, 60)[1, 2]
+  &= comp(mat(10, 20, 30; 40, 50, 60)[1, 2]) \
+  mat(10, 20, 30; 40, 50, 60)[:, 0]
+  &= comp(mat(10, 20, 30; 40, 50, 60)[:, 0]) $
 ```
 
 | Selection | Syntax |
@@ -130,12 +92,7 @@ $comp(mat(1, 2; 3, 4)[:, 0])$ // first column
 | Specific indices | `A[[0, 2], :]` |
 | Reverse order | `A[::-1, ::-1]` |
 
-A range uses `start:stop:step`. Leave a part empty to use the beginning or end of that dimension. Negative indices count from the end, and negative steps reverse the selected order.
-
-```typst
-$comp(mat(1, 2, 3; 4, 5, 6)[1:2, 0:2])$
-$comp(mat(1, 2, 3; 4, 5, 6)[::-1, ::-1])$
-```
+Ranges use `start:stop:step`. Leave a part empty to use the beginning or end of that dimension. Negative indices count from the end; a negative step reverses the selected order.
 
 An invalid index or slice is reported at the expression:
 
@@ -143,23 +100,22 @@ An invalid index or slice is reported at the expression:
 
 ## Comparisons and Boolean operations
 
-Comparisons use mathematical notation and produce numeric indicators: false is `0` and true is `1`.
-
-| Comparison | Notation |
-| --- | --- |
-| Less than / greater than | `<`, `>` |
-| Less than or equal / greater than or equal | `≤`, `≥` |
-| Equal / not equal | `=`, `≠` |
-
-You can also pass Typst booleans directly to `comp`. In a math expression, use `#` to insert a code value:
+Comparisons evaluate to numeric indicators: false is `0`, true is `1`.
 
 ```typst
-#comp(true)    // 1.0
-#comp(false)   // 0.0
+$ 3 > 2 &= comp(3 > 2) \
+  6 ∧ 3 &= comp(6 ∧ 3) \
+  6 ⊕ 3 &= comp(6 ⊕ 3) $
+```
 
-$comp(#true)$  // 1
-$comp(#false)$ // 0
-$comp(3 > 2)$  // 1
+You can also pass Typst values directly from code:
+
+```typst
+#comp(true)
+#comp(false)
+#comp(12)
+#comp(decimal("3.14159"))
+#comp("2 + 3 * 4")
 ```
 
 The logical and bitwise operators are:
@@ -171,41 +127,56 @@ The logical and bitwise operators are:
 | `⊕` | Bitwise XOR. |
 | `¬` | Boolean NOT; flips `0` and `1`. |
 | `~` | Bitwise NOT for integers. |
-| `⊙` | Boolean matrix product; an output entry is `1` when at least one matching pair of entries is `1`. |
+| `⊙` | Boolean matrix product. |
 
-```typst
-$comp(6 ∧ 3)$ // 2
-$comp(6 ∨ 3)$ // 7
-$comp(6 ⊕ 3)$ // 5
-$comp(¬0)$    // 1
-$comp(~2)$    // -3
-```
+## Work with matrix data
 
-## Work with matrix values in Typst
-
-Kalt provides functions for applying Typst callbacks to matrix and vector entries. Import only the helpers you use:
+The helper functions let you transform a matrix, combine its values, and ask questions about its entries. This example starts with four temperature readings in Fahrenheit, converts each one to Celsius, then calculates the average and checks the readings.
 
 ```typst
 #import "@preview/kalt:0.1.1": comp, map, reduce, any, all
 
-#let values = $mat(1, 2; 3, 4)$
-#let shifted = map((value, x, y) => $#value + #x + #y$, values)
-#let total = reduce((sum, value) => sum + comp(value), 0, values)
+#let fahrenheit = $mat(68, 77; 86, 95)$
+#let celsius = map(value => (value - 32) * 5 / 9, fahrenheit)
 
-#any(value => comp(value) > 3, values) // true
-#all(value => comp(value) > 0, values) // true
+#let average = reduce(
+  (sum, value) => sum + comp(value),
+  0,
+  celsius,
+) / 4
+
+#let has-hot-reading = any(value => comp(value) >= 30, celsius)
+#let all-above-freezing = all(value => comp(value) > 0, celsius)
+
+#table(
+  columns: 2,
+  [*Measurement*], [*Values*],
+  [Fahrenheit], fahrenheit,
+  [Celsius], celsius,
+  [Average], [#average °C],
+  [Any reading at least 30 °C?], [#has-hot-reading],
+  [All readings above 0 °C?], [#all-above-freezing],
+)
 ```
 
-| Helper | Behavior |
+For these values, `map` produces `mat(20, 25; 30, 35)`. The table shows both matrices, the average (`27.5 °C`), and the two checks (`true` and `true`).
+
+| Helper | What it does |
 | --- | --- |
-| `map(fn, ..mats)` | Applies a callback to aligned entries and returns a matrix. The callback receives the entries, then the zero-based column (`x`) and row (`y`) positions. Numeric math content is evaluated with `comp` before it reaches the callback when possible. |
-| `reduce(fn, initial, ..mats)` | Folds aligned entries into one value, starting with `initial`. The callback receives the accumulator followed by the entry from each input. |
-| `any(fn, ..mats)` | Returns `true` when the predicate matches at least one set of aligned entries. |
-| `all(fn, ..mats)` | Returns `true` only when the predicate matches every set of aligned entries. |
-| `tensor-variant(tensor)` | Returns `"scalar"` or `"matrix"` for the parsed mathematical tensor. |
+| `map(fn, ..mats)` | Applies a callback to each cell and returns a matrix. The callback receives the cell values and then the zero-based column (`x`) and row (`y`) positions. |
+| `reduce(fn, initial, ..mats)` | Folds the cells into one result, starting with `initial`. |
+| `any(fn, ..mats)` | Returns `true` when the predicate matches at least one set of aligned cells. |
+| `all(fn, ..mats)` | Returns `true` only when the predicate matches every set of aligned cells. |
+| `tensor-variant(value)` | Returns `"scalar"` or `"matrix"` for mathematical content. |
 
-When input shapes differ, missing entries are passed to callbacks as `none`. The `map`, `reduce`, `any`, and `all` helpers all work across multiple inputs.
+The helpers can take more than one matrix or vector and pass corresponding cells to the callback. When shapes differ, missing cells are passed as `none`.
 
-## Feedback and source
+## More examples
 
-For questions, bug reports, or feature requests, use the [Kalt issue tracker](https://github.com/Uhrendoktor/kalt/issues). The source code is available on [GitHub](https://github.com/Uhrendoktor/kalt).
+The full expression below combines complex powers, a fraction, a matrix product, and a vector. It is included with its evaluated result:
+
+![The expression written in Typst](assets/complex_equation.png)
+
+![The evaluated vector result](assets/complex_equation_result.png)
+
+For questions, bug reports, or ideas, visit the [Kalt issue tracker](https://github.com/Uhrendoktor/kalt/issues). The source is on [GitHub](https://github.com/Uhrendoktor/kalt).
