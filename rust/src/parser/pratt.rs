@@ -3,12 +3,12 @@ use chumsky::pratt::{infix, left, none, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
-use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive, select};
+use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive};
 use sertyp::FromString;
 use sertyp::chumsky::parser::character;
 use sertyp::chumsky::{LocatingSequenceLike, Token};
 use sertyp::locating::GroupType;
-use sertyp::TypstError;
+use sertyp::{TypstError, chumsky::parser::whitespaces};
 
 use crate::parser::ops::abs::abs;
 use crate::parser::ops::boolean_dot::{pratt_boolean_dot, pratt_boolean_dot_operator};
@@ -37,7 +37,7 @@ use crate::parser::ops::index::{pratt_axes_index, pratt_axes_index_operator};
 use crate::parser::ops::modulo::{pratt_modulo, pratt_modulo_operator};
 use crate::parser::ops::mul::{pratt_mul, pratt_mul_operator};
 use crate::parser::ops::logic::{
-    pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
+    boolean_literal, pratt_eq, pratt_eq_operator, pratt_g, pratt_g_operator,
     pratt_geq, pratt_geq_operator, pratt_l, pratt_l_operator, pratt_leq,
     pratt_leq_operator, pratt_logical_not, pratt_neq, pratt_neq_operator,
     pratt_not_operator,
@@ -116,6 +116,7 @@ pub fn atom_like(
     // ordered by likelihood to improve performance
     choice((
         group(expr.clone()),
+        boolean_literal(),
         tensor(),
         fraction(),
         pow(),
@@ -174,26 +175,13 @@ pub fn atomic_operations(
 /// Parses a full expression and condenses it to a single tensor
 #[kalt_macros::parser]
 pub fn pratt<'data>() -> Expects<'data, Tensor> {
-    let whitespace = choice((
-        sertyp::chumsky::parser::whitespace().ignored(),
-        select! { Token::Char(c) if c.is_whitespace() => () },
-    ))
-    .repeated()
-    .ignored()
-    .boxed();
-    let outer_whitespace = whitespace.clone();
-
     recursive(move |expr| {
         let expr = expr
-            .delimited_by(whitespace.clone(), whitespace.clone())
+            .delimited_by(whitespaces(), whitespaces())
             .boxed()
             .labelled(sertyp::Content::from_string("pratt"));
         unspan(
-            span(
-                atomic_operations(expr.clone())
-                    .delimited_by(whitespace.clone(), whitespace.clone()),
-            )
-            .pratt(
+            span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
                 (
                     // Tighter to looser: postfix, sign, products, addition, comparisons,
                     // bitwise NOT, AND, XOR, and OR.
@@ -225,5 +213,5 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
         )
         .boxed()
     })
-    .delimited_by(outer_whitespace.clone(), outer_whitespace)
+    .delimited_by(whitespaces(), whitespaces())
 }
