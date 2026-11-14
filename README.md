@@ -2,37 +2,37 @@
 
 **Evaluate real, complex, vector, and matrix expressions directly in Typst.**
 
-Kalt evaluates nested Typst math with scalars, complex numbers, vectors, matrices, indexing, and arithmetic. The four compact examples below show the source beside the result produced by Typst itself.
+Kalt evaluates Typst math with scalar and complex arithmetic, vectors, matrices, indexing, and mathematical functions. The compact examples below show the same Typst file as source on the left and as a rendered result on the right.
 
-Each preview is one Typst document: the left pane reads and syntax-highlights the example file, while the right pane includes and renders that exact same file. The two sides cannot drift apart.
+Each preview is composed by Typst itself. The left pane reads and syntax-highlights the example file; the right pane includes and evaluates that exact file. There are no hand-composed image panels.
 
-## Matrix indexing
+## Scalar arithmetic and functions
 
-Read one entry and one row from a small matrix.
+Binary arithmetic, powers, logarithms, magnitude, rounding, and absolute-value operations.
 
-![Typst source and rendered matrix-indexing example](typst/assets/readme/field-stencil.svg)
+![Typst source and rendered scalar operations](typst/assets/readme/scalar-operations.svg)
 
-## Matrix arithmetic
+## Matrix operations
 
-Compare element-wise addition with matrix multiplication.
+Element-wise addition, subtraction, multiplication and division, plus matrix powers, transpose, and matrix multiplication with `dot`.
 
-![Typst source and rendered matrix-arithmetic example](typst/assets/readme/rigid-transform.svg)
+![Typst source and rendered matrix operations](typst/assets/readme/matrix-operations.svg)
 
 ## Vector products
 
-Use a transpose and dot product for the scalar product, and the cross product for a new vector.
+Transpose a column vector for a dot product; use the cross product and `abs` for vector results and lengths.
 
-![Typst source and rendered vector-products example](typst/assets/readme/force-moment.svg)
+![Typst source and rendered vector operations](typst/assets/readme/vector-operations.svg)
 
 ## Complex arithmetic
 
-Divide a voltage by a complex impedance, then use conjugation to calculate complex power.
+Divide complex values, take a conjugate, and calculate complex power and its magnitude.
 
-![Typst source and rendered complex-arithmetic example](typst/assets/readme/ac-power.svg)
+![Typst source and rendered complex arithmetic](typst/assets/readme/complex-arithmetic.svg)
 
 ## Documentation
 
-The [Typst operation reference](typst/README.md) describes the supported syntax and functions. The editable examples are in [`typst/docs/examples/`](typst/docs/examples/); the paired layout is defined once in [`paired-preview.typ`](typst/docs/paired-preview.typ).
+The [Typst operation reference](typst/README.md) documents the full supported syntax, including comparison and bitwise operators. The short, editable showcase files live in [`typst/docs/examples/`](typst/docs/examples/); one shared Typst layout is defined in [`typst/docs/paired-preview.typ`](typst/docs/paired-preview.typ).
 
 ## Build
 
@@ -41,7 +41,7 @@ cargo build --workspace
 cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
 ```
 
-To regenerate the paired previews with Typst 0.15.1:
+Regenerate the paired previews with Typst 0.15.1:
 
 ```bash
 bash typst/docs/render-examples.sh
