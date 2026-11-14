@@ -1,15 +1,21 @@
 # Kalt
 
-**Evaluate sliced matrix expressions directly in Typst.**
+**Evaluate real, complex, vector, and matrix expressions directly in Typst.**
 
-Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing, slicing, and element-wise matrix operations let you build a stencil directly from selected matrix regions—without writing a per-cell callback.
+Kalt evaluates Typst math with indexing, slicing, element-wise tensor arithmetic, matrix products, complex numbers, and collection helpers. The examples below are complete calculations: executable Typst source on the left, its rendered result on the right.
 
-## First use: a 2D discrete Laplacian
+## 01 · Slice and combine a field
 
-Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects a 3×3 window. `comp` evaluates each slice, then combines the resulting matrices with direct element-wise addition, subtraction, and scalar multiplication—no callback is needed.
+A five-point discrete Laplacian over a sampled 5×5 field. Five aligned 3×3 slices are evaluated, then combined with Kalt’s element-wise matrix arithmetic. There is no per-cell callback: compatible matrix operators already work cell by cell.
 
-~~~typst
-#import "@preview/kalt:0.1.1": comp
+<table>
+  <thead>
+    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
+        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
 
 #let field = $mat(
   10, 12, 15, 14, 11;
@@ -30,16 +36,139 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
   - 4 * #middle
 )$)
 
-$ nabla_h^2 T = #laplacian $
-~~~
+$ nabla_h^2 T = #laplacian $</code></pre>
+      </td>
+      <td valign="top">
+        <img src="typst/assets/readme/field-stencil.svg" alt="Rendered sampled field, five aligned 3 by 3 slices, stencil weights, and the resulting 3 by 3 Laplacian." width="100%">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-![Typst output of the sliced 2D Laplacian calculation](typst/assets/guide/laplacian-slices.svg)
+## 02 · Transform a point in homogeneous coordinates
 
-The result is a 3×3 matrix of second-order spatial differences; the `0.25` grid spacing is applied as a factor of 4. Slice stop indices are exclusive, so all five windows have matching dimensions. Matrix `+`, `-`, and scalar multiplication act element-wise; no `map` call is needed.
+A 3×3 transform rotates a 2D point by 90° counter-clockwise and translates it by (5, −2). The dot operator performs matrix multiplication; slices extract the transformed coordinates.
+
+<table>
+  <thead>
+    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
+        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
+
+#let transform = $mat(
+  0, -1, 5;
+  1, 0, -2;
+  0, 0, 1
+)$
+#let point = $vec(3, 2, 1)$
+#let moved = comp($#transform dot #point$)
+
+#let x = comp($#moved [0, 0]$)
+#let y = comp($#moved [1, 0]$)
+#let homogeneous = comp($#moved [2, 0]$)
+
+$ p' = #moved $
+$ (x', y', w') = (#x, #y, #homogeneous) $</code></pre>
+      </td>
+      <td valign="top">
+        <img src="typst/assets/readme/rigid-transform.svg" alt="Rendered homogeneous transform matrix, input vector, matrix product, and extracted output coordinates." width="100%">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 03 · Calibrate a sensor array and gate its quality
+
+The map callback applies a value correction and a coordinate-dependent offset. Reduce folds the corrected field into a mean; any and all check outlier and operating-range conditions.
+
+<table>
+  <thead>
+    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
+        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": all, any, comp, map, reduce
+
+#let raw = $mat(
+  1.02, 1.05, 0.98;
+  0.99, 1.01, 1.04;
+  1.03, 0.97, 1.00
+)$
+
+#let calibrated = map(
+  (reading, x, y) =&gt; (reading - 1) * 100 - (x - y) * 0.5,
+  raw,
+)
+#let total = reduce(
+  (sum, value) =&gt; sum + comp(value),
+  0,
+  calibrated,
+)
+#let mean = total / 9
+#let has_outlier = any(
+  value =&gt; comp(value) &gt; 4 or comp(value) &lt; -4,
+  calibrated,
+)
+#let all_in_range = all(
+  value =&gt; comp(value) &gt;= -5 and comp(value) &lt;= 5,
+  calibrated,
+)
+
+#mean
+#has_outlier
+#all_in_range</code></pre>
+      </td>
+      <td valign="top">
+        <img src="typst/assets/readme/sensor-calibration.svg" alt="Rendered raw sensor matrix, coordinate-calibrated values, mean correction, and any/all quality checks." width="100%">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## 04 · Compute complex power in an AC circuit
+
+A series R–L load turns a real source voltage and complex impedance into a current phasor. Conjugation gives complex power; Re, Im, and abs extract active power, reactive power, and apparent magnitude.
+
+<table>
+  <thead>
+    <tr><th align="left" width="52%">Typst source</th><th align="left" width="48%">Rendered result</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
+        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
+
+#let voltage = $120 + 0i$
+#let impedance = $30 + 40i$
+#let current = comp($#voltage / #impedance$)
+#let current_conjugate = comp($#current^*$)
+#let apparent = comp($#voltage * #current_conjugate$)
+
+#let active = comp($Re(#apparent)$)
+#let reactive = comp($Im(#apparent)$)
+#let apparent_magnitude = comp($abs(#apparent)$)
+#let power_factor = active / apparent_magnitude
+
+$I = #current " A"$
+$S = #apparent " VA"$
+$P = #active " W"$
+$Q = #reactive " var"$
+$PF = #power_factor$</code></pre>
+      </td>
+      <td valign="top">
+        <img src="typst/assets/readme/ac-power.svg" alt="Rendered AC source voltage, complex impedance, current phasor, apparent power, active power, reactive power, and power factor." width="100%">
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Documentation
 
-The [Typst guide and operation reference](typst/README.md) explains matrix and vector notation, arithmetic, indexing and slicing, the collection helpers, complex functions, comparisons, and bitwise operators.
+The [Typst operation reference](typst/README.md) covers expression evaluation, matrix and vector notation, indexing and slicing, element-wise arithmetic versus matrix products, callbacks and aggregation, complex functions, comparisons, and bitwise operators.
 
 ## Continue
 

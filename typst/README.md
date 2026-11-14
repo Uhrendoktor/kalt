@@ -1,53 +1,8 @@
 # Kalt for Typst
 
-Kalt evaluates Typst math expressions containing scalars, complex numbers, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Element-wise matrix arithmetic combines the selected regions directly; `map`, `reduce`, `any`, and `all` are available when a calculation needs callbacks or aggregation.
+Kalt evaluates Typst math expressions containing real and complex scalars, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Compatible matrix arithmetic is element-wise by default; use `dot` for matrix multiplication. The collection helpers `map`, `reduce`, `any`, and `all` provide callbacks and aggregation when a calculation needs them.
 
-## First use: evaluate a matrix stencil
-
-This example computes the five-point discrete Laplacian of a sampled 2D field. It evaluates the four neighboring slices and the matching center slice, then combines those matrices in a second Kalt expression. Matrix addition, subtraction, and scalar multiplication operate element by element.
-
-~~~typst
-#import "@preview/kalt:0.1.1": comp
-
-#let field = $mat(
-  10, 12, 15, 14, 11;
-  13, 20, 25, 22, 15;
-  14, 24, 35, 28, 16;
-  12, 19, 27, 23, 14;
-  9, 11, 16, 15, 10
-)$
-
-#let north = comp($#field [0:3, 1:4]$)
-#let south = comp($#field [2:5, 1:4]$)
-#let west = comp($#field [1:4, 0:3]$)
-#let east = comp($#field [1:4, 2:5]$)
-#let middle = comp($#field [1:4, 1:4]$)
-
-#let laplacian = comp($4 * (
-  #north + #south + #west + #east
-  - 4 * #middle
-)$)
-
-$ nabla_h^2 T = #laplacian $
-~~~
-
-![Typst output of the sliced 2D Laplacian calculation](assets/guide/laplacian-slices.svg)
-
-The input is a 5×5 matrix. Each slice is 3×3, so the five regions align cell by cell. Kalt combines those regions with element-wise `+`, `-`, and multiplication. No callback or explicit loop is necessary. The resulting Laplacian is:
-
-```text
-mat(-24, -32, -24;
-    -32, -144, -64;
-     -8, -60, -32)
-```
-
-Mathematically, the operation is:
-
-```text
-ΔₕT = (Tnorth + Tsouth + Twest + Teast − 4 Tcenter) / h²
-```
-
-Here `h² = 0.25`, so the expression multiplies the stencil by 4. The index ranges are half-open: `0:3` selects indices 0, 1, and 2; `2:5` selects 2, 3, and 4.
+The [repository README](../README.md) contains four complete worked examples in a side-by-side source/output layout: a sliced matrix stencil, a homogeneous transform, coordinate-aware sensor calibration, and complex AC power.
 
 ## Operation reference
 

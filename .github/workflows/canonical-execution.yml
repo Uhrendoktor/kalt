@@ -46,12 +46,12 @@ jobs:
           if report['failed']:
               raise SystemExit(1)
           PY
-      - name: Render guide equations
+      - name: Render README worked examples
         run: bash typst/docs/render-figures.sh /tmp/kalt-doc-figures
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: kalt-guide-equations
+          name: kalt-readme-examples
           path: /tmp/kalt-doc-figures/*.svg
           if-no-files-found: error
       - if: always()

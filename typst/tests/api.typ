@@ -71,3 +71,49 @@
   stencil-laplacian,
   $mat(-24, -32, -24; -32, -144, -64; -8, -60, -32)$,
 )
+
+
+// Full worked examples shown in the repository README.
+#let transform-matrix = $mat(0, -1, 5; 1, 0, -2; 0, 0, 1)$
+#let transform-point = $vec(3, 2, 1)$
+#let transformed-point = comp($#transform-matrix dot #transform-point$)
+#assert-eq(
+  "homogeneous matrix transform rotates and translates a point",
+  transformed-point,
+  $mat(3; 1; 1)$,
+)
+#assert-eq("homogeneous transform x slice", comp($#transformed-point [0, 0]$), 3.0)
+#assert-eq("homogeneous transform y slice", comp($#transformed-point [1, 0]$), 1.0)
+
+#let sensor-raw = $mat(1.02, 1.05, 0.98; 0.99, 1.01, 1.04; 1.03, 0.97, 1.00)$
+#let sensor-calibrated = map(
+  (reading, x, y) => (reading - 1) * 100 - (x - y) * 0.5,
+  sensor-raw,
+)
+#assert-eq(
+  "coordinate-aware sensor calibration",
+  sensor-calibrated,
+  $mat(2, 4.5, -3; -0.5, 1, 3.5; 4, -2.5, 0)$,
+)
+#let sensor-total = reduce((sum, value) => sum + comp(value), 0, sensor-calibrated)
+#assert-eq("reduce computes calibrated sensor mean", sensor-total / 9, 1.0)
+#assert-typst-eq(
+  "any detects a calibrated outlier",
+  any(value => comp(value) > 4 or comp(value) < -4, sensor-calibrated),
+  true,
+)
+#assert-typst-eq(
+  "all validates calibrated sensor range",
+  all(value => comp(value) >= -5 and comp(value) <= 5, sensor-calibrated),
+  true,
+)
+
+#let ac-voltage = $120 + 0i$
+#let ac-impedance = $30 + 40i$
+#let ac-current = comp($#ac-voltage / #ac-impedance$)
+#assert-eq("complex impedance determines AC current", ac-current, $1.44 - 1.92i$)
+#let ac-power = comp($#ac-voltage * #ac-current^*$)
+#assert-eq("conjugate current produces complex power", ac-power, $172.8 + 230.4i$)
+#assert-eq("real part is active power", comp($Re(#ac-power)$), 172.8)
+#assert-eq("imaginary part is reactive power", comp($Im(#ac-power)$), 230.4)
+#assert-eq("complex magnitude is apparent power", comp($abs(#ac-power)$), 288.0)
