@@ -45,7 +45,6 @@
 #assert-typst-eq("all accepts every matching cell", all(value => comp(value) > 0, $mat(1, 2; 3, 4)$), true)
 #assert-typst-eq("all rejects a failing cell", all(value => comp(value) > 1, $mat(1, 2; 3, 4)$), false)
 
-// Keep the README's temperature-conversion example executable in the API suite.
 #let fahrenheit = $mat(68, 77; 86, 95)$
 #let celsius = map((value, x, y) => (value - 32) * 5 / 9, fahrenheit)
 #assert-eq("map converts Fahrenheit readings to Celsius", celsius, $mat(20, 25; 30, 35)$)

@@ -186,7 +186,7 @@ The Typst table in the example renders those same intermediate values in your do
 | `all(fn, ..mats)` | Returns `true` only when the predicate matches every set of aligned cells. |
 | `tensor-variant(value)` | Returns `"scalar"` or `"matrix"` for mathematical content. |
 
-When you pass more than one matrix or vector, the helpers give the callback the values at corresponding positions. If the shapes differ, missing cells are passed as `none`.
+With `map`, numeric math cells are evaluated before they reach the callback. In `reduce`, `any`, and `all`, use `comp(value)` when the callback needs a cell's numeric value. The helpers can take more than one matrix or vector and pass corresponding cells to the callback; when shapes differ, missing cells are passed as `none`.
 
 ## More examples
 
