@@ -58,8 +58,10 @@
   } else if figure == "temperature-average" {
     $ overline(C) = (20 + 25 + 30 + 35) / 4 = #average quad °C $
   } else if figure == "temperature-predicates" {
-    At least one reading is 30 °C or higher: #has-hot-reading
-    #v(3mm)
-    Every reading is above 0 °C: #all-above-freezing
+    [
+      At least one reading is 30 °C or higher: #has-hot-reading
+      #v(3mm)
+      Every reading is above 0 °C: #all-above-freezing
+    ]
   }
 ]
