@@ -20,11 +20,11 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
 )$
 
 #let laplacian = comp($(
-  #field[0:3, 1:4]
-  + #field[2:5, 1:4]
-  + #field[1:4, 0:3]
-  + #field[1:4, 2:5]
-  - 4 * #field[1:4, 1:4]
+  #(field)[0:3, 1:4]
+  + #(field)[2:5, 1:4]
+  + #(field)[1:4, 0:3]
+  + #(field)[1:4, 2:5]
+  - 4 * #(field)[1:4, 1:4]
 ) / 0.25$)
 
 $ nabla_h^2 T = #laplacian $

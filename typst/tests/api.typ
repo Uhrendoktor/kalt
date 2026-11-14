@@ -65,11 +65,11 @@
   9, 11, 16, 15, 10
 )$
 #let stencil-laplacian = comp($(
-  #stencil-field[0:3, 1:4]
-  + #stencil-field[2:5, 1:4]
-  + #stencil-field[1:4, 0:3]
-  + #stencil-field[1:4, 2:5]
-  - 4 * #stencil-field[1:4, 1:4]
+  #(stencil-field)[0:3, 1:4]
+  + #(stencil-field)[2:5, 1:4]
+  + #(stencil-field)[1:4, 0:3]
+  + #(stencil-field)[1:4, 2:5]
+  - 4 * #(stencil-field)[1:4, 1:4]
 ) / 0.25$)
 #assert-eq(
   "comp combines matrix slices with element-wise arithmetic",

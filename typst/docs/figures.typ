@@ -15,11 +15,11 @@
   9, 11, 16, 15, 10
 )$
 #let laplacian = comp($(
-  #field[0:3, 1:4]
-  + #field[2:5, 1:4]
-  + #field[1:4, 0:3]
-  + #field[1:4, 2:5]
-  - 4 * #field[1:4, 1:4]
+  #(field)[0:3, 1:4]
+  + #(field)[2:5, 1:4]
+  + #(field)[1:4, 0:3]
+  + #(field)[1:4, 2:5]
+  - 4 * #(field)[1:4, 1:4]
 ) / 0.25$)
 
 #set align(center)
