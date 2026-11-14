@@ -3,9 +3,9 @@ use chumsky::pratt::{infix, left, none, postfix};
 use chumsky::primitive::just;
 use chumsky::span::WrappingSpan;
 use chumsky::span::{SimpleSpanned, Span};
-use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive};
+use chumsky::{Parser, pratt::prefix, primitive::choice, recursive::recursive, select};
 use sertyp::FromString;
-use sertyp::chumsky::parser::{character, whitespaces};
+use sertyp::chumsky::parser::character;
 use sertyp::chumsky::{LocatingSequenceLike, Token};
 use sertyp::locating::GroupType;
 use sertyp::TypstError;
@@ -174,13 +174,25 @@ pub fn atomic_operations(
 /// Parses a full expression and condenses it to a single tensor
 #[kalt_macros::parser]
 pub fn pratt<'data>() -> Expects<'data, Tensor> {
+    let whitespace = choice((
+        sertyp::chumsky::parser::whitespace().ignored(),
+        select! { Token::Char(c) if c.is_whitespace() => () },
+    ))
+    .repeated()
+    .ignored();
+    let outer_whitespace = whitespace.clone();
+
     recursive(move |expr| {
         let expr = expr
-            .delimited_by(whitespaces(), whitespaces())
+            .delimited_by(whitespace.clone(), whitespace.clone())
             .boxed()
             .labelled(sertyp::Content::from_string("pratt"));
         unspan(
-            span(atomic_operations(expr.clone()).delimited_by(whitespaces(), whitespaces())).pratt(
+            span(
+                atomic_operations(expr.clone())
+                    .delimited_by(whitespace.clone(), whitespace.clone()),
+            )
+            .pratt(
                 (
                     // Tighter to looser: postfix, sign, products, addition, comparisons,
                     // bitwise NOT, AND, XOR, and OR.
@@ -212,5 +224,5 @@ pub fn pratt<'data>() -> Expects<'data, Tensor> {
         )
         .boxed()
     })
-    .delimited_by(whitespaces(), whitespaces())
+    .delimited_by(outer_whitespace.clone(), outer_whitespace)
 }
