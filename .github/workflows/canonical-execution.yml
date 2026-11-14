@@ -1,8 +1,5 @@
 name: canonical-execution
 
-permissions:
-  contents: write
-
 on:
   push:
   pull_request:
@@ -51,17 +48,6 @@ jobs:
           PY
       - name: Render guide equations
         run: bash typst/docs/render-figures.sh /tmp/kalt-doc-figures
-      - name: Commit rendered README figure
-        if: github.event_name == 'push' && github.ref == 'refs/heads/cleanup/native-typst-math-syntax'
-        run: |
-          install -D /tmp/kalt-doc-figures/laplacian-slices.svg typst/assets/guide/laplacian-slices.svg
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f typst/assets/guide/laplacian-slices.svg
-          if ! git diff --cached --quiet; then
-            git commit -m "Add rendered Laplacian README figure"
-            git push
-          fi
       - if: always()
         uses: actions/upload-artifact@v7
         with:
