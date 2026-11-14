@@ -1,4 +1,4 @@
-// Principal inverse sine tests for kalt bindings
+// Tests principal inverse sine notation and its arcsin and asin aliases.
 
 #import "../utils.typ": unary_operation
 

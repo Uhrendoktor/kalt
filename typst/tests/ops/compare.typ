@@ -1,4 +1,4 @@
-// Numeric comparison operators. Results are encoded as 0 (false) or 1 (true).
+// Tests numeric comparisons, Unicode aliases, complex equality, and invalid ordering.
 
 #import "../utils.typ": binary_operation, assert-error
 #import "../../lib.typ": comp

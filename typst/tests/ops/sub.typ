@@ -1,4 +1,4 @@
-// Subtraction tests for kalt bindings
+// Tests subtraction for real and complex scalars and matrix entries.
 
 #import "../utils.typ": binary_operation
 

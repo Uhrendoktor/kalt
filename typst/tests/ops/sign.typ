@@ -1,4 +1,4 @@
-// Sign/negation tests for bindings
+// Tests unary negation for real, complex, and matrix values.
 
 #import "../utils.typ": unary_operation
 

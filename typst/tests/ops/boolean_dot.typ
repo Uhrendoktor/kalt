@@ -1,4 +1,4 @@
-// Boolean-semiring product ⊙: pairwise AND reduced with OR.
+// Tests Boolean matrix products and distinguishes them from arithmetic dot products.
 
 #import "../utils.typ": binary_operation
 

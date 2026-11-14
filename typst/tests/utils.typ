@@ -1,3 +1,5 @@
+// Provides shared assertions, result validation, and table-driven test helpers.
+
 #import "../lib.typ": comp, reduce, tensor-variant
 
 #let test-state = state("kalt-test-results", ())

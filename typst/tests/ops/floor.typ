@@ -1,4 +1,4 @@
-// Floor tests for kalt bindings
+// Tests floor for real and complex values and matrix entries.
 
 #import "../utils.typ": unary_operation
 
@@ -6,7 +6,6 @@
   "Floor",
   [Unary floor],
   c1 => { $ floor(#c1) $ },
-  // floor
   (v: $3$, e: $3$),
   (v: $0$, e: $0$),
   (v: $-3$, e: $-3$),

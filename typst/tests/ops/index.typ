@@ -1,4 +1,4 @@
-// Index tests for kalt bindings
+// Tests matrix indexing, slicing, reverse ranges, and index validation.
 
 #import "../utils.typ": binary_operation
 

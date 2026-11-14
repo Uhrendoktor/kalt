@@ -1,18 +1,36 @@
 use kalt::parser::{
     atoms::{complex::Complex, tensor::Tensor},
+    ops::logic::boolean_indicator,
     pratt::pratt,
     validate,
     validator::matrix,
 };
 use sertyp::{
-    Content, Float, Item, LocatingSequence, Sequence, TypedArray, TypedContent, TypedSequence,
-    TypstError, parse, typst_func,
+    Boolean, Content, Float, Item, LocatingSequence, Panic, Sequence, TypedArray,
+    TypedContent, TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
 initiate_protocol!();
 
 #[typst_func()]
-pub fn comp<'data>(TypedContent(seq): TypedContent<Sequence<'data>>) -> Item<'data> {
+pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
+    let content = match body {
+        Item::Boolean(Boolean(value)) => Complex::from(boolean_indicator(value)).into(),
+        Item::Integer(value) => Complex::new(Float::from(value).into(), 0.0).into(),
+        Item::Float(Float::f64(value)) => Complex::new(value, 0.0).into(),
+        Item::Decimal(value) => Complex::new(value.into(), 0.0).into(),
+        Item::String(value) => Content::from(value),
+        Item::Content(content) => *content,
+        // Item inputs receive panics from SerTyp's #[typst_func] wrapper.
+        Item::Panic(panic) => return panic.into(),
+        _ => {
+            return Panic::from(sertyp::String::from(
+                "comp expects a Boolean, integer, float, decimal, string, or math content",
+            ))
+            .into();
+        }
+    };
+    let seq = Sequence::from(content);
     let seq = LocatingSequence::from(&seq);
     let c = parse!(pratt(), &seq);
 

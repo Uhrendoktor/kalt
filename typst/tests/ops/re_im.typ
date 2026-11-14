@@ -1,4 +1,4 @@
-// Real and imaginary part tests for kalt bindings
+// Tests extraction of real and imaginary parts from scalars and matrices.
 
 #import "../utils.typ": unary_operation
 

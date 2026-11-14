@@ -1,4 +1,4 @@
-// Natural logarithm tests for kalt bindings
+// Tests natural logarithms for real and complex scalars and matrices.
 
 #import "../utils.typ": unary_operation
 

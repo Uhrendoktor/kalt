@@ -1,4 +1,4 @@
-// Integer bitwise operators: AND, OR, XOR.
+// Tests integer bitwise AND, OR, XOR, and NOT, including matrix and invalid-input cases.
 
 #import "../utils.typ": binary_operation, unary_operation
 

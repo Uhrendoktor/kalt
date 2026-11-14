@@ -1,6 +1,12 @@
-// Logical NOT is strict: it accepts only the numeric Boolean indicators 0 and 1.
+// Tests direct Typst Boolean inputs and logical NOT behavior.
 
-#import "../utils.typ": unary_operation
+#import "../../lib.typ": comp
+#import "../utils.typ": assert-eq, assert-typst-eq, unary_operation
+
+#assert-typst-eq("Typst true becomes numeric one", comp(true), 1.0)
+#assert-typst-eq("Typst false becomes numeric zero", comp(false), 0.0)
+#assert-eq("true in a math call", $comp(#true)$, $1$)
+#assert-eq("false in a math call", $comp(#false)$, $0$)
 
 #unary_operation(
   "Logical NOT",
@@ -8,8 +14,6 @@
   a => { $ ¬ #a $ },
   (v: $0$, e: $1$),
   (v: $1$, e: $0$),
-  (v: $op("true")$, e: $0$),
-  (v: $op("false")$, e: $1$),
   (v: $2$, error: "{0, 1}"),
   (v: $6.5$, error: "{0, 1}"),
   (v: $1+i$, error: "ℂ"),

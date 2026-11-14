@@ -1,4 +1,4 @@
-// Logarithm tests for kalt bindings
+// Tests logarithms with arbitrary bases for real, complex, and matrix values.
 
 #import "../utils.typ": binary_operation
 
