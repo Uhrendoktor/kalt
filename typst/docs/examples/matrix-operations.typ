@@ -1,7 +1,7 @@
 #import "../../lib.typ": comp
 
 #let a = $mat(1, 2; 3, 4)$
-#let b = $mat(5, 6; 7, 8)$
+#let b = $mat(5, 8; 9, 12)$
 #let add = comp($#a + #b$)
 #let subtract = comp($#a - #b$)
 #let multiply = comp($#a * #b$)
