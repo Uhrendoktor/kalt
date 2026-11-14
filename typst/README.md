@@ -149,4 +149,4 @@ Comparisons evaluate to numeric indicators: false is `0`, true is `1`. Bitwise o
 
 ## Reproducible example renders
 
-The five SVGs in the repository README are compiled from the matching Typst documents in [`docs/examples/`](docs/examples/). Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate them.
+The four paired SVG previews in the repository README are compiled by Typst from the matching documents in [`docs/examples/`](docs/examples/). [`paired-preview.typ`](docs/paired-preview.typ) reads each source file for the left pane and includes that same file for the rendered pane. Run [`docs/render-examples.sh`](docs/render-examples.sh) with Typst 0.15.1 to regenerate the previews.
