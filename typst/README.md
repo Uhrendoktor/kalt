@@ -1,72 +1,66 @@
 **Keep the equation. Get the answer.**
 
-Kalt evaluates native Typst math content in place. Write an expression once and use its computed value in the same equation or elsewhere in your document. It works with real and complex numbers, vectors, matrices, nested operators, and slices—without translating your math into a second expression language.
+Kalt adds a calculator to Typst's math. Write an equation as you normally would and wrap the part you want calculated in `#comp(...)`. The answer appears right inside your document, ready for a thesis, report, lab notes, or other work.
 
-## Evaluate your first expression
+## Calculate inside your equations
 
-Import `comp` and wrap the math content you want evaluated. A real result becomes a Typst number; complex, vector, and matrix results remain native mathematical content.
+### Let Typst do the calculation
 
-### Nested expressions and operator precedence
-
-Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operators in one expression.
-
+Use familiar math notation for sums, powers, roots, and functions. Kalt fills in the result for you.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
-$ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
-$ (2 + 3 * (4^2 - 5)) / 4 = #calc.round(comp($(2 + 3 * (4^2 - 5)) / 4$), digits: 2) $
-
-$ log_2(2^3 + 8) - ln(e^2) = #calc.round(comp($log_2(2^3 + 8) - ln(e^2)$), digits: 2) $
-
-$ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
+$ 12 + 3 * 4 = #comp($12 + 3 * 4$) $
+$ (2 + 3)^2 = #comp($(2 + 3)^2$) $
+$ sqrt(81) = #comp($sqrt(81)$) $
+$ log_2(8) = #comp($log_2(8)$) $
 ````
 
-<img src="assets/readme/scalar-operations.svg" alt="Nested arithmetic, complex powers, logarithms, comparisons, and bitwise operators evaluated from Typst math." width="25%">
+<img src="assets/readme/scalar-operations.svg" alt="Everyday arithmetic, powers, roots, and logarithms calculated inside Typst equations." width="25%">
 
-### Matrix algebra
+### Add and multiply matrices
 
-Compatible matrices support element-wise arithmetic. Use `dot` when you want matrix multiplication.
-
+Add matrices cell by cell or calculate their matrix product.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
+
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 6; 7, 8)$
 
 $ "Element-wise" quad A * B = #comp($#a * #b$) $
-
 $ "Matrix product" quad A dot B = #comp($#a dot #b$) $
 ````
 
-<img src="assets/readme/matrix-operations.svg" alt="Element-wise matrix multiplication and matrix dot product, rendered from Typst math." width="25%">
+<img src="assets/readme/matrix-operations.svg" alt="Two matrices added and multiplied directly in Typst math." width="25%">
 
-### Vector products
+### Work with vectors
 
-Vectors are column vectors. Transpose the left operand for a dot product; use `times` for the three-dimensional cross product.
-
+Calculate dot and cross products with familiar vector notation.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
+
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
 
 $ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
-
 $ "Cross product" quad a times b = #comp($#a times #b$) $
 ````
 
-<img src="assets/readme/vector-operations.svg" alt="Vector dot product and three-dimensional cross product, rendered from Typst math." width="25%">
+<img src="assets/readme/vector-operations.svg" alt="Vector dot and cross products calculated inside Typst equations." width="25%">
 
-### Complex arithmetic
+### Use complex numbers
 
-Complex values work throughout expressions, including division, powers, conjugation, and magnitude.
-
+Complex numbers work in the same way as ordinary numbers. This example calculates current and power from voltage and impedance.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
+
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
+
 $ V &= #voltage " V" \
   Z &= #impedance Ω \
   I &= V / Z = #comp($#voltage / #impedance$) " A" \
@@ -75,13 +69,13 @@ $ V &= #voltage " V" \
   abs(S) &= #comp($abs(#voltage * (#voltage / #impedance)^*)$) " VA" $
 ````
 
-<img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="25%">
+<img src="assets/readme/complex-arithmetic.svg" alt="Voltage, impedance, current, and power calculated with complex numbers in Typst." width="25%">
 
-## What Kalt evaluates
+## More things you can do
 
-### Scalars and complex numbers
+### Numbers and functions
 
-Use Typst's native math syntax for real and complex expressions. Kalt supports nested arithmetic, implicit multiplication, powers, factorials, roots, binomial coefficients, comparisons, and bitwise operations.
+Use Typst's familiar math notation for real and complex numbers:
 
 | Group | Syntax |
 | --- | --- |
@@ -97,11 +91,11 @@ Use Typst's native math syntax for real and complex expressions. Kalt supports n
 
 Comparisons evaluate to numeric indicators: false is `0` and true is `1`. Bitwise operations require integer values. Boolean NOT is written `¬`; `⊙` is the boolean matrix product.
 
-### Matrices, vectors, and indexing
+### Matrices, vectors, and selecting parts
 
-Create matrices with `mat(...)` and column vectors with `vec(...)`. Commas separate entries, and semicolons start new matrix rows. Matrix `+`, `-`, `*`, and `/` are element-wise for compatible shapes. Use `dot` for matrix multiplication. Transpose is `^T`; complex conjugation is `^*`.
+Create matrices with `mat(...)` and column vectors with `vec(...)`. Commas separate entries, and semicolons start new matrix rows. Matrix `+`, `-`, `*`, and `/` work cell by cell for compatible shapes. Use `dot` for matrix multiplication. Transpose is `^T`; complex conjugation is `^*`.
 
-Matrix indices are zero-based. The stop index in a slice is excluded, and negative indices count from the end.
+Matrix indices start at zero. In a slice, the stop index is not included, and negative indices count from the end.
 
 | Expression | Selection |
 | --- | --- |
@@ -115,23 +109,24 @@ Matrix indices are zero-based. The stop index in a slice is excluded, and negati
 
 Slices support `start:stop:step`, omitted boundaries, negative steps, and explicit index lists. For vectors, `abs(v)` is the vector length; for square matrices, `abs(M)` is the determinant.
 
-### Transform and inspect matrix data
+### Work with a whole matrix
 
-Kalt includes helpers for cell-wise transformations and aggregation:
+Kalt also includes helpers for changing and checking many matrix cells at once:
 
 | Function | Purpose |
 | --- | --- |
 | `map(fn, ..mats)` | Transform aligned cells and return a matrix. The callback receives each cell followed by its zero-based column `x` and row `y`. |
-| `reduce(fn, initial, ..mats)` | Fold aligned cells into an accumulator. Use `comp(value)` when the callback needs a number from math-content cells. |
-| `any(fn, ..mats)` | Return true when at least one aligned cell satisfies the predicate. |
-| `all(fn, ..mats)` | Return true only when every aligned cell satisfies the predicate. |
+| `reduce(fn, initial, ..mats)` | Combine cells into one result. Use `comp(value)` when the callback needs a number from math-content cells. |
+| `any(fn, ..mats)` | Return true when at least one aligned cell satisfies the test. |
+| `all(fn, ..mats)` | Return true only when every aligned cell satisfies the test. |
 | `tensor-variant(value)` | Return `"scalar"` or `"matrix"` for mathematical content. |
 | `to-float-if-possible(value)` | Evaluate numeric math content to a float; otherwise return the original value. |
 
-For example, convert a matrix of measurements to percentage deviations and inspect the cells:
+For example, convert a matrix of measurements to percentage deviations and check its values:
 
 ````typst
 #import "@preview/kalt:0.1.1": all, any, comp, map, reduce
+
 #let samples = $mat(12, 18; 24, 31)$
 #let corrected = map((value, x, y) => (value - 20) * 100, samples)
 #let total = reduce((sum, value) => sum + comp(value), 0, samples)
@@ -139,11 +134,21 @@ For example, convert a matrix of measurements to percentage deviations and inspe
 #let all-positive = all(value => comp(value) > 0, samples)
 ````
 
-The aggregation helpers accept multiple matrices or vectors. Inputs are aligned by coordinate; a missing cell from a smaller input is passed as `none`.
+The helpers can work with more than one matrix or vector at a time. When an input has no cell at a given position, Kalt passes `none` to the calculation.
 
-## Errors and compatibility
+## When a calculation cannot be completed
 
-Kalt reports evaluation and shape errors as formatted Typst errors, so an invalid operation is visible at the expression that caused it. Matrix and vector operations check compatible dimensions instead of silently discarding mismatched data.
+Kalt does not silently guess when an expression cannot be calculated. Typst shows an error at the expression, together with a message that helps explain what went wrong.
+
+For example, these two matrices do not fit together for this multiplication:
+
+````typst
+#import "@preview/kalt:0.1.1": comp
+
+#comp($mat(1, 2) dot mat(1, 2)$)
+````
+
+Kalt reports: `dot product can only be applied to matrices with compatible shapes`. It also highlights the two dimensions that need to match, making it easier to see what needs fixing.
 
 ## Documentation and source
 
