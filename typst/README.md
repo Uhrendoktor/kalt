@@ -144,7 +144,7 @@ The helper functions let you transform a matrix, combine its values, and ask que
 #import "@preview/kalt:0.1.1": comp, map, reduce, any, all
 
 #let fahrenheit = $mat(68, 77; 86, 95)$
-#let celsius = map(value => (value - 32) * 5 / 9, fahrenheit)
+#let celsius = map((value, x, y) => (value - 32) * 5 / 9, fahrenheit)
 
 #let average = reduce(
   (sum, value) => sum + comp(value),

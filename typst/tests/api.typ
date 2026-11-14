@@ -47,7 +47,7 @@
 
 // Keep the README's temperature-conversion example executable in the API suite.
 #let fahrenheit = $mat(68, 77; 86, 95)$
-#let celsius = map(value => (value - 32) * 5 / 9, fahrenheit)
+#let celsius = map((value, x, y) => (value - 32) * 5 / 9, fahrenheit)
 #assert-eq("map converts Fahrenheit readings to Celsius", celsius, $mat(20, 25; 30, 35)$)
 
 #let average = reduce((sum, value) => sum + comp(value), 0, celsius) / 4
