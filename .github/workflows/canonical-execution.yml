@@ -58,7 +58,7 @@ jobs:
           cp /tmp/kalt-doc-figures/*.svg typst/assets/guide/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add typst/assets/guide/*.svg
+          git add -f typst/assets/guide/*.svg
           if ! git diff --cached --quiet; then
             git commit -m "Add generated Typst guide figures"
             git push origin "HEAD:${GITHUB_REF_NAME}"
