@@ -1,5 +1,6 @@
 use kalt::parser::{
     atoms::{complex::Complex, tensor::Tensor},
+    ops::logic::boolean_indicator,
     pratt::pratt,
     validate,
     validator::matrix,
@@ -14,9 +15,7 @@ initiate_protocol!();
 #[typst_func()]
 pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
     let content = match body {
-        Item::Boolean(Boolean(value)) => {
-            Complex::new(if value { 1.0 } else { 0.0 }, 0.0).into()
-        }
+        Item::Boolean(Boolean(value)) => Complex::from(boolean_indicator(value)).into()
         Item::Integer(value) => {
             let value: Float = match value {
                 Integer::i8(value) => value.into(),
