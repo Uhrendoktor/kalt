@@ -49,7 +49,7 @@
     #text(size: 7pt, fill: muted)[Transpose and dot product]
   ]),
   panel("MOMENT MAGNITUDE", [
-    #text(size: 15pt, weight: "bold")[$abs(M) = #moment-size " N" dot "m"$]
-    #text(size: 7pt, fill: muted)[Vector norm]
+    #text(size: 13pt, weight: "bold")[$abs(M) = #moment-size$]
+    #text(size: 7pt, fill: muted)[N·m · Vector norm]
   ]),
 )
