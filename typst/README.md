@@ -1,6 +1,6 @@
 # Kalt
 
-**Evaluate mathematics where you write it—in your Typst document.**
+**Evaluate mathematics directly in your Typst document.**
 
 Kalt keeps calculations alongside the equations and explanations in your document. It is useful for more than simple arithmetic: evaluate nested expressions, work with complex numbers, and calculate with vectors and matrices. The results can be reused elsewhere in Typst instead of being copied from a separate calculator.
 
