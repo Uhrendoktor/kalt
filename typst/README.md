@@ -17,9 +17,6 @@ Combine powers, functions, grouping, arithmetic, comparisons, and bitwise operat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 56mm, height: 23mm, margin: 1mm)
-#set text(size: 8pt)
-#set par(spacing: 1mm)
 
 $ (2 + 3i)^2 = #comp($(2 + 3i)^2$) $
 
@@ -48,9 +45,6 @@ Compatible matrices support element-wise arithmetic. Use `dot` when you want mat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 46mm, height: 18mm, margin: 1mm)
-#set text(size: 8pt)
-#set par(spacing: 1mm)
 
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 6; 7, 8)$
@@ -78,9 +72,6 @@ Vectors are column vectors. Transpose the left operand for a dot product; use `t
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 15mm, margin: 1mm)
-#set text(size: 8pt)
-#set par(spacing: 1mm)
 
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
@@ -108,9 +99,6 @@ Complex values work throughout expressions, including division, powers, conjugat
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#set page(width: 40mm, height: 25mm, margin: 1mm)
-#set text(size: 8pt)
-#set par(spacing: 1mm)
 
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
