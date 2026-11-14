@@ -6,7 +6,7 @@ use kalt::parser::{
     validator::matrix,
 };
 use sertyp::{
-    Boolean, Content, Float, Integer, Item, LocatingSequence, Panic, Sequence, TypedArray,
+    Boolean, Content, Float, Item, LocatingSequence, Panic, Sequence, TypedArray,
     TypedContent, TypedSequence, TypstError, parse, typst_func,
 };
 use wasm_minimal_protocol::*;
@@ -15,24 +15,8 @@ initiate_protocol!();
 #[typst_func()]
 pub fn comp<'data>(body: Item<'data>) -> Item<'data> {
     let content = match body {
-        Item::Boolean(Boolean(value)) => Complex::from(boolean_indicator(value)).into()
-        Item::Integer(value) => {
-            let value: Float = match value {
-                Integer::i8(value) => value.into(),
-                Integer::i16(value) => value.into(),
-                Integer::i32(value) => value.into(),
-                Integer::i64(value) => value.into(),
-                Integer::i128(value) => value.into(),
-                Integer::u8(value) => value.into(),
-                Integer::u16(value) => value.into(),
-                Integer::u32(value) => value.into(),
-                Integer::u64(value) => value.into(),
-                Integer::u128(value) => value.into(),
-                Integer::isize(value) => value.into(),
-                Integer::usize(value) => value.into(),
-            };
-            Complex::new(value.into(), 0.0).into()
-        }
+        Item::Boolean(Boolean(value)) => Complex::from(boolean_indicator(value)).into(),
+        Item::Integer(value) => Content::from(value.to_string()),
         Item::Float(Float::f64(value)) => Complex::new(value, 0.0).into(),
         Item::Decimal(value) => Complex::new(value.into(), 0.0).into(),
         Item::String(value) => Content::from(value),
