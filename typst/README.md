@@ -17,13 +17,13 @@ This example computes the five-point discrete Laplacian of a sampled 2D field. I
   9, 11, 16, 15, 10
 )$
 
-#let laplacian = comp($(
+#let laplacian = comp($4 * (
   #field [0:3, 1:4]
   + #field [2:5, 1:4]
   + #field [1:4, 0:3]
   + #field [1:4, 2:5]
   - 4 * #field [1:4, 1:4]
-) / 0.25$)
+)$)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
@@ -44,7 +44,7 @@ Mathematically, the operation is:
 ΔₕT = (Tnorth + Tsouth + Twest + Teast − 4 Tcenter) / h²
 ```
 
-Here `h² = 0.25`. The index ranges are half-open: `0:3` selects indices 0, 1, and 2; `2:5` selects 2, 3, and 4.
+Here `h² = 0.25`, so the expression multiplies the stencil by 4. The index ranges are half-open: `0:3` selects indices 0, 1, and 2; `2:5` selects 2, 3, and 4.
 
 ## Operation reference
 

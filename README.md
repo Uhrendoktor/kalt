@@ -19,20 +19,20 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
   9, 11, 16, 15, 10
 )$
 
-#let laplacian = comp($(
+#let laplacian = comp($4 * (
   #field [0:3, 1:4]
   + #field [2:5, 1:4]
   + #field [1:4, 0:3]
   + #field [1:4, 2:5]
   - 4 * #field [1:4, 1:4]
-) / 0.25$)
+)$)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
 
 ![Typst output of the sliced 2D Laplacian calculation](typst/assets/guide/laplacian-slices.svg)
 
-The result is a 3×3 matrix of second-order spatial differences. Slice stop indices are exclusive, so all five windows have matching dimensions. Matrix `+`, `-`, and scalar multiplication act element-wise; no `map` call is needed.
+The result is a 3×3 matrix of second-order spatial differences; the `0.25` grid spacing is applied as a factor of 4. Slice stop indices are exclusive, so all five windows have matching dimensions. Matrix `+`, `-`, and scalar multiplication act element-wise; no `map` call is needed.
 
 ## Documentation
 
