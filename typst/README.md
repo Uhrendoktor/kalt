@@ -67,21 +67,12 @@ Complex values work throughout expressions, including division, powers, conjugat
 #import "@preview/kalt:0.1.1": comp
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
-#let current = comp($#voltage / #impedance$)
-#let conjugate = comp($#current^*$)
-#let power = comp($#voltage * #conjugate$)
-
-$ V = #voltage " V" $
-
-$ Z = #impedance Ω $
-
-$ I = V / Z = #current " A" $
-
-$ I^* = #conjugate " A" $
-
-$ S = V I^* = #power " VA" $
-
-$ abs(S) = #comp($abs(#power)$) " VA" $
+$ V &= #voltage " V" \
+  Z &= #impedance Ω \
+  I &= V / Z = #comp($#voltage / #impedance$) " A" \
+  I^* &= #comp($(#voltage / #impedance)^*$) " A" \
+  S &= V I^* = #comp($#voltage * (#voltage / #impedance)^*$) " VA" \
+  abs(S) &= #comp($abs(#voltage * (#voltage / #impedance)^*)$) " VA" $
 ````
 
 <img src="assets/readme/complex-arithmetic.svg" alt="Complex voltage, impedance, current, conjugate, and power calculations." width="25%">
