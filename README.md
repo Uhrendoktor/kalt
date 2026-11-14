@@ -27,7 +27,7 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
 
 #let laplacian = comp($4 * (
   #north + #south + #west + #east
-  - 4 * #center
+  - 4 * #middle
 )$)
 
 $ nabla_h^2 T = #laplacian $

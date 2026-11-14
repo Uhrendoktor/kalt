@@ -25,7 +25,7 @@ This example computes the five-point discrete Laplacian of a sampled 2D field. I
 
 #let laplacian = comp($4 * (
   #north + #south + #west + #east
-  - 4 * #center
+  - 4 * #middle
 )$)
 
 $ nabla_h^2 T = #laplacian $

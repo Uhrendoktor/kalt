@@ -23,7 +23,7 @@
 
 #let laplacian = comp($4 * (
   #north + #south + #west + #east
-  - 4 * #center
+  - 4 * #middle
 )$)
 
 #set align(center)
