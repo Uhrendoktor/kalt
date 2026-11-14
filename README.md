@@ -6,7 +6,7 @@ Kalt evaluates complex, vector, and matrix expressions written in Typst math. It
 
 ## First use: a 2D discrete Laplacian
 
-Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects a 3×3 window. Kalt adds and subtracts these windows element by element, then `comp` evaluates the complete expression.
+Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects a 3×3 window. `comp` evaluates each slice, then combines the resulting matrices with direct element-wise addition, subtraction, and scalar multiplication—no callback is needed.
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
