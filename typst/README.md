@@ -4,7 +4,7 @@ Kalt evaluates Typst math expressions containing scalars, complex numbers, vecto
 
 ## First use: evaluate a matrix stencil
 
-This example computes the five-point discrete Laplacian of a sampled 2D field. It slices the four neighboring regions and the matching center region directly inside one Kalt expression. Matrix addition, subtraction, and scalar multiplication automatically operate element by element.
+This example computes the five-point discrete Laplacian of a sampled 2D field. It evaluates the four neighboring slices and the matching center slice, then combines those matrices in a second Kalt expression. Matrix addition, subtraction, and scalar multiplication operate element by element.
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
