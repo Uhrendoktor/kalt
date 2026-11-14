@@ -150,7 +150,7 @@ For example, these two matrices do not fit together for this multiplication:
 
 Here, the remainder is calculated using zero as the second number. That is not possible, so Kalt marks the expression in red and explains that the second number must not be zero.
 
-<img src="assets/readme/error-hints.svg" alt="A red highlighted matrix expression with an error note showing the expected and found dimensions." width="50%">
+<img src="assets/readme/error-hints.svg" alt="A longer sum with only the invalid remainder term underlined in red and an error hint above it." width="50%">
 
 ## Documentation and source
 
