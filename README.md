@@ -1,111 +1,47 @@
 # Kalt
 
-**Calculate directly inside your Typst equations.**
+Kalt evaluates arbitrary nested Typst equations and returns the result as Typst
+content. It is meant for cases where `calc` gets awkward: deeply nested
+expressions, complex numbers, matrices, vectors, and indexing.
 
-Kalt adds a calculator to Typst math. Write an equation as usual and put `#comp(...)` around the part you want calculated. The answer appears right inside your document. The examples below show what to write and what Typst renders.
+Since the result is still Typst content, you can keep formatting, reusing, and
+combining it in your document instead of ending up with a dead numeric result.
 
-## Everyday calculations
+The repository is split into a Rust backend, Wasm bindings, and the Typst-side
+package. If you want the user-facing documentation and the complete list of
+supported operations, start with [typst/README.md](typst/README.md).
 
-Use familiar math for sums, powers, roots, and more.
+## What It Covers
 
-````typst
-#import "@preview/kalt:0.1.1": comp
+- scalars and complex numbers
+- matrices and vectors
+- indexing and slicing
+- arithmetic, matrix, and mathematical functions
 
-$ 12 + 3 * 4 = #comp($12 + 3 * 4$) $
-$ (2 + 3)^2 = #comp($(2 + 3)^2$) $
-$ sqrt(81) = #comp($sqrt(81)$) $
-$ abs(-7) = #comp($abs(-7)$) $
-````
+See the [Typst README](typst/README.md) for the complete supported-operation
+list and examples.
 
+## Layout
 
-<img src="typst/assets/readme/scalar-operations.svg" alt="Everyday arithmetic, powers, roots, and absolute values calculated inside Typst equations." width="25%">
-
-## Work with matrices
-
-Add matrices cell by cell or calculate their matrix product.
-
-````typst
-#import "@preview/kalt:0.1.1": comp
-
-#let a = $mat(1, 2; 3, 4)$
-#let b = $mat(5, 6; 7, 8)$
-
-$ "Element-wise" quad A * B = #comp($#a * #b$) $
-$ "Matrix product" quad A dot B = #comp($#a dot #b$) $
-````
-
-
-<img src="typst/assets/readme/matrix-operations.svg" alt="Two matrices added and multiplied directly in Typst math." width="25%">
-
-## Work with vectors
-
-Calculate dot and cross products with familiar vector notation.
-
-````typst
-#import "@preview/kalt:0.1.1": comp
-
-#let a = $vec(1, 2, 3)$
-#let b = $vec(4, 5, 6)$
-
-$ "Dot product" quad a^T dot b = #comp($#a^T dot #b$) $
-$ "Cross product" quad a times b = #comp($#a times #b$) $
-````
-
-
-<img src="typst/assets/readme/vector-operations.svg" alt="Vector dot and cross products calculated inside Typst equations." width="25%">
-
-## Use complex numbers
-
-Complex numbers work in the same way as ordinary numbers. This example calculates current and power from voltage and impedance.
-
-````typst
-#import "@preview/kalt:0.1.1": comp
-
-#let voltage = $100 + 0i$
-#let impedance = $3 + 4i$
-
-$ V &= #voltage " V" \
-  Z &= #impedance Ω \
-  I &= V / Z = #comp($#voltage / #impedance$) " A" \
-  I^* &= #comp($(#voltage / #impedance)^*$) " A" \
-  S &= V I^* = #comp($#voltage * (#voltage / #impedance)^*$) " VA" \
-  abs(S) &= #comp($abs(#voltage * (#voltage / #impedance)^*)$) " VA" $
-````
-
-
-<img src="typst/assets/readme/complex-arithmetic.svg" alt="Voltage, impedance, current, and power calculated with complex numbers in Typst." width="25%">
-
-## When a calculation cannot be completed
-
-Kalt does not silently guess when an expression cannot be calculated. Typst shows an error at the expression, together with a message that helps explain what went wrong.
-
-For example, this otherwise ordinary sum contains one calculation that cannot be completed:
-
-````typ
-#import "@preview/kalt:0.1.1": comp
-
-#comp($12 + 8 - 5 % 0 + 3 + 4$)
-````
-
-Only `5 % 0` is marked in red. The underline follows the exact part of the original equation that caused the problem, while the hint explains that the second number must not be zero.
-
-<img src="typst/assets/readme/error-hints.svg" alt="A longer sum with only the invalid remainder term underlined in red and an error hint above it." width="50%">
-
-## Documentation
-
-The [Typst operation reference](typst/README.md) covers additional mathematical functions, matrices, vectors, and collection helpers. The source files shown here are in [`typst/docs/examples/`](typst/docs/examples/).
+- [rust](rust) contains the `kalt` crate, which does the actual evaluation.
+- [rust_bindings](rust_bindings) builds the Wasm wrapper used by Typst.
+- [typst](typst) has the package README, examples, tests, and assets.
 
 ## Build
 
-````bash
+From the repo root:
+
+```bash
 cargo build --workspace
+```
+
+To build the bindings only:
+
+```bash
 cargo build --release --target wasm32-unknown-unknown -p kalt_bindings
-````
+```
 
-Regenerate the titleless SVGs directly from those Typst files with Typst 0.15.1:
+## Docs
 
-````bash
-bash typst/docs/render-examples.sh
-````
-
-Kalt is released under the [MIT License](LICENSE).
+- [Rust README](rust/README.md)
+- [Typst README](typst/README.md)
