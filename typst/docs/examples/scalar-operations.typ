@@ -10,6 +10,9 @@
 #let magnitude = comp($abs(-3 - 4i)$)
 #let rounded-up = comp($ceil(2.2)$)
 #let rounded-down = comp($floor(2.8)$)
+#let bit-and = comp($6 ∧ 3$)
+#let bit-or = comp($6 ∨ 3$)
+#let bit-xor = comp($6 ⊕ 3$)
 
 #grid(
   columns: (1fr, 1fr, 1fr),
@@ -24,4 +27,7 @@
   $abs(-3 - 4i) = #magnitude$,
   $ceil(2.2) = #rounded-up$,
   $floor(2.8) = #rounded-down$,
+  $6 ∧ 3 = #bit-and$,
+  $6 ∨ 3 = #bit-or$,
+  $6 ⊕ 3 = #bit-xor$,
 )
