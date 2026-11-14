@@ -11,7 +11,7 @@
 #let active = calc.round(comp($Re(#apparent)$), digits: 1)
 #let reactive = calc.round(comp($Im(#apparent)$), digits: 1)
 #let apparent_magnitude = calc.round(comp($abs(#apparent)$), digits: 1)
-#let power_factor = active / apparent_magnitude
+#let power_factor = calc.round(active / apparent_magnitude, digits: 2)
 
 #let ink = rgb("#182230")
 #let muted = rgb("#667085")

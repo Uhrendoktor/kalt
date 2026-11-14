@@ -158,7 +158,7 @@ A series R–L load turns a real source voltage and complex impedance into a cur
 #let active = comp($Re(#apparent)$)
 #let reactive = comp($Im(#apparent)$)
 #let apparent_magnitude = comp($abs(#apparent)$)
-#let power_factor = active / apparent_magnitude
+#let power_factor = calc.round(active / apparent_magnitude, digits: 2)
 
 $I = #current " A"$
 $S = #apparent " VA"$
