@@ -8,7 +8,7 @@ Each preview is composed by Typst itself. The left pane reads and syntax-highlig
 
 ## Scalar arithmetic and functions
 
-Binary arithmetic, powers, logarithms, magnitude, rounding, and absolute-value operations.
+Binary arithmetic and bitwise operators, powers, logarithms, magnitude, rounding, and absolute-value operations.
 
 ![Typst source and rendered scalar operations](typst/assets/readme/scalar-operations.svg)
 
