@@ -13,7 +13,7 @@ $ sqrt(3^2 + 4^2) &= comp(sqrt(3^2 + 4^2)) \
   e^(i pi)         &= comp(e^(i pi)) $
 ```
 
-Kalt evaluates the expression on the right, so the equation shows both the mathematics and its result.
+Kalt evaluates the expression on the right. For these examples, the results are `5` and `-1`.
 
 You can also use a result in the rest of your document. Here, the radius is a Typst variable and Kalt calculates the area:
 
@@ -35,6 +35,8 @@ $ mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)
   &= comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)) $
 ```
 
+The product is `mat(19, 22; 43, 50)`.
+
 And these are vector operations:
 
 ```typst
@@ -43,6 +45,12 @@ $ vec(1, 2, 3) dot vec(4, 5, 6)
   vec(1, 0, 0) × vec(0, 1, 0)
   &= comp(vec(1, 0, 0) × vec(0, 1, 0)) $
 ```
+
+| Operation | Result |
+| --- | --- |
+| Matrix product | `mat(19, 22; 43, 50)` |
+| Vector dot product | `32` |
+| Vector cross product | `vec(0, 0, 1)` |
 
 | Operation | Notation |
 | --- | --- |
@@ -62,6 +70,8 @@ $ (2 + 3i)^*       &= comp((2 + 3i)^*) \
   Re(2 + 3i)       &= comp(Re(2 + 3i)) \
   Im(2 + 3i)       &= comp(Im(2 + 3i)) $
 ```
+
+These evaluate to `2 - 3i`, `2`, and `3`, respectively.
 
 The supported functions include:
 
@@ -90,6 +100,8 @@ $ mat(10, 20, 30; 40, 50, 60)[1, 2]
   &= comp(mat(10, 20, 30; 40, 50, 60)[:, 0]) $
 ```
 
+The selected entry is `60`.
+
 | Selection | Syntax |
 | --- | --- |
 | Single entry | `A[row, column]` |
@@ -114,6 +126,12 @@ $ 3 > 2 &= comp(3 > 2) \
   6 ∧ 3 &= comp(6 ∧ 3) \
   6 ⊕ 3 &= comp(6 ⊕ 3) $
 ```
+
+| Expression | Result |
+| --- | --- |
+| `3 > 2` | `1` |
+| `6 ∧ 3` | `2` |
+| `6 ⊕ 3` | `5` |
 
 You can also pass Typst values directly from code:
 
