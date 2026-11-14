@@ -100,7 +100,7 @@ The map callback applies a value correction and a coordinate-dependent offset. R
 )$
 
 #let calibrated = map(
-  (reading, x, y) =&gt; (reading - 1) * 100 - (x - y) * 0.5,
+  (reading, x, y) =&gt; calc.round((reading - 1) * 100 - (x - y) * 0.5, digits: 1),
   raw,
 )
 #let total = reduce(
@@ -184,7 +184,7 @@ A force applied away from the origin produces a torque. Kalt's cross product com
   <tbody>
     <tr>
       <td valign="top">
-        <pre><code class="language-typst">#import "../../lib.typ": comp
+        <pre><code class="language-typst">#import "@preview/kalt:0.1.1": comp
 
 #set page(width: 104mm, height: auto, margin: 6mm)
 #set text(size: 8.5pt)
