@@ -2,11 +2,11 @@
 
 **Evaluate real, complex, vector, and matrix expressions directly in Typst.**
 
-Kalt evaluates Typst math with scalar and complex arithmetic, vectors, matrices, indexing, and mathematical functions. Each example below keeps its source as a real Markdown fenced Typst code block; the adjacent image is the plain, titleless SVG output compiled directly from that same `.typ` file by Typst.
+Kalt evaluates Typst math with scalar and complex arithmetic, vectors, matrices, indexing, and mathematical functions. Each example below keeps its source as a real Markdown fenced Typst code block; the adjacent image is the plain, titleless SVG output compiled directly from that same `.typ` file by Typst. Every rendered example follows one top-to-bottom sequence, matching its Typst source without a multi-column grid.
 
-## Scalar arithmetic and functions
+## Nested scalar expressions and functions
 
-Binary arithmetic, powers, logarithms, magnitude, rounding, and bitwise binary operators.
+Nested arithmetic, powers, logarithms, complex magnitude, rounding, factorial, and mixed bitwise operations. The expressions deliberately combine operators so precedence and grouping are visible.
 
 <table>
 <tr>
@@ -17,30 +17,25 @@ Binary arithmetic, powers, logarithms, magnitude, rounding, and bitwise binary o
 
 #set page(width: 100mm, height: auto, margin: 3mm)
 #set text(size: 8pt)
+#set par(spacing: 1mm)
 
-#grid(
-  columns: (1fr, 1fr, 1fr),
-  gutter: 4mm,
-  $12 + 3 = #comp($12 + 3$)$,
-  $12 - 3 = #comp($12 - 3$)$,
-  $12 * 3 = #comp($12 * 3$)$,
-  $12 / 3 = #comp($12 / 3$)$,
-  $3^4 = #calc.round(comp($3^4$), digits: 0)$,
-  $ln(8) = #calc.round(comp($ln(8)$), digits: 3)$,
-  $log_2(8) = #calc.round(comp($log_2(8)$), digits: 3)$,
-  $abs(-3 - 4i) = #comp($abs(-3 - 4i)$)$,
-  $ceil(2.2) = #comp($ceil(2.2)$)$,
-  $floor(2.8) = #comp($floor(2.8)$)$,
-  $6 ∧ 3 = #comp($6 ∧ 3$)$,
-  $6 ∨ 3 = #comp($6 ∨ 3$)$,
-  $6 ⊕ 3 = #comp($6 ⊕ 3$)$,
-)
+$((2 + 3 * (4^2 - 5)) / (6 - 2)) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$)$
+
+$abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3)$
+
+$log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$)$
+
+$floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$)$
+
+$(3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2)$
+
+$((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3) = #comp($((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3)$)$
 ````
 
 </td>
 <td width="40%" valign="top">
 
-![Titleless Typst rendering of scalar arithmetic, logarithms, powers, rounding, magnitude, and bitwise operations.](typst/assets/readme/scalar-operations.svg)
+![Titleless Typst rendering of nested scalar arithmetic, functions, factorial, and bitwise precedence in a single vertical sequence.](typst/assets/readme/scalar-operations.svg)
 
 </td>
 </tr>
@@ -59,28 +54,32 @@ Element-wise addition, subtraction, multiplication and division, matrix multipli
 
 #set page(width: 100mm, height: auto, margin: 3mm)
 #set text(size: 8pt)
+#set par(spacing: 1mm)
 
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 8; 9, 12)$
 
-#grid(
-  columns: (1fr, 1fr),
-  gutter: 4mm,
-  $A = #a quad B = #b$,
-  $A + B = #comp($#a + #b$)$,
-  $A - B = #comp($#a - #b$)$,
-  $A * B = #comp($#a * #b$)$,
-  $B / A = #comp($#b / #a$)$,
-  $A dot B = #comp($#a dot #b$)$,
-  $A^T = #comp($#a^T$)$,
-  $A^2 = #comp($#a^2$)$,
-)
+$A = #a quad B = #b$
+
+$A + B = #comp($#a + #b$)$
+
+$A - B = #comp($#a - #b$)$
+
+$A * B = #comp($#a * #b$)$
+
+$B / A = #comp($#b / #a$)$
+
+$A dot B = #comp($#a dot #b$)$
+
+$A^T = #comp($#a^T$)$
+
+$A^2 = #comp($#a^2$)$
 ````
 
 </td>
 <td width="40%" valign="top">
 
-![Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication.](typst/assets/readme/matrix-operations.svg)
+![Titleless Typst rendering of matrix arithmetic, transpose, and matrix multiplication in a single vertical sequence.](typst/assets/readme/matrix-operations.svg)
 
 </td>
 </tr>
@@ -99,27 +98,29 @@ Column-vector transpose, dot product, cross product, and vector norms.
 
 #set page(width: 100mm, height: auto, margin: 3mm)
 #set text(size: 8pt)
+#set par(spacing: 1mm)
 
 #let a = $vec(1, 2, 3)$
 #let b = $vec(4, 5, 6)$
 #let cross-product = comp($#a times #b$)
 
-#grid(
-  columns: (1fr, 1fr),
-  gutter: 4mm,
-  $a = #a$,
-  $b = #b$,
-  $a^T dot b = #comp($#a^T dot #b$)$,
-  $a times b = #cross-product$,
-  $abs(a) = #calc.round(comp($abs(#a)$), digits: 3)$,
-  $abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3)$,
-)
+$a = #a$
+
+$b = #b$
+
+$a^T dot b = #comp($#a^T dot #b$)$
+
+$a times b = #cross-product$
+
+$abs(a) = #calc.round(comp($abs(#a)$), digits: 3)$
+
+$abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3)$
 ````
 
 </td>
 <td width="40%" valign="top">
 
-![Titleless Typst rendering of vector dot and cross products and their lengths.](typst/assets/readme/vector-operations.svg)
+![Titleless Typst rendering of vector dot and cross products and their lengths in a single vertical sequence.](typst/assets/readme/vector-operations.svg)
 
 </td>
 </tr>
@@ -138,6 +139,7 @@ Complex division, conjugation, complex power, and magnitude.
 
 #set page(width: 100mm, height: auto, margin: 3mm)
 #set text(size: 8pt)
+#set par(spacing: 1mm)
 
 #let voltage = $100 + 0i$
 #let impedance = $3 + 4i$
@@ -145,22 +147,23 @@ Complex division, conjugation, complex power, and magnitude.
 #let conjugate = comp($#current^*$)
 #let power = comp($#voltage * #conjugate$)
 
-#grid(
-  columns: (1fr, 1fr),
-  gutter: 4mm,
-  $V = #voltage " V"$,
-  $Z = #impedance Ω$,
-  $I = V / Z = #current " A"$,
-  $I^* = #conjugate " A"$,
-  $S = V I^* = #power " VA"$,
-  $abs(S) = #comp($abs(#power)$) " VA"$,
-)
+$V = #voltage " V"$
+
+$Z = #impedance Ω$
+
+$I = V / Z = #current " A"$
+
+$I^* = #conjugate " A"$
+
+$S = V I^* = #power " VA"$
+
+$abs(S) = #comp($abs(#power)$) " VA"$
 ````
 
 </td>
 <td width="40%" valign="top">
 
-![Titleless Typst rendering of complex current and power calculations.](typst/assets/readme/complex-arithmetic.svg)
+![Titleless Typst rendering of complex current and power calculations in a single vertical sequence.](typst/assets/readme/complex-arithmetic.svg)
 
 </td>
 </tr>

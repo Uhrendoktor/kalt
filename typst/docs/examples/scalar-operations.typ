@@ -2,21 +2,16 @@
 
 #set page(width: 100mm, height: auto, margin: 3mm)
 #set text(size: 8pt)
+#set par(spacing: 1mm)
 
-#grid(
-  columns: (1fr, 1fr, 1fr),
-  gutter: 4mm,
-  $12 + 3 = #comp($12 + 3$)$,
-  $12 - 3 = #comp($12 - 3$)$,
-  $12 * 3 = #comp($12 * 3$)$,
-  $12 / 3 = #comp($12 / 3$)$,
-  $3^4 = #calc.round(comp($3^4$), digits: 0)$,
-  $ln(8) = #calc.round(comp($ln(8)$), digits: 3)$,
-  $log_2(8) = #calc.round(comp($log_2(8)$), digits: 3)$,
-  $abs(-3 - 4i) = #comp($abs(-3 - 4i)$)$,
-  $ceil(2.2) = #comp($ceil(2.2)$)$,
-  $floor(2.8) = #comp($floor(2.8)$)$,
-  $6 ∧ 3 = #comp($6 ∧ 3$)$,
-  $6 ∨ 3 = #comp($6 ∨ 3$)$,
-  $6 ⊕ 3 = #comp($6 ⊕ 3$)$,
-)
+$((2 + 3 * (4^2 - 5)) / (6 - 2)) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$)$
+
+$abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3)$
+
+$log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$)$
+
+$floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$)$
+
+$(3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2)$
+
+$((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3) = #comp($((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3)$)$
