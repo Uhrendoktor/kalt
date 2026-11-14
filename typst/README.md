@@ -22,86 +22,83 @@ The first expression evaluates to <code>5</code>; the second is Euler's identity
 
 ## Matrix multiplication, one entry at a time
 
-Consider the matrices
+Consider the matrices used in the product. This Typst expression renders the two inputs:
 
-![The two input matrices A and B](assets/guide/matrix-input.svg)
+~~~typst
+$ A = mat(1, 2; 3, 4) quad B = mat(5, 6; 7, 8) $
+~~~
 
-The entry in row $i$, column $j$ of the product is the dot product of row $i$ of the first matrix and column $j$ of the second. Showing all four entries makes the calculation explicit:
+![Rendered output of the Typst matrix-input example](assets/guide/matrix-input.svg)
 
-![The four row-by-column calculations for the product](assets/guide/matrix-expansion.svg)
+The entry in row $i$, column $j$ of the product is the dot product of row $i$ of the first matrix and column $j$ of the second. The four entries can be worked out explicitly:
 
-Kalt evaluates the product from the same native Typst matrix notation:
+~~~typst
+$ (A B)_(1, 1) &= 1 dot 5 + 2 dot 7 = 19 \\
+  (A B)_(1, 2) &= 1 dot 6 + 2 dot 8 = 22 \\
+  (A B)_(2, 1) &= 3 dot 5 + 4 dot 7 = 43 \\
+  (A B)_(2, 2) &= 3 dot 6 + 4 dot 8 = 50 $
+~~~
+
+![Rendered output of the Typst row-by-column expansion](assets/guide/matrix-expansion.svg)
+
+Kalt evaluates the complete product from native Typst matrix notation:
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
-$ mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)
+$ A dot B
   &= comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8)) $
 ~~~
 
-![The matrix product evaluated by Kalt](assets/guide/matrix-result.svg)
+![Rendered output of the Typst matrix-product calculation](assets/guide/matrix-result.svg)
 
 The output is the matrix whose entries were calculated above. The important distinction is that <code>dot</code> performs matrix multiplication; ordinary <code>*</code> between compatible matrices is element-wise multiplication.
 
 ## Vector products
 
-Kalt's <code>vec(...)</code> notation represents a column vector. For the inner (dot) product, transpose the first vector so that it is a row vector:
-
-$$
-a^T b = 1\cdot4 + 2\cdot5 + 3\cdot6 = 32.
-$$
-
-The rendered derivation shows the component products, their sum, and Kalt's evaluated result:
-
-![The transposed-vector dot product, expanded and evaluated](assets/guide/vector-dot.svg)
+Kalt's <code>vec(...)</code> notation represents a column vector. For the inner (dot) product, transpose the first vector so that it becomes a row vector. The code expands the component products before asking Kalt to evaluate the original expression:
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
 $ vec(1, 2, 3)^T dot vec(4, 5, 6)
+  &= 1 dot 4 + 2 dot 5 + 3 dot 6 \\
+  &= 4 + 10 + 18 \\
   &= comp(vec(1, 2, 3)^T dot vec(4, 5, 6)) $
 ~~~
 
+![Rendered output of the Typst vector dot-product example](assets/guide/vector-dot.svg)
+
 The cross product uses the signed two-by-two minors of the components:
-
-$$
-a\times b =
-(2\cdot6-3\cdot5,\;3\cdot4-1\cdot6,\;1\cdot5-2\cdot4).
-$$
-
-Kalt evaluates the expression directly to the vector shown in the final line:
-
-![The cross-product components and evaluated vector](assets/guide/vector-cross.svg)
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
 $ vec(1, 2, 3) × vec(4, 5, 6)
+  &= vec(
+    2 dot 6 - 3 dot 5,
+    3 dot 4 - 1 dot 6,
+    1 dot 5 - 2 dot 4
+  ) \\
   &= comp(vec(1, 2, 3) × vec(4, 5, 6)) $
 ~~~
 
+![Rendered output of the Typst vector cross-product example](assets/guide/vector-cross.svg)
+
 ## Complex multiplication
 
-Complex expressions use the same notation as Typst math. Expand by distributivity, replace $i^2$ with $-1$, then collect the real and imaginary terms:
-
-$$
-\begin{aligned}
-(2+3i)(4-i)
-  &= 8-2i+12i-3i^2\\
-  &= (8+3)+(-2i+12i)\\
-  &= 11+10i.
-\end{aligned}
-$$
-
-The final line below is produced by Kalt evaluating the original expression:
-
-![Complex multiplication, expansion, collection of terms, and evaluated result](assets/guide/complex-product.svg)
+Complex expressions use the same notation as Typst math. Expand by distributivity, replace $i^2$ with $-1$, then collect the real and imaginary terms. Kalt evaluates the original expression on the final line:
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp
 
-$ (2 + 3i)(4 - i) &= comp((2 + 3i)(4 - i)) $
+$ (2 + 3i)(4 - i)
+  &= 8 - 2i + 12i - 3i^2 \\
+  &= (8 + 3) + (-2i + 12i) \\
+  &= comp((2 + 3i)(4 - i)) $
 ~~~
+
+![Rendered output of the Typst complex-multiplication example](assets/guide/complex-product.svg)
 
 The same approach works with conjugation, real and imaginary parts, roots, logarithms, and trigonometric or hyperbolic functions. For example:
 
@@ -113,15 +110,7 @@ $ (2 + 3i)^* &= comp((2 + 3i)^*) \\
 
 ## Transform and inspect matrix data
 
-The collection helpers become useful when a calculation involves many related values. Here, a $2\times2$ matrix stores four temperature readings in Fahrenheit. <code>map</code> applies the conversion to every cell:
-
-$$
-C=(F-32)\frac{5}{9}.
-$$
-
-The first rendered stage shows the input matrix and the Celsius matrix returned by <code>map</code>:
-
-![The Fahrenheit readings and their cell-by-cell Celsius conversion](assets/guide/temperature-map.svg)
+The collection helpers become useful when a calculation involves many related values. Here, a $2\times2$ matrix stores four temperature readings in Fahrenheit. <code>map</code> applies the conversion $C=(F-32)\frac{5}{9}$ to every cell:
 
 ~~~typst
 #import "@preview/kalt:0.1.1": comp, map, reduce, any, all
@@ -131,15 +120,12 @@ The first rendered stage shows the input matrix and the Celsius matrix returned 
   (value, x, y) => (value - 32) * 5 / 9,
   fahrenheit,
 )
+$ F = #fahrenheit quad C = #celsius $
 ~~~
 
+![Rendered output of the Typst Fahrenheit-to-Celsius map](assets/guide/temperature-map.svg)
+
 Next, <code>reduce</code> folds the converted cells into a sum. Dividing by four gives the mean:
-
-$$
-\overline{C}=\frac{20+25+30+35}{4}=27.5\,^\circ\mathrm C.
-$$
-
-![The reduction of the converted readings to their mean](assets/guide/temperature-average.svg)
 
 ~~~typst
 #let average = reduce(
@@ -147,16 +133,24 @@ $$
   0,
   celsius,
 ) / 4
+$ overline(C) = (20 + 25 + 30 + 35) / 4 = #average quad °C $
 ~~~
 
-Finally, <code>any</code> and <code>all</code> ask two different questions about the same data: whether at least one reading reaches $30\,^\circ\mathrm C$, and whether every reading is above freezing.
+![Rendered output of the Typst reduction and average](assets/guide/temperature-average.svg)
 
-![The evaluated any and all checks on the Celsius matrix](assets/guide/temperature-predicates.svg)
+Finally, <code>any</code> and <code>all</code> ask two different questions about the same data: whether at least one reading reaches $30\,^\circ\mathrm C$, and whether every reading is above freezing.
 
 ~~~typst
 #let has-hot-reading = any(value => comp(value) >= 30, celsius)
 #let all-above-freezing = all(value => comp(value) > 0, celsius)
+#align(center)[
+  At least one reading is 30 °C or higher: #has-hot-reading
+  #v(3mm)
+  Every reading is above 0 °C: #all-above-freezing
+]
 ~~~
+
+![Rendered output of the Typst any and all predicates](assets/guide/temperature-predicates.svg)
 
 <code>map</code> passes the numeric cell value followed by its zero-based column (<code>x</code>) and row (<code>y</code>) coordinates. The callbacks of <code>reduce</code>, <code>any</code>, and <code>all</code> receive the corresponding cell values; call <code>comp(value)</code> when the callback needs a numeric value rather than math content. Each helper can process multiple matrices or vectors in parallel. When the shapes differ, a missing corresponding cell is passed as <code>none</code>.
 
@@ -177,8 +171,6 @@ $ mat(10, 20, 30; 40, 50, 60)[:, 0]
 ~~~
 
 Use <code>start:stop:step</code> for ranges. Omit a boundary to extend to the beginning or end; negative indices count from the end, and a negative step reverses the selected order.
-
-![An invalid slice reported at the expression](assets/error_reporting.png)
 
 ## Comparisons and bitwise operations
 
