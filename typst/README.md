@@ -140,15 +140,15 @@ The helpers can work with more than one matrix or vector at a time. When an inpu
 
 Kalt does not silently guess when an expression cannot be calculated. Typst shows an error at the expression, together with a message that helps explain what went wrong.
 
-For example, these two matrices do not fit together for this multiplication:
+For example, this otherwise ordinary sum contains one calculation that cannot be completed:
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
 
-#comp($5 % 0$)
+#comp($12 + 8 - 5 % 0 + 3 + 4$)
 ````
 
-Here, the remainder is calculated using zero as the second number. That is not possible, so Kalt marks the expression in red and explains that the second number must not be zero.
+Only `5 % 0` is marked in red. The underline follows the exact part of the original equation that caused the problem, while the hint explains that the second number must not be zero.
 
 <img src="assets/readme/error-hints.svg" alt="A longer sum with only the invalid remainder term underlined in red and an error hint above it." width="50%">
 
