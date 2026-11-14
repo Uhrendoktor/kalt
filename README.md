@@ -6,7 +6,7 @@ Kalt adds a calculator to Typst math. Write an equation as usual and put `#comp(
 
 ## Everyday calculations
 
-Use familiar math notation for sums, powers, roots, and functions.
+Use familiar math for sums, powers, roots, and more.
 
 ````typst
 #import "@preview/kalt:0.1.1": comp
@@ -14,11 +14,11 @@ Use familiar math notation for sums, powers, roots, and functions.
 $ 12 + 3 * 4 = #comp($12 + 3 * 4$) $
 $ (2 + 3)^2 = #comp($(2 + 3)^2$) $
 $ sqrt(81) = #comp($sqrt(81)$) $
-$ log_2(8) = #comp($log_2(8)$) $
+$ abs(-7) = #comp($abs(-7)$) $
 ````
 
 
-<img src="typst/assets/readme/scalar-operations.svg" alt="Everyday arithmetic, powers, roots, and logarithms calculated inside Typst equations." width="25%">
+<img src="typst/assets/readme/scalar-operations.svg" alt="Everyday arithmetic, powers, roots, and absolute values calculated inside Typst equations." width="25%">
 
 ## Work with matrices
 
