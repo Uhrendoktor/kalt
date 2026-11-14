@@ -8,14 +8,14 @@
 #let b = $vec(4, 5, 6)$
 #let cross-product = comp($#a times #b$)
 
-$a = #a$
+$ a = #a $
 
-$b = #b$
+$ b = #b $
 
-$a^T dot b = #comp($#a^T dot #b$)$
+$ a^T dot b = #comp($#a^T dot #b$) $
 
-$a times b = #cross-product$
+$ a times b = #cross-product $
 
-$abs(a) = #calc.round(comp($abs(#a)$), digits: 3)$
+$ abs(a) = #calc.round(comp($abs(#a)$), digits: 3) $
 
-$abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3)$
+$ abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3) $

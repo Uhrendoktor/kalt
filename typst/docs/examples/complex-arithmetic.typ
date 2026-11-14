@@ -10,14 +10,14 @@
 #let conjugate = comp($#current^*$)
 #let power = comp($#voltage * #conjugate$)
 
-$V = #voltage " V"$
+$ V = #voltage " V" $
 
-$Z = #impedance Ω$
+$ Z = #impedance Ω $
 
-$I = V / Z = #current " A"$
+$ I = V / Z = #current " A" $
 
-$I^* = #conjugate " A"$
+$ I^* = #conjugate " A" $
 
-$S = V I^* = #power " VA"$
+$ S = V I^* = #power " VA" $
 
-$abs(S) = #comp($abs(#power)$) " VA"$
+$ abs(S) = #comp($abs(#power)$) " VA" $

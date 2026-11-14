@@ -7,18 +7,18 @@
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 8; 9, 12)$
 
-$A = #a quad B = #b$
+$ A = #a quad B = #b $
 
-$A + B = #comp($#a + #b$)$
+$ A + B = #comp($#a + #b$) $
 
-$A - B = #comp($#a - #b$)$
+$ A - B = #comp($#a - #b$) $
 
-$A * B = #comp($#a * #b$)$
+$ A * B = #comp($#a * #b$) $
 
-$B / A = #comp($#b / #a$)$
+$ B / A = #comp($#b / #a$) $
 
-$A dot B = #comp($#a dot #b$)$
+$ A dot B = #comp($#a dot #b$) $
 
-$A^T = #comp($#a^T$)$
+$ A^T = #comp($#a^T$) $
 
-$A^2 = #comp($#a^2$)$
+$ A^2 = #comp($#a^2$) $

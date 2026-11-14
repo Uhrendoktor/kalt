@@ -19,17 +19,17 @@ Nested arithmetic, powers, logarithms, complex magnitude, rounding, factorial, a
 #set text(size: 8pt)
 #set par(spacing: 1mm)
 
-$((2 + 3 * (4^2 - 5)) / (6 - 2)) = #comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$)$
+$ ((2 + 3 * (4^2 - 5)) / (6 - 2)) = #calc.round(comp($((2 + 3 * (4^2 - 5)) / (6 - 2))$), digits: 2) $
 
-$abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3)$
+$ abs((3 - 4i)^2 + 2 * ln(8) / ln(2)) = #calc.round(comp($abs((3 - 4i)^2 + 2 * ln(8) / ln(2))$), digits: 3) $
 
-$log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$)$
+$ log_2(2^3 + 8) - ln(e^2) = #comp($log_2(2^3 + 8) - ln(e^2)$) $
 
-$floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$)$
+$ floor((2^3 + 3^2) / 5) + ceil(7 / 3) = #comp($floor((2^3 + 3^2) / 5) + ceil(7 / 3)$) $
 
-$(3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2)$
+$ (3 + 2)! / (2^3 - 1) = #calc.round(comp($(3 + 2)! / (2^3 - 1)$), digits: 2) $
 
-$((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3) = #comp($((12 + 3 * 4) ∧ (2^3 + 1)) ∨ (6 ⊕ 3)$)$
+$ ((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2 = #comp($((12 + 3 * 4) > (2^3 + 2)) ∧ 6 ⊕ 3 ∨ 2$) $
 ````
 
 </td>
@@ -59,21 +59,21 @@ Element-wise addition, subtraction, multiplication and division, matrix multipli
 #let a = $mat(1, 2; 3, 4)$
 #let b = $mat(5, 8; 9, 12)$
 
-$A = #a quad B = #b$
+$ A = #a quad B = #b $
 
-$A + B = #comp($#a + #b$)$
+$ A + B = #comp($#a + #b$) $
 
-$A - B = #comp($#a - #b$)$
+$ A - B = #comp($#a - #b$) $
 
-$A * B = #comp($#a * #b$)$
+$ A * B = #comp($#a * #b$) $
 
-$B / A = #comp($#b / #a$)$
+$ B / A = #comp($#b / #a$) $
 
-$A dot B = #comp($#a dot #b$)$
+$ A dot B = #comp($#a dot #b$) $
 
-$A^T = #comp($#a^T$)$
+$ A^T = #comp($#a^T$) $
 
-$A^2 = #comp($#a^2$)$
+$ A^2 = #comp($#a^2$) $
 ````
 
 </td>
@@ -104,17 +104,17 @@ Column-vector transpose, dot product, cross product, and vector norms.
 #let b = $vec(4, 5, 6)$
 #let cross-product = comp($#a times #b$)
 
-$a = #a$
+$ a = #a $
 
-$b = #b$
+$ b = #b $
 
-$a^T dot b = #comp($#a^T dot #b$)$
+$ a^T dot b = #comp($#a^T dot #b$) $
 
-$a times b = #cross-product$
+$ a times b = #cross-product $
 
-$abs(a) = #calc.round(comp($abs(#a)$), digits: 3)$
+$ abs(a) = #calc.round(comp($abs(#a)$), digits: 3) $
 
-$abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3)$
+$ abs(a times b) = #calc.round(comp($abs(#cross-product)$), digits: 3) $
 ````
 
 </td>
@@ -147,17 +147,17 @@ Complex division, conjugation, complex power, and magnitude.
 #let conjugate = comp($#current^*$)
 #let power = comp($#voltage * #conjugate$)
 
-$V = #voltage " V"$
+$ V = #voltage " V" $
 
-$Z = #impedance Ω$
+$ Z = #impedance Ω $
 
-$I = V / Z = #current " A"$
+$ I = V / Z = #current " A" $
 
-$I^* = #conjugate " A"$
+$ I^* = #conjugate " A" $
 
-$S = V I^* = #power " VA"$
+$ S = V I^* = #power " VA" $
 
-$abs(S) = #comp($abs(#power)$) " VA"$
+$ abs(S) = #comp($abs(#power)$) " VA" $
 ````
 
 </td>
