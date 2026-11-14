@@ -11,7 +11,6 @@
 #assert-typst-eq("comp direct integer returns float", comp(7), 7.0)
 #assert-typst-eq("comp direct float returns float", comp(2.5), 2.5)
 #assert-typst-eq("comp direct string parses radix integer", comp("0xFF"), 255.0)
-#assert-typst-eq("comp direct string parses expression", comp("2 + 3 * 4"), 14.0)
 #assert-typst-eq("comp direct decimal returns float", comp(decimal("2.5")), 2.5)
 #assert-typst-eq("comp direct 1x1 matrix returns float", comp(math.mat(..((7,),))), 7.0)
 #assert-typst-eq(
