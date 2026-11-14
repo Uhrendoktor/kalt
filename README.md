@@ -1,81 +1,45 @@
 # Kalt
 
-**Evaluate mathematical expressions directly in Typst and use the results in the rest of your document.**
+**Evaluate mathematics where you write it.**
 
-Kalt is for mathematical writing that goes beyond a few arithmetic operations. It evaluates nested expressions with complex numbers, vectors, and matrices while keeping the equations and their results in your Typst document.
+Kalt brings numerical evaluation into Typst's math notation. It calculates expressions with complex numbers, vectors, and matrices, then returns values you can use in equations and document code. Real scalar results are Typst floats; complex, vector, and matrix results remain mathematical content.
 
-## Start calculating
+## Try it in a document
 
-Import `comp` and place the expression you want evaluated inside it:
+Import Kalt from Typst Universe and wrap an expression in `comp`:
 
 ```typst
 #import "@preview/kalt:0.1.1": comp
 
+$comp(e^(i pi))$ // -1
 $comp(sqrt((3 + 4i) (3 - 4i)))$ // 5
-$comp(e^(i pi))$                // -1
-$comp(mat(1, 2; 3, 4) dot mat(5, 6; 7, 8))$
+
+#let hypotenuse = comp($sqrt(3^2 + 4^2)$)
+The hypotenuse is #hypotenuse.
+#rect(width: hypotenuse * 1cm, height: 2mm)
 ```
 
-Real-number results can be used as regular Typst values. For example, a calculation can determine the size of an element in your document:
+The first two calls render evaluated mathematics. The last uses the calculated float as a value in the document's text and layout.
 
-```typst
-#let side = comp($sqrt(3^2 + 4^2)$)
-#rect(width: side * 1cm, height: 0.2cm)
-```
+## More than arithmetic
 
-Complex numbers, vectors, and matrices remain mathematical content, ready to display in your equations.
-You can also pass Typst Booleans, integers, floats, and Decimals directly. Strings are parsed as mathematical expressions; for example, `comp("0xFF")` evaluates to `255.0`.
+- **Complex numbers:** imaginary unit `i`, conjugation, real and imaginary parts, complex powers, trigonometric and hyperbolic functions, and logarithms.
+- **Vectors and matrices:** element-wise arithmetic, matrix multiplication, dot and cross products, transpose, indexing, and slicing.
+- **Mathematical functions:** roots, factorials, binomial coefficients, absolute values, floor, and ceiling.
+- **Typst integration:** pass booleans, numbers, Decimals, strings, or existing math content; use `map`, `reduce`, `any`, and `all` to work with matrix and vector values.
 
-## From expression to evaluated result
+## One expression, evaluated in place
 
-This example combines complex arithmetic, powers, a fraction, a matrix, and a vector in one expression:
+This example combines complex powers, a fraction, matrix multiplication, and a vector.
 
-```typst
-#import "@preview/kalt:0.1.1": comp
-
-$comp(
-  frac(
-    binom(2, 5) (1 + 3i)^4.3 (2 - 3i)^(2-5) 5!,
-    sqrt((3 + 4i) (3 - 4i))
-  )
-  dot mat(
-    1+i, 2, 0;
-    0, 3-i, 0;
-    0, 5, 7+i;
-  )
-  dot vec(1, 2, 3)
-)$
-```
-
-![The expression written in Typst](typst/assets/complex_equation.png)
+![The mathematical expression written in Typst](typst/assets/complex_equation.png)
 
 ![The evaluated vector result](typst/assets/complex_equation_result.png)
 
-## Mathematical tools in your document
+## Continue
 
-Kalt supports the notation you already use in mathematical writing.
+- [First guide and API reference](typst/README.md)
+- [Kalt on Typst Universe](https://typst.app/universe/package/kalt/)
+- [Report a bug or request a feature](https://github.com/Uhrendoktor/kalt/issues)
 
-### Arithmetic
-
-| Operation | Notation |
-| --- | --- |
-| Addition | `+` |
-| Subtraction | `-` |
-| Multiplication | `*` |
-| Division | `/` |
-| Modulo | `%` or `mod` |
-| Power | `^` |
-| Factorial | `!` |
-
-The supported notation and tools include:
-
-| Area | Notation and capabilities |
-| --- | --- |
-| Complex numbers | Imaginary unit `i`, conjugation `x^*`, and real and imaginary parts `Re(x)` and `Im(x)`. |
-| Matrices and vectors | `mat(...)`, `vec(...)`, matrix multiplication with `dot`, cross product `×`, and transpose `^T`. |
-| Indexing and slicing | `A[row, column]`, whole rows or columns with `:`, and ranges with `start:stop:step`. |
-| Mathematical functions | Roots, binomial coefficients, trigonometric and hyperbolic functions, logarithms, absolute value, floor, and ceiling. |
-| Comparisons and logic | `<`, `>`, `≤`, `≥`, `=`, `≠`, booleans, bitwise operators, and Boolean matrix product `⊙`. |
-| Matrix helpers in Typst | `map`, `reduce`, `any`, and `all`. |
-
-The **[Typst usage guide](typst/README.md)** explains these operations with their notation and examples, including matrix indexing and slicing.
+Kalt is released under the [MIT License](LICENSE).
