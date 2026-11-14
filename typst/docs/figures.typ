@@ -1,4 +1,4 @@
-#import "../lib.typ": comp, map
+#import "../lib.typ": comp
 
 #set page(
   width: 190mm,
@@ -14,16 +14,13 @@
   12, 19, 27, 23, 14;
   9, 11, 16, 15, 10
 )$
-#let north = comp($#field[0:3, 1:4]$)
-#let south = comp($#field[2:5, 1:4]$)
-#let west = comp($#field[1:4, 0:3]$)
-#let east = comp($#field[1:4, 2:5]$)
-#let center = comp($#field[1:4, 1:4]$)
-
-#let laplacian = map(
-  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
-  north, south, west, east, center,
-)
+#let laplacian = comp($(
+  #field[0:3, 1:4]
+  + #field[2:5, 1:4]
+  + #field[1:4, 0:3]
+  + #field[1:4, 2:5]
+  - 4 * #field[1:4, 1:4]
+) / 0.25$)
 
 #set align(center)
 

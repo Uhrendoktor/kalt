@@ -1,13 +1,13 @@
 # Kalt for Typst
 
-Kalt evaluates Typst math expressions containing scalars, complex numbers, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing; `map`, `reduce`, `any`, and `all` operate over aligned matrix cells.
+Kalt evaluates Typst math expressions containing scalars, complex numbers, vectors, and matrices. Its `comp(...)` function evaluates expressions with matrix indexing and slicing. Element-wise matrix arithmetic combines the selected regions directly; `map`, `reduce`, `any`, and `all` are available when a calculation needs callbacks or aggregation.
 
 ## First use: evaluate a matrix stencil
 
-This example computes the five-point discrete Laplacian of a sampled 2D field. It extracts four neighbor windows and the matching center window, then combines corresponding cells to evaluate the stencil.
+This example computes the five-point discrete Laplacian of a sampled 2D field. It slices the four neighboring regions and the matching center region directly inside one Kalt expression. Matrix addition, subtraction, and scalar multiplication automatically operate element by element.
 
 ~~~typst
-#import "@preview/kalt:0.1.1": comp, map
+#import "@preview/kalt:0.1.1": comp
 
 #let field = $mat(
   10, 12, 15, 14, 11;
@@ -17,23 +17,20 @@ This example computes the five-point discrete Laplacian of a sampled 2D field. I
   9, 11, 16, 15, 10
 )$
 
-#let north = comp($#field[0:3, 1:4]$)
-#let south = comp($#field[2:5, 1:4]$)
-#let west = comp($#field[1:4, 0:3]$)
-#let east = comp($#field[1:4, 2:5]$)
-#let center = comp($#field[1:4, 1:4]$)
-
-#let laplacian = map(
-  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
-  north, south, west, east, center,
-)
+#let laplacian = comp($(
+  #field[0:3, 1:4]
+  + #field[2:5, 1:4]
+  + #field[1:4, 0:3]
+  + #field[1:4, 2:5]
+  - 4 * #field[1:4, 1:4]
+) / 0.25$)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
 
 ![Typst output of the sliced 2D Laplacian calculation](assets/guide/laplacian-slices.svg)
 
-The input is a 5×5 matrix. Each slice is 3×3, so the five regions align cell by cell. The resulting Laplacian is:
+The input is a 5×5 matrix. Each slice is 3×3, so the five regions align cell by cell. Kalt combines those regions with element-wise `+`, `-`, and multiplication. No callback or explicit loop is necessary. The resulting Laplacian is:
 
 ```text
 mat(-24, -32, -24;

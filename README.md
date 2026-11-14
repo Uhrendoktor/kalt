@@ -2,14 +2,14 @@
 
 **Evaluate sliced matrix expressions directly in Typst.**
 
-Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing and slicing let you compute over selected regions of a matrix, then combine aligned results with Kalt's collection helpers.
+Kalt evaluates complex, vector, and matrix expressions written in Typst math. Its indexing, slicing, and element-wise matrix operations let you build a stencil directly from selected matrix regions—without writing a per-cell callback.
 
 ## First use: a 2D discrete Laplacian
 
-Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects one 3×3 window: north, south, west, east, or center. `map` combines the corresponding cells and evaluates the stencil.
+Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine interior cells. Each slice selects a 3×3 window. Kalt adds and subtracts these windows element by element, then `comp` evaluates the complete expression.
 
 ~~~typst
-#import "@preview/kalt:0.1.1": comp, map
+#import "@preview/kalt:0.1.1": comp
 
 #let field = $mat(
   10, 12, 15, 14, 11;
@@ -19,23 +19,20 @@ Compute the five-point discrete Laplacian of a sampled 5×5 field at all nine in
   9, 11, 16, 15, 10
 )$
 
-#let north = comp($#field[0:3, 1:4]$)
-#let south = comp($#field[2:5, 1:4]$)
-#let west = comp($#field[1:4, 0:3]$)
-#let east = comp($#field[1:4, 2:5]$)
-#let center = comp($#field[1:4, 1:4]$)
-
-#let laplacian = map(
-  (n, s, w, e, c, _x, _y) => (n + s + w + e - 4 * c) / 0.25,
-  north, south, west, east, center,
-)
+#let laplacian = comp($(
+  #field[0:3, 1:4]
+  + #field[2:5, 1:4]
+  + #field[1:4, 0:3]
+  + #field[1:4, 2:5]
+  - 4 * #field[1:4, 1:4]
+) / 0.25$)
 
 $ nabla_h^2 T = #laplacian $
 ~~~
 
 ![Typst output of the sliced 2D Laplacian calculation](typst/assets/guide/laplacian-slices.svg)
 
-The result is a 3×3 matrix of second-order spatial differences. Slice stop indices are exclusive, so all five windows have matching dimensions.
+The result is a 3×3 matrix of second-order spatial differences. Slice stop indices are exclusive, so all five windows have matching dimensions. Matrix `+`, `-`, and scalar multiplication act element-wise; no `map` call is needed.
 
 ## Documentation
 
