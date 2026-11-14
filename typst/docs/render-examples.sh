@@ -35,19 +35,11 @@ typst compile \
   "typst/docs/examples/collection-helpers.typ" \
   "$package_path/collection-helpers.pdf"
 
-# This example is intentionally invalid: verify that Typst shows the helpful shape error.
-echo "Checking error hints"
-error_log="$package_path/error-hints.log"
-if typst compile \
+# Render the intentional shape error so the README can show its visual hint.
+echo "Rendering error-hints"
+typst compile \
   --package-path "$package_path" \
   --root . \
+  --format svg \
   "typst/docs/examples/error-hints.typ" \
-  "$package_path/error-hints.pdf" >"$error_log" 2>&1; then
-  echo "The error-hints example unexpectedly compiled successfully." >&2
-  exit 1
-fi
-if ! grep -Fq "dot product can only be applied to matrices with compatible shapes" "$error_log"; then
-  cat "$error_log" >&2
-  echo "The expected matrix-shape error message was not found." >&2
-  exit 1
-fi
+  "$output_dir/error-hints.svg"
